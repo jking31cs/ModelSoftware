@@ -9,6 +9,8 @@ public class ProcessingApplet extends PApplet {
 	
 	int W_HEIGHT=768;
 	int W_WIDTH=1024;
+	String instructions="Click on the left half of the screen to add points to the polyloop.";
+	String instructions2="Mirrored version show's up on the right side, vertices can be dragged independenly in both";
 	
 	
 	Polyloop main;
@@ -22,14 +24,25 @@ public class ProcessingApplet extends PApplet {
 	
 	public void draw(){
 		background(255);
+		
+		
 		main.drawPolyloop2D();
 		mirrored.drawPolyloop2D();
-		
+		stroke(255,0,0);
+		strokeWeight(4);
+		line(W_WIDTH/2,0,W_WIDTH/2,W_HEIGHT-50);
+		strokeWeight(1);
+		stroke(0);
+		fill(0);
+		drawInstructions();
 	}
 	
 	public void mouseClicked(){
-		main.addPoint(new Point(mouseX,mouseY,this));
-		mirrored.addPoint(new Point(W_WIDTH-mouseX,mouseY,this));
+		if(mouseX<W_WIDTH/2)
+		{
+			main.addPoint(new Point(mouseX,mouseY,this));
+			mirrored.addPoint(new Point(W_WIDTH-mouseX,mouseY,this));
+		}
 	}
 	
 	public void mouseDragged(){
@@ -54,6 +67,11 @@ public class ProcessingApplet extends PApplet {
 				return ptIndex;
 		}
 		return -1;
+	}
+	
+	public void drawInstructions(){
+		text(instructions,5,W_HEIGHT-30);
+		text(instructions2,5,W_HEIGHT-15);
 	}
 	public static void main(String[] args) {
 		PApplet.main("ProcessingApplet");
