@@ -37,12 +37,12 @@ public final class Utils {
 		PolyLoop toRet = new PolyLoop();
 		for (int i = 0; i < l1.points.size(); i++) {
 			Point p1 = l1.points.get(i);
-			Point p2 = l2.points.get(i);
+			Point p2 = mirrored(l2.points.get(i), origin, axis);
 			Point newPoint = rotate(new Point(
-				p1.x * (1d-s) + p2.x *s,
-				p1.y * (1d-s) + p2.y *s,
-				p1.z * (1d-s) + p2.z *s
-			), origin, axis, s*Math.PI/2);
+				(1-s)*p1.x + s*p2.x,
+				(1-s)*p1.y + s*p2.y,
+				(1-s)*p1.z + s*p2.z
+			), origin, axis, s*Math.PI);
 			toRet.addPoint(newPoint);
 		}
 		return toRet;

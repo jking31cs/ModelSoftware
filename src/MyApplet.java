@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.cs6491Final.Point;
 import edu.cs6491Final.PolyLoop;
 import edu.cs6491Final.Utils;
@@ -19,6 +22,8 @@ public class MyApplet extends PApplet {
 	Point  axisPoint;
 	Vector axis;
 	
+	List<PolyLoop> morphLoops;
+	
 	float dz = -490, rx = -.1832594f, ry = -.6479535f;
 	
 	@Override
@@ -28,8 +33,19 @@ public class MyApplet extends PApplet {
 			viewMode = false; 
 		}
 		if (e.getKey() == 'v') {
+			calculateLoops();
 			viewMode = true;
 			drawMode = false;
+		}
+	}
+	
+	private void calculateLoops() {
+		morphLoops.clear();
+		double t = 0;
+		while (t <= 1) {
+			PolyLoop lerped = Utils.lerp(axisPoint, axis, l1, l2, t);
+			morphLoops.add(lerped);
+			t+=(1d/6);
 		}
 	}
 	
@@ -90,19 +106,20 @@ public class MyApplet extends PApplet {
 		l2 = new PolyLoop();
 		axisPoint = new Point(width/2, height, 0);
 		axis = new Vector(0,-1,0).mul(this.height);
+		morphLoops = new ArrayList<>();
 		
 	}
 	
 	@Override
 	public void draw() {
 		background(255);
-		stroke(0,255,0);
-		strokeWeight(5);
-		PolyLoop axisLoop = new PolyLoop();
-		axisLoop.addPoint(axisPoint);
-		axisLoop.addPoint(axisPoint.add(axis));
-		axisLoop.draw(this);
-		if (drawMode) {  
+		if (drawMode) { 
+			stroke(0,255,0);
+			strokeWeight(5);
+			PolyLoop axisLoop = new PolyLoop();
+			axisLoop.addPoint(axisPoint);
+			axisLoop.addPoint(axisPoint.add(axis));
+			axisLoop.draw(this);
 			stroke(0);
 			strokeWeight(1);
 			l1.draw(this);
@@ -115,15 +132,9 @@ public class MyApplet extends PApplet {
 			lights();  // turns on view-dependent lighting
 			rotateX(rx); rotateY(ry); // rotates the model around the new origin (center of screen)
 			rotateX(PI/2); // rotates frame around X to make X and Y basis vectors parallel to the floor
-			double t = 0;
-			while (t <= 1) {
-				pushMatrix();
-				stroke(0);
-				fill(0);
-				PolyLoop lerped = Utils.lerp(axisPoint, axis, l1, l2, t);
-				lerped.draw(this);
-				popMatrix();
-				t+=.1;
+			stroke(0);
+			for (PolyLoop l : morphLoops) {
+				l.draw(this);
 			}
 			popMatrix();
 		}
