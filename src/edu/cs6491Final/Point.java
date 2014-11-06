@@ -16,6 +16,14 @@ public class Point implements Drawable {
 		this.y = y;
 		this.z = z;
 	}
+	
+	public Point add(Vector v) {
+		return new Point(x+v.x, y+v.y, z+v.z);
+	}
+	
+	public Vector asVec() {
+		return new Vector(x,y,z);
+	}
 
 	/**
 	 * This draws a sphere in 3D space at the point.
