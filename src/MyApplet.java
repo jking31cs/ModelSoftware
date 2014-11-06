@@ -12,7 +12,7 @@ public class MyApplet extends PApplet {
 
 	private static final long serialVersionUID = 1L;
 	
-	boolean drawMode, viewMode;
+	boolean drawMode, viewMode, editMode;
 	
 	PolyLoop l1, l2;
 	
@@ -35,6 +35,10 @@ public class MyApplet extends PApplet {
 	
 	@Override
 	public void mouseReleased(MouseEvent e) {
+		if (editMode) {
+			editMode = false;
+			return;
+		}
 		if (drawMode) {
 			Point point = new Point(e.getX(), e.getY(), 0);
 			l1.addPoint(point);
@@ -49,6 +53,28 @@ public class MyApplet extends PApplet {
 			ry+=PI*(mouseX-pmouseX)/width;
 		}
 	}	
+	
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		if (drawMode) {
+			Point mousePoint = new Point (e.getX(), e.getY(), 0);
+			for (int i = 0; i < l1.points.size(); i++) {
+				Point p1 = l1.points.get(i);
+				Point p2 = l2.points.get(i);
+				if (p1.distanceTo(mousePoint) < 15) {
+					p1.x = mousePoint.x;
+					p1.y = mousePoint.y;
+					break;
+				}
+				if (p2.distanceTo(mousePoint) < 15) {
+					p2.x = mousePoint.x;
+					p2.y = mousePoint.y;
+					break;
+				}
+			}
+			editMode = true;
+		}
+	}
 	
 	@SuppressWarnings("deprecation")
 	@Override
@@ -97,7 +123,7 @@ public class MyApplet extends PApplet {
 				PolyLoop lerped = Utils.lerp(axisPoint, axis, l1, l2, t);
 				lerped.draw(this);
 				popMatrix();
-				t+=.01;
+				t+=.1;
 			}
 			popMatrix();
 		}

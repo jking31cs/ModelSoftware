@@ -9,7 +9,7 @@ import processing.core.PApplet;
  */
 public class Point implements Drawable {
 	
-	public final double x,y,z;
+	public double x,y,z;
 	
 	public Point(double x, double y, double z) {
 		this.x = x;
@@ -35,6 +35,11 @@ public class Point implements Drawable {
 		p.translate((float) x, (float) y, (float) z);
 		p.sphere(10);
 		p.popMatrix();
+	}
+
+	public double distanceTo(Point mousePoint) {
+		// TODO Auto-generated method stub
+		return this.asVec().sub(mousePoint.asVec()).getMag();
 	}
 
 }
