@@ -133,8 +133,25 @@ public class MyApplet extends PApplet {
 			rotateX(rx); rotateY(ry); // rotates the model around the new origin (center of screen)
 			rotateX(PI/2); // rotates frame around X to make X and Y basis vectors parallel to the floor
 			stroke(0);
-			for (PolyLoop l : morphLoops) {
-				l.draw(this);
+			for (int i = 0; i < morphLoops.size() - 1; i++) {
+				PolyLoop m1 = morphLoops.get(i);
+				PolyLoop m2 = morphLoops.get((i+1) % morphLoops.size());
+				for (int j = 0; j < m1.points.size(); j++) {
+					Point p1 = m1.points.get(j);
+					Point p2 = m2.points.get(j);
+					Point p3 = m2.points.get((j+1) % m1.points.size());
+					Point p4 = m1.points.get((j+1) % m1.points.size());
+					pushMatrix();
+					fill(0,0,255);
+					beginShape();
+					vertex((float) p1.x, (float) p1.y, (float) p1.z);
+					vertex((float) p2.x, (float) p2.y, (float) p2.z);
+					vertex((float) p3.x, (float) p3.y, (float) p3.z);
+					vertex((float) p4.x, (float) p4.y, (float) p4.z);
+					endShape(CLOSE);
+					popMatrix();
+				}
+
 			}
 			popMatrix();
 		}
