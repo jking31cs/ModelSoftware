@@ -131,8 +131,17 @@ public class Vector {
 	 * Rotates this vector around a given vector by the given angle.
 	 */
 	public Vector rotate(double angle, Vector rotVec) {
-		Vector k = rotVec.normalize();
-		return this.mul(cos(angle)).add(this.crossProd(k).mul(sin(angle))).add(k.mul(this.dotProduct(k)).mul(1 - cos(angle)));
+		Vector u = rotVec.normalize();
+
+		//Using Rodrigues' Rotation Formula
+		Matrix3D m1 = Matrix3D.I.mul(cos(angle));
+		Matrix3D m2 = Matrix3D.crossMulMatrix(u).mul(sin(angle));
+		Matrix3D m3 = Matrix3D.tensorProductSelf(u).mul(1 - cos(angle));
+
+		Matrix3D rotMatrix = m1.add(m2).add(m3);
+
+		return rotMatrix.mul(this);
+
 		
 	}
 
@@ -165,5 +174,14 @@ public class Vector {
 		if (Double.doubleToLongBits(z) != Double.doubleToLongBits(other.z))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "Vector{" +
+			"x=" + x +
+			", y=" + y +
+			", z=" + z +
+			'}';
 	}
 }
