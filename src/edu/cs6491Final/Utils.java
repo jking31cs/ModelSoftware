@@ -9,15 +9,17 @@ public final class Utils {
 	 * @param axis axis to rotate around
 	 * @return new Point that is rotated around PI radians
 	 */
-	public static Point mirrored(Point p, Point origin, Vector axis) {
+	public static Point mirrored(Point p, Axis a) {
 		
-		return rotate(p,origin,axis,Math.PI);
+		return rotate(p,a,Math.PI);
 	}
 
-	public static Point rotate(Point p, Point origin, Vector axis, double theta) {
-		Vector v = new Vector(p.x - origin.x, p.y - origin.y, p.z - origin.z);
-		Vector rotated = v.rotate(theta, axis.normalize());		
-		return new Point(rotated.x + origin.x, rotated.y + origin.y, rotated.z + origin.z);
+	public static Point rotate(Point p, Axis a, double theta) {
+		Point closestP = a.closestProject(p);
+		Vector v = new Vector(p.x - closestP.x, p.y - closestP.y, p.z - closestP.z);
+		Vector rotV = a.tangentVectorAt(closestP);
+		Vector rotated = v.rotate(theta, rotV.normalize());
+		return new Point(rotated.x + closestP.x, rotated.y + closestP.y, rotated.z + closestP.z);
 		
 	}
 
@@ -33,16 +35,16 @@ public final class Utils {
 	 * @param s
 	 * @return
 	 */
-	public static PolyLoop lerp(Point origin, Vector axis, PolyLoop l1, PolyLoop l2, double s) {
+	public static PolyLoop lerp(Axis a, PolyLoop l1, PolyLoop l2, double s) {
 		PolyLoop toRet = new PolyLoop();
 		for (int i = 0; i < l1.points.size(); i++) {
 			Point p1 = l1.points.get(i);
-			Point p2 = mirrored(l2.points.get(i), origin, axis);
+			Point p2 = mirrored(l2.points.get(i),a);
 			Point newPoint = rotate(new Point(
 				(1-s)*p1.x + s*p2.x,
 				(1-s)*p1.y + s*p2.y,
 				(1-s)*p1.z + s*p2.z
-			), origin, axis, s*Math.PI);
+			), a, s*Math.PI);
 			toRet.addPoint(newPoint);
 		}
 		return toRet;

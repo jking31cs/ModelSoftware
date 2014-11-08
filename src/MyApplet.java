@@ -1,10 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.cs6491Final.Point;
-import edu.cs6491Final.PolyLoop;
-import edu.cs6491Final.Utils;
-import edu.cs6491Final.Vector;
+import edu.cs6491Final.*;
 import processing.core.PApplet;
 import processing.core.PVector;
 import processing.event.KeyEvent;
@@ -19,8 +16,7 @@ public class MyApplet extends PApplet {
 	
 	PolyLoop l1, l2;
 	
-	Point  axisPoint;
-	Vector axis;
+	Axis axis;
 	
 	List<PolyLoop> morphLoops;
 	
@@ -43,7 +39,7 @@ public class MyApplet extends PApplet {
 		morphLoops.clear();
 		double t = 0;
 		while (t <= 1) {
-			PolyLoop lerped = Utils.lerp(axisPoint, axis, l1, l2, t);
+			PolyLoop lerped = Utils.lerp(axis, l1, l2, t);
 			morphLoops.add(lerped);
 			t+=(1d/6);
 		}
@@ -58,7 +54,7 @@ public class MyApplet extends PApplet {
 		if (drawMode) {
 			Point point = new Point(e.getX(), e.getY(), 0);
 			l1.addPoint(point);
-			l2.addPoint(Utils.mirrored(point, axisPoint, axis));
+			l2.addPoint(Utils.mirrored(point, axis));
 		}
 	}
 	
@@ -104,8 +100,7 @@ public class MyApplet extends PApplet {
 		drawMode = true;
 		l1 = new PolyLoop();
 		l2 = new PolyLoop();
-		axisPoint = new Point(width/2, height, 0);
-		axis = new Vector(0,-1,0).mul(this.height);
+		axis = new StraightAxis(new Point(width/2, height, 0),new Vector(0,-1,0));
 		morphLoops = new ArrayList<>();
 		
 	}
@@ -113,13 +108,8 @@ public class MyApplet extends PApplet {
 	@Override
 	public void draw() {
 		background(255);
-		if (drawMode) { 
-			stroke(0,255,0);
-			strokeWeight(5);
-			PolyLoop axisLoop = new PolyLoop();
-			axisLoop.addPoint(axisPoint);
-			axisLoop.addPoint(axisPoint.add(axis));
-			axisLoop.draw(this);
+		if (drawMode) {
+			axis.draw(this);
 			stroke(0);
 			strokeWeight(1);
 			l1.draw(this);
@@ -132,6 +122,7 @@ public class MyApplet extends PApplet {
 			lights();  // turns on view-dependent lighting
 			rotateX(rx); rotateY(ry); // rotates the model around the new origin (center of screen)
 			rotateX(PI/2); // rotates frame around X to make X and Y basis vectors parallel to the floor
+			axis.draw(this);
 			stroke(0);
 			for (int i = 0; i < morphLoops.size() - 1; i++) {
 				PolyLoop m1 = morphLoops.get(i);

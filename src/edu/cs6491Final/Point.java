@@ -25,21 +25,19 @@ public class Point implements Drawable {
 		return new Vector(x,y,z);
 	}
 
+	public double distanceTo(Point mousePoint) {
+		return this.asVec().sub(mousePoint.asVec()).getMag();
+	}
+
 	/**
 	 * This draws a sphere in 3D space at the point.
 	 */
 	@Override
 	public void draw(PApplet p) {
-		// TODO Auto-generated method stub
 		p.pushMatrix();
 		p.translate((float) x, (float) y, (float) z);
 		p.sphere(10);
 		p.popMatrix();
-	}
-
-	public double distanceTo(Point mousePoint) {
-		// TODO Auto-generated method stub
-		return this.asVec().sub(mousePoint.asVec()).getMag();
 	}
 
 	@Override
