@@ -58,19 +58,19 @@ public final class Utils {
 	 */
 	public static PolyLoop morphAboutAxis(Axis a, PolyLoop loop){
 		PolyLoop toRet = new PolyLoop();
-		if(a instanceof StraightAxis){
+		if (a instanceof StraightAxis){
 			toRet=loop;
-		}else if(a instanceof CircularAxis){
-			for(Point p:loop.points)
-			{
-				Vector r=new Vector(p.x-a.origin.x,0,0);
-				Vector z=new Vector(p.y-a.origin.y,0,0);
-				float zMag=(float)z.getMag();
-				float alpha=zMag/(float)((CircularAxis)a).radius;
-				Vector radiusVec=((CircularAxis) a).center.to(a.origin);
-				Vector radiusRot=radiusVec.rotate(alpha, new Vector(0,0,1));
-				Vector rRot=r.rotate(alpha, new Vector(0,0,1));
-				Vector morphPos=((CircularAxis) a).center.asVec().add(radiusRot).add(rRot);
+		} else if (a instanceof CircularAxis) {
+			CircularAxis ca = (CircularAxis) a;
+			for(Point p : loop.points) {
+				Vector r = new Vector(p.x - a.origin.x, 0, 0);
+				Vector z = new Vector(0, p.y - a.origin.y, 0);
+				double zMag = z.getMag();
+				double alpha = zMag / ca.radius;
+				Vector radiusVec = ca.center.to(a.origin);
+				Vector radiusRot = radiusVec.rotate(alpha, new Vector(0,0,1));
+				Vector rRot = r.rotate(alpha, new Vector(0,0,1));
+				Vector morphPos = ca.center.asVec().add(radiusRot).add(rRot);
 				toRet.addPoint(new Point(morphPos.x, morphPos.y, morphPos.z));
 				
 			}
