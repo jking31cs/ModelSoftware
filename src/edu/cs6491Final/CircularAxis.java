@@ -27,7 +27,7 @@ public class CircularAxis extends Axis {
 	@Override
 	public Vector tangentVectorAt(Point p) {
 		Vector p_to_c = p.to(center);
-		Vector rotV = new Vector(0,0,1); //assuming we're on XY plane.
+		Vector rotV = new Vector(0,0,-1); //assuming we're on XY plane.
 		return p_to_c.normalize().rotate(Math.PI/2, rotV);
 	}
 

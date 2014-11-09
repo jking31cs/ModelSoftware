@@ -3,7 +3,6 @@ import java.util.List;
 
 import edu.cs6491Final.*;
 import processing.core.PApplet;
-import processing.core.PVector;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
@@ -24,12 +23,11 @@ public class MyApplet extends PApplet {
 	
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if (e.getKey() == 'd') {
+		if (e.getKey() == 'd' && viewMode) {
 			drawMode = true;
 			viewMode = false; 
 		}
-		if (e.getKey() == 'v') {
-			shiftOrigin();
+		if (e.getKey() == 'v' && drawMode) {
 			calculateLoops();
 			viewMode = true;
 			drawMode = false;
@@ -53,33 +51,8 @@ public class MyApplet extends PApplet {
 		while (t <= 1) {
 			PolyLoop lerped = Utils.lerp(axis, l1, l2, t);
 			morphLoops.add(lerped);
-			t+=(1d/6);
+			t+=(1d/100);
 		}
-	}
-	
-	private void shiftOrigin(){
-		if(!(axis instanceof CircularAxis)){
-			axis.origin.x-=width/2;
-			for(Point p:l1.points){
-				p.x-=width/2;
-				p.y-=height/2;
-			}
-			for(Point p:l2.points){
-				p.x-=width/2;
-				p.y-=height/2;
-			}
-		}/*else{
-			axis.origin.x-=width/2;
-			((CircularAxis)axis).center.x-=width/2;
-			for(Point p:l1.points){
-				p.x-=width/2;
-				p.y-=height/2;
-			}
-			for(Point p:l2.points){
-				p.x-=width/2;
-				p.y-=height/2;
-			}
-		}*/
 	}
 	
 	@Override
@@ -139,6 +112,7 @@ public class MyApplet extends PApplet {
 		l2 = new PolyLoop();
 		axis = new StraightAxis(new Point(width/2, height, 0),new Vector(0,-1,0));
 		morphLoops = new ArrayList<>();
+		translate(width/2, height/2);
 		
 	}
 	
@@ -155,7 +129,6 @@ public class MyApplet extends PApplet {
 		} else {
 			pushMatrix();
 			camera();
-			translate(width/2,height/2,dz); // puts origin of model at screen center and moves forward/away by dz
 			lights();  // turns on view-dependent lighting
 			rotateX(rx); rotateY(ry); // rotates the model around the new origin (center of screen)
 			rotateX(PI / 2); // rotates frame around X to make X and Y basis vectors parallel to the floor
