@@ -33,6 +33,15 @@ public class MyApplet extends PApplet {
 			viewMode = true;
 			drawMode = false;
 		}
+		if (e.getKey() == 'c' && drawMode) {
+			double radius = 1000;
+			Vector v = new Vector(radius,0,0);
+			Point origin = new Point(width / 2, height, 0);
+			axis = new CircularAxis(
+				origin,
+				origin.add(v)
+			);
+		}
 	}
 	
 	private void calculateLoops() {
@@ -121,7 +130,7 @@ public class MyApplet extends PApplet {
 			translate(width/2,height/2,dz); // puts origin of model at screen center and moves forward/away by dz
 			lights();  // turns on view-dependent lighting
 			rotateX(rx); rotateY(ry); // rotates the model around the new origin (center of screen)
-			rotateX(PI/2); // rotates frame around X to make X and Y basis vectors parallel to the floor
+			rotateX(PI / 2); // rotates frame around X to make X and Y basis vectors parallel to the floor
 			axis.draw(this);
 			stroke(0);
 			for (int i = 0; i < morphLoops.size() - 1; i++) {

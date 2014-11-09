@@ -25,8 +25,12 @@ public class Point implements Drawable {
 		return new Vector(x,y,z);
 	}
 
-	public double distanceTo(Point mousePoint) {
-		return this.asVec().sub(mousePoint.asVec()).getMag();
+	public Vector to(Point p) {
+		return new Vector(p.x-x, p.y-y, p.z-z);
+	}
+
+	public double distanceTo(Point p) {
+		return this.to(p).getMag();
 	}
 
 	/**
