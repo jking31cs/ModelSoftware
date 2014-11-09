@@ -49,4 +49,33 @@ public final class Utils {
 		}
 		return toRet;
 	}
+	
+	/**
+	 * Morph's a polyloop based on the axis type, assumes initial axis is a straight line axis.
+	 * @param axis
+	 * @param polyloop
+	 * @return morphedPolyloop
+	 */
+	public static PolyLoop morphAboutAxis(Axis a, PolyLoop loop){
+		PolyLoop toRet = new PolyLoop();
+		if(a instanceof StraightAxis){
+			toRet=loop;
+		}else if(a instanceof CircularAxis){
+			for(Point p:loop.points)
+			{
+				Vector r=new Vector(p.x-a.origin.x,0,0);
+				Vector z=new Vector(p.y-a.origin.y,0,0);
+				float zMag=(float)z.getMag();
+				float alpha=zMag/(float)((CircularAxis)a).radius;
+				Vector radiusVec=((CircularAxis) a).center.to(a.origin);
+				Vector radiusRot=radiusVec.rotate(alpha, new Vector(0,0,1));
+				Vector rRot=r.rotate(alpha, new Vector(0,0,1));
+				Vector morphPos=((CircularAxis) a).center.asVec().add(radiusRot).add(rRot);
+				toRet.addPoint(new Point(morphPos.x, morphPos.y, morphPos.z));
+				
+			}
+		}
+		return toRet;
+	}
+	
 }

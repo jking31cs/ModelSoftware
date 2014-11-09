@@ -20,7 +20,7 @@ public class MyApplet extends PApplet {
 	
 	List<PolyLoop> morphLoops;
 	
-	float dz = -490, rx = -.1832594f, ry = -.6479535f;
+	float dz = -490, rx = -(float) Math.PI/2, ry = 0;
 	
 	@Override
 	public void keyPressed(KeyEvent e) {
@@ -29,6 +29,7 @@ public class MyApplet extends PApplet {
 			viewMode = false; 
 		}
 		if (e.getKey() == 'v') {
+			shiftOrigin();
 			calculateLoops();
 			viewMode = true;
 			drawMode = false;
@@ -36,11 +37,13 @@ public class MyApplet extends PApplet {
 		if (e.getKey() == 'c' && drawMode) {
 			double radius = 1000;
 			Vector v = new Vector(radius,0,0);
-			Point origin = new Point(width / 2, height, 0);
+			Point origin = new Point(width/2, height, 0);
 			axis = new CircularAxis(
 				origin,
 				origin.add(v)
 			);
+			l1=Utils.morphAboutAxis(axis, l1);
+			l2=Utils.morphAboutAxis(axis, l2);
 		}
 	}
 	
@@ -52,6 +55,31 @@ public class MyApplet extends PApplet {
 			morphLoops.add(lerped);
 			t+=(1d/6);
 		}
+	}
+	
+	private void shiftOrigin(){
+		if(!(axis instanceof CircularAxis)){
+			axis.origin.x-=width/2;
+			for(Point p:l1.points){
+				p.x-=width/2;
+				p.y-=height/2;
+			}
+			for(Point p:l2.points){
+				p.x-=width/2;
+				p.y-=height/2;
+			}
+		}/*else{
+			axis.origin.x-=width/2;
+			((CircularAxis)axis).center.x-=width/2;
+			for(Point p:l1.points){
+				p.x-=width/2;
+				p.y-=height/2;
+			}
+			for(Point p:l2.points){
+				p.x-=width/2;
+				p.y-=height/2;
+			}
+		}*/
 	}
 	
 	@Override
