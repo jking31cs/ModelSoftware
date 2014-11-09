@@ -13,7 +13,7 @@ public class MyApplet extends PApplet {
 	
 	boolean drawMode, viewMode, editMode;
 	
-	PolyLoop l1, l2;
+	PolyLoop origl1, origl2, l1, l2;
 	
 	Axis axis;
 	
@@ -32,16 +32,27 @@ public class MyApplet extends PApplet {
 			viewMode = true;
 			drawMode = false;
 		}
-		if (e.getKey() == 'c' && drawMode) {
-			double radius = 1000;
+		if (e.getKey() == 'c') {
+			double radius = 10000;
 			Vector v = new Vector(radius,0,0);
 			Point origin = new Point(width/2, height, 0);
+			origl1 = new PolyLoop();
+			for (Point p : l1.points) {
+				origl1.addPoint(p);
+			}
+			origl2 = new PolyLoop();
+			for (Point p : l2.points) {
+				origl2.addPoint(p);
+			}
 			axis = new CircularAxis(
 				origin,
 				origin.add(v)
 			);
-			l1=Utils.morphAboutAxis(axis, l1);
-			l2=Utils.morphAboutAxis(axis, l2);
+		}
+		if (e.getKey() == 's' && drawMode) {
+			l1 = origl1;
+			l2 = origl2;
+			axis = new StraightAxis(new Point(width/2, height, 0), new Vector(0,-1,0));
 		}
 	}
 	
@@ -119,6 +130,17 @@ public class MyApplet extends PApplet {
 	@Override
 	public void draw() {
 		background(255);
+		if (axis instanceof CircularAxis) {
+			CircularAxis ca = (CircularAxis) axis;
+			double oldRadius = ca.radius;
+			if (oldRadius > 1000) {
+				System.out.println("Radius: " + oldRadius);
+				axis = new CircularAxis(axis.origin, ca.center.add(new Vector(-100,0,0)));
+				l1=Utils.morphAboutAxis(axis, origl1);
+				l2=Utils.morphAboutAxis(axis, origl2);
+				calculateLoops();
+			}
+		}
 		if (drawMode) {
 			axis.draw(this);
 			stroke(0);

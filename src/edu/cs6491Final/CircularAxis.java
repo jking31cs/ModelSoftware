@@ -7,7 +7,7 @@ import processing.core.PApplet;
  */
 public class CircularAxis extends Axis {
 
-	public final Point center;
+	public Point center;
 	public final double radius;
 
 	public CircularAxis(Point origin, Point center) {
