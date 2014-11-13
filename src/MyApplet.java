@@ -54,6 +54,12 @@ public class MyApplet extends PApplet {
 			l2 = origl2;
 			axis = new StraightAxis(new Point(width/2, height, 0), new Vector(0,-1,0));
 		}
+		if (e.getKey() == 't' && drawMode) {
+			l1.tuck(2d/3);
+			l1.tuck(-2d/3);
+			l2.tuck(2d/3);
+			l2.tuck(-2d/3);
+		}
 	}
 	
 	private void calculateLoops() {

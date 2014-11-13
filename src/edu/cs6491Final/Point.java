@@ -81,5 +81,14 @@ public class Point implements Drawable {
 		return "Point [x=" + x + ", y=" + y + ", z=" + z + "]";
 	}
 
-	
+
+	/**
+	 * Updates the position of the point to the new point passed in.
+	 * @param add
+	 */
+	public void move(Point p) {
+		x = p.x;
+		y = p.y;
+		z = p.z;
+	}
 }

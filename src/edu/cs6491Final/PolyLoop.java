@@ -41,6 +41,20 @@ public class PolyLoop implements Drawable {
 
 	}
 
+	public void tuck(double s) {
+		for (int i = points.size(); i < points.size() + points.size(); i++) {
+			Point cur = points.get(i % points.size());
+			Point prev = points.get((i - 1) % points.size());
+			Point next = points.get((i + 1) % points.size());
+
+			Vector ba = cur.to(prev);
+			Vector bc = cur.to(next);
+
+			Vector M_b = ba.add(bc).mul(.5);
+			cur.move(cur.add(M_b.mul(s)));
+		}
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
