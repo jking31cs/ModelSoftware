@@ -10,7 +10,6 @@ public final class Utils {
 	 * @return new Point that is rotated around PI radians
 	 */
 	public static Point mirrored(Point p, Axis a) {
-		
 		return rotate(p,a,Math.PI);
 	}
 
@@ -77,5 +76,43 @@ public final class Utils {
 		}
 		return toRet;
 	}
-	
+
+	public static BezierLine morphAboutAxis(Axis a, BezierLine loop){
+		BezierLine toRet = new BezierLine();
+		if (a instanceof StraightAxis){
+			toRet=loop;
+		} else if (a instanceof CircularAxis) {
+			CircularAxis ca = (CircularAxis) a;
+			for(BezierLine.ControlPoint p : loop.pts) {
+				Vector r = new Vector(p.pt.x - a.origin.x, 0, 0);
+				Vector z = new Vector(0, p.pt.y - a.origin.y, 0);
+				double zMag = z.getMag();
+				double alpha = zMag / ca.radius;
+				Vector radiusVec = ca.center.to(a.origin);
+				Vector radiusRot = radiusVec.rotate(alpha, new Vector(0,0,1));
+				Vector rRot = r.rotate(alpha, new Vector(0,0,1));
+				Vector morphPos = ca.center.asVec().add(radiusRot).add(rRot);
+				toRet.addPoint(new Point(morphPos.x, morphPos.y, morphPos.z), p.r);
+
+			}
+		}
+		return toRet;
+	}
+
+	public static BezierLine lerp(Axis axis, BezierLine l1, BezierLine l2, double s) {
+		BezierLine toRet = new BezierLine();
+		//The idea is the same, just do it with control points, then we can calculate curve later.
+		for (int i = 0; i < l1.pts.size(); i++) {
+			BezierLine.ControlPoint p1 = l1.pts.get(i);
+			BezierLine.ControlPoint p2 = new BezierLine.ControlPoint(l2.pts.get(i).r, mirrored(l2.pts.get(i).pt, axis));
+			Point newPoint = rotate(new Point(
+				(1-s)*p1.pt.x + s*p2.pt.x,
+				(1-s)*p1.pt.y + s*p2.pt.y,
+				(1-s)*p1.pt.z + s*p2.pt.z
+			), axis, s*Math.PI);
+			double newR = (1-s)*p1.r + s*p2.r;
+			toRet.addPoint(newPoint, newR);
+		}
+		return toRet;
+	}
 }

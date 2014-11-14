@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by jking31 on 11/13/14.
+ * Line that represents a bezier curve along any number of points.
  */
 public class BezierLine implements Drawable {
 
@@ -23,12 +23,13 @@ public class BezierLine implements Drawable {
         @Override
         public void draw(PApplet p) {
             p.stroke(0,255,0);
-            p.fill(0, 255, 0);
+            p.strokeWeight(1);
+            p.noFill();
             p.ellipse((float) pt.x, (float) pt.y, (float) r, (float) r);
         }
     }
 
-    private static class GeneratedPoint extends ControlPoint {
+    public static class GeneratedPoint extends ControlPoint {
         public GeneratedPoint(double r, Point p) {
             super(r, p);
         }
@@ -41,7 +42,11 @@ public class BezierLine implements Drawable {
     }
 
     public void addPoint(Point p, double r) {
-        this.pts.add(new ControlPoint(r, p));
+        addPoint(new ControlPoint(r, p));
+    }
+
+    public void addPoint(ControlPoint controlPoint) {
+        this.pts.add(controlPoint);
     }
 
     public List<GeneratedPoint> calculateCurve() {
@@ -87,18 +92,17 @@ public class BezierLine implements Drawable {
         return nCk;
     }
 
+    public void drawControlPoints(PApplet p) {
+        for (ControlPoint pt : pts) pt.draw(p);
+    }
+
     @Override
     public void draw(PApplet p) {
-        for (ControlPoint pt : pts) pt.draw(p);
-
-
-
         if (pts.size() > 1) {
             List<GeneratedPoint> generatedPoints = calculateCurve();
             for (int i = 1; i < generatedPoints.size(); i++) {
                 Point prev = generatedPoints.get(i-1).pt;
                 Point cur = generatedPoints.get(i).pt;
-                p.stroke(255, 0, 0);
                 p.strokeWeight((float) generatedPoints.get(i-1).r);
                 p.line(
                     (float) prev.x,(float) prev.y,(float) prev.z,

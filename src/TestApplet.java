@@ -1,6 +1,7 @@
 import edu.cs6491Final.BezierLine;
 import edu.cs6491Final.Point;
 import processing.core.PApplet;
+import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
 /**
@@ -9,11 +10,19 @@ import processing.event.MouseEvent;
 public class TestApplet extends PApplet {
 
     BezierLine line;
+    boolean showCtrlPoints = true;
 
     @Override
     public void setup() {
         size(600,600,P3D);
         line = new BezierLine();
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKey() == 'p') {
+            showCtrlPoints = !showCtrlPoints;
+        }
     }
 
     @Override
@@ -41,6 +50,7 @@ public class TestApplet extends PApplet {
     @Override
     public void draw() {
         background(255);
+        if (showCtrlPoints) line.drawControlPoints(this);
         line.draw(this);
     }
 
