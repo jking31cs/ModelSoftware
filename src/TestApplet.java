@@ -1,4 +1,4 @@
-import edu.cs6491Final.BezierLine;
+import edu.cs6491Final.SplineLine;
 import edu.cs6491Final.Point;
 import processing.core.PApplet;
 import processing.event.MouseEvent;
@@ -8,12 +8,12 @@ import processing.event.MouseEvent;
  */
 public class TestApplet extends PApplet {
 
-    BezierLine line;
+    SplineLine line;
 
     @Override
     public void setup() {
         size(600,600,P3D);
-        line = new BezierLine();
+        line = new SplineLine();
     }
 
     @Override
@@ -25,7 +25,7 @@ public class TestApplet extends PApplet {
     @Override
     public void mouseDragged(MouseEvent e) {
         Point mousePoint = new Point(e.getX(), e.getY(), 0);
-        BezierLine.ControlPoint pt = line.closestPointWithinRange(
+        SplineLine.ControlPoint pt = line.closestPointWithinRange(
             mousePoint, 50
         );
         if (pt != null) {
