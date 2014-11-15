@@ -15,9 +15,11 @@ import processing.core.PApplet;
 public class SplineAxis extends Axis {
 	public List<Point> controlPoints = new ArrayList<>();
 	public List<Point> splinePoints = new ArrayList<>();
+	PApplet pApp;
 
-	public SplineAxis(Point origin, List<Point> controlPoints) {
+	public SplineAxis(Point origin, List<Point> controlPoints, PApplet p) {
 		super(origin);
+		pApp = p;
 		this.controlPoints = controlPoints;
 		this.splinePoints = controlPoints;
 
@@ -90,10 +92,10 @@ public class SplineAxis extends Axis {
 
 	@Override
 	public Point closestProject(Point p) {
+		Axis tmpStraight = new StraightAxis(new Point(pApp.width/2, pApp.height, 0),new Vector(0,-1,0));
+		Point tmpPt = tmpStraight.closestProject(p);
 
-		//Assuming point and circle are on the same plane, this works
-		//Vector p1 = center.to(p).normalize().mul(radius);
-		return origin;//center.add(p1);
+		return origin;
 	}
 
 	@Override

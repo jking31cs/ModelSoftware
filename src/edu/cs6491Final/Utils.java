@@ -74,8 +74,13 @@ public final class Utils {
 				toRet.addPoint(new Point(morphPos.x, morphPos.y, morphPos.z));
 				
 			}
+		} else if (a instanceof SplineAxis) {
+			//figure out the norm at any point on the curve
+			//get point's values from the straight axis
+			//get perecentage down straight axis
+			//move that percentage down spline axis
+			//move r, z, theta amt recieved from straight axis
 		}
 		return toRet;
 	}
-	
 }

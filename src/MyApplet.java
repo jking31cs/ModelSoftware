@@ -78,7 +78,7 @@ public class MyApplet extends PApplet {
 				points.add(p);
 			}
 
-			axis = new SplineAxis(new Point(width/2, height, 0), points);
+			axis = new SplineAxis(new Point(width/2, height, 0), points, this);
 		}
 		if (e.getKey() == 's' && drawMode) {
 			l1 = origl1;
@@ -143,7 +143,7 @@ public class MyApplet extends PApplet {
 					if(pt.distanceTo(mousePoint) < 30) {
 						pt.x = mousePoint.x;
 						pt.y = mousePoint.y;
-						((SplineAxis)axis).quintic();((SplineAxis)axis).quintic();((SplineAxis)axis).quintic();
+						((SplineAxis)axis).quintic();
 						break;
 					}
 				} 
@@ -170,6 +170,10 @@ public class MyApplet extends PApplet {
 				l2=Utils.morphAboutAxis(axis, origl2);
 				calculateLoops();
 			}
+		} else if (axis instanceof SplineAxis) {
+			l1 = Utils.morphAboutAxis(axis, origl1);
+			l2 = Utils.morphAboutAxis(axis, origl2);
+			calculateLoops();
 		}
 		if (drawMode) {
 			stroke(0,0,255);
