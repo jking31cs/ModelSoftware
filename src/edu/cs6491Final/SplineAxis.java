@@ -5,9 +5,13 @@ import java.util.List;
 import java.util.ArrayList;
 import processing.core.PApplet;
 
-/**
- * Meant to be a circular axis
- */
+// TO DO:
+// get tangents working under the assumption that normals are just 90 degree rotations
+// check extrusion is working
+// get 3d manipulation of control points working
+// fix the normals so that they are actually being advected along the curve
+// ask Jarek why the fuck we usin quintic?
+
 public class SplineAxis extends Axis {
 	public List<Point> controlPoints = new ArrayList<>();
 	public List<Point> splinePoints = new ArrayList<>();
