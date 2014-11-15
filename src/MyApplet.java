@@ -22,6 +22,18 @@ public class MyApplet extends PApplet {
 	float dz = -490, rx = -(float) Math.PI/2, ry = 0;
 	
 	@Override
+	public void setup() {
+		size(1024,768,P3D);
+		drawMode = true;
+		l1 = new PolyLoop();
+		l2 = new PolyLoop();
+		axis = new StraightAxis(new Point(width/2, height, 0),new Vector(0,-1,0));
+		morphLoops = new ArrayList<>();
+		translate(width/2, height/2);
+		
+	}
+
+	@Override
 	public void keyPressed(KeyEvent e) {
 		if (e.getKey() == 'd' && viewMode) {
 			drawMode = true;
@@ -48,6 +60,25 @@ public class MyApplet extends PApplet {
 				origin,
 				origin.add(v)
 			);
+		}
+		if (e.getKey() == 'q') {
+			origl1 = new PolyLoop();
+			for (Point p : l1.points) {
+				origl1.addPoint(p);
+			}
+			origl2 = new PolyLoop();
+			for (Point p : l2.points) {
+				origl2.addPoint(p);
+			}
+
+			List<Point> points = new ArrayList<>();
+			int numControlPoints = 6;
+			for (int i = 0; i < numControlPoints; i++) {
+				Point p = new Point(width/2, 0.1*height + 0.8*height/(numControlPoints-1) * i, 0);
+				points.add(p);
+			}
+
+			axis = new SplineAxis(new Point(width/2, height, 0), points);
 		}
 		if (e.getKey() == 's' && drawMode) {
 			l1 = origl1;
@@ -106,6 +137,17 @@ public class MyApplet extends PApplet {
 				}
 			}
 			editMode = true;
+
+			if(axis instanceof SplineAxis) {
+				for( Point pt : ((SplineAxis)axis).controlPoints ){
+					if(pt.distanceTo(mousePoint) < 30) {
+						pt.x = mousePoint.x;
+						pt.y = mousePoint.y;
+						((SplineAxis)axis).quintic();((SplineAxis)axis).quintic();((SplineAxis)axis).quintic();
+						break;
+					}
+				} 
+			}
 		}
 	}
 	
@@ -113,18 +155,6 @@ public class MyApplet extends PApplet {
 	@Override
 	public void mouseWheel(MouseEvent event) {
 		dz -= event.getAmount(); 
-	}
-	
-	@Override
-	public void setup() {
-		size(1024,768,P3D);
-		drawMode = true;
-		l1 = new PolyLoop();
-		l2 = new PolyLoop();
-		axis = new StraightAxis(new Point(width/2, height, 0),new Vector(0,-1,0));
-		morphLoops = new ArrayList<>();
-		translate(width/2, height/2);
-		
 	}
 	
 	@Override
@@ -142,10 +172,13 @@ public class MyApplet extends PApplet {
 			}
 		}
 		if (drawMode) {
+			stroke(0,0,255);
 			axis.draw(this);
-			stroke(0);
+
 			strokeWeight(1);
+			stroke(0);
 			l1.draw(this);
+
 			stroke(255,0,0);
 			l2.draw(this);
 		} else {

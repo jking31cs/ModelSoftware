@@ -1,0 +1,136 @@
+package edu.cs6491Final;
+
+import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import processing.core.PApplet;
+
+/**
+ * Meant to be a circular axis
+ */
+public class SplineAxis extends Axis {
+	public List<Point> controlPoints = new ArrayList<>();
+	public List<Point> splinePoints = new ArrayList<>();
+
+	public SplineAxis(Point origin, List<Point> controlPoints) {
+		super(origin);
+		this.controlPoints = controlPoints;
+		this.splinePoints = controlPoints;
+
+		System.out.print("control points: ");
+		for(Point pnt:controlPoints){            
+            System.out.print(pnt.toString() + "; ");
+        }
+        System.out.print("\n");
+
+        quintic();
+	}
+
+	public void quintic() {
+		List<Point> newSpline = controlPoints;
+		for(int lmno = 0; lmno < 4; lmno++) {
+			// refine once
+			newSpline = refine(newSpline);
+			// dual four times
+			//for (int i = 0; i < 4; i++) {
+				newSpline = dual(newSpline);
+			//}
+		}
+
+		splinePoints = newSpline;
+	}
+
+	public List<Point> refine(Point[] points) {
+		return refine(Arrays.asList(points));
+	}
+
+
+	public List<Point> refine(List<Point> points) {
+		// insert new points at midpoints
+		List<Point> output = new ArrayList<>();
+
+		Point p1 = origin, p2 = origin;
+		for (int i = 0; i < points.size()-1; i++) {
+			p1 = points.get(i);
+			p2 = points.get(i+1);
+
+			double mx = (p1.x + p2.x)/2;
+			double my = (p1.y + p2.y)/2;
+			double mz = (p1.z + p2.z)/2;
+			Point m = new Point(mx, my, mz);
+			output.add(p1);
+			output.add(m);
+		}
+		output.add(p2);
+
+		return output;
+	}
+
+	public List<Point> dual(List<Point> points) {
+		// new points are the midpoints
+		List<Point> output = new ArrayList<>();
+
+		for (int i = 0; i < points.size()-1; i++) {
+			Point p1 = points.get(i);
+			Point p2 = points.get(i+1);
+
+			double mx = (p1.x + p2.x)/2;
+			double my = (p1.y + p2.y)/2;
+			double mz = (p1.z + p2.z)/2;
+			Point m = new Point(mx, my, mz);
+			output.add(m);
+		}
+
+		return output;
+	}
+
+	@Override
+	public Point closestProject(Point p) {
+
+		//Assuming point and circle are on the same plane, this works
+		//Vector p1 = center.to(p).normalize().mul(radius);
+		return origin;//center.add(p1);
+	}
+
+	@Override
+	public Vector tangentVectorAt(Point p) {
+		//Vector p_to_c = p.to(center);
+		//Vector rotV = new Vector(0,0,-1); //assuming we're on XY plane.
+		return new Vector(0,-1,0);
+	}
+
+	@Override
+	public void draw(PApplet p) {
+		//This only holds true when circule is in XY plane
+		p.pushMatrix();
+		//this.origin.draw(p);
+		p.noFill();
+		Point p2 = origin;
+		for (int i = 0; i < splinePoints.size()-1; i++) {
+			Point p1 = splinePoints.get(i);
+			System.out.println("draw spline points " + p1.toString());
+			p2 = splinePoints.get(i + 1);	
+			//p1.draw(p);
+			p.line(
+				(float) p1.x, (float) p1.y, (float) p1.z,
+				(float) p2.x, (float) p2.y, (float) p2.z
+			);
+		}
+		//p2.draw(p);
+
+		p.stroke(100, 100, 50);
+		for (int i = 0; i < controlPoints.size()-1; i++) {
+			Point p1 = controlPoints.get(i);
+			p2 = controlPoints.get(i + 1);	
+			p1.draw(p);
+			p.line(
+				(float) p1.x, (float) p1.y, (float) p1.z,
+				(float) p2.x, (float) p2.y, (float) p2.z
+			);
+		}
+
+		p2.draw(p);
+		p.popMatrix();
+
+	}
+}
