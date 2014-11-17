@@ -38,9 +38,9 @@ public class SplineAxis extends Axis {
 			// refine once
 			newSpline = refine(newSpline);
 			// dual four times
-			//for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < 4; i++) {
 				newSpline = dual(newSpline);
-			//}
+			}
 		}
 
 		splinePoints = newSpline;
@@ -69,6 +69,13 @@ public class SplineAxis extends Axis {
 		}
 		output.add(p2);
 
+		p1 = points.get(0);
+		double _mx = (p1.x + p2.x)/2;
+		double _my = (p1.y + p2.y)/2;
+		double _mz = (p1.z + p2.z)/2;
+		Point _m = new Point(_mx, _my, _mz);
+		output.add(_m);		
+
 		return output;
 	}
 
@@ -76,9 +83,11 @@ public class SplineAxis extends Axis {
 		// new points are the midpoints
 		List<Point> output = new ArrayList<>();
 
+		Point p1 = origin;
+		Point p2 = origin;
 		for (int i = 0; i < points.size()-1; i++) {
-			Point p1 = points.get(i);
-			Point p2 = points.get(i+1);
+			p1 = points.get(i);
+			p2 = points.get(i+1);
 
 			double mx = (p1.x + p2.x)/2;
 			double my = (p1.y + p2.y)/2;
@@ -86,6 +95,13 @@ public class SplineAxis extends Axis {
 			Point m = new Point(mx, my, mz);
 			output.add(m);
 		}
+
+		p1 = points.get(0);
+		double _mx = (p1.x + p2.x)/2;
+		double _my = (p1.y + p2.y)/2;
+		double _mz = (p1.z + p2.z)/2;
+		Point _m = new Point(_mx, _my, _mz);
+		output.add(_m);
 
 		return output;
 	}
