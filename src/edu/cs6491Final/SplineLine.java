@@ -99,10 +99,10 @@ public class SplineLine implements Drawable{
 	    			Vector p2Vec=p2.pt.asVec();
 	    			Vector pVec=p.pt.asVec();
 	    			Vector avgVec=p1Vec.add(p2Vec).mul(0.5);
-	    			Vector tuckVec=avgVec.sub(pVec).mul(-1);
-	    			double deltaR=(p1.r+p2.r)/2 - p.r;
+	    			Vector tuckVec=avgVec.sub(pVec).mul(0.5);
+	    			double deltaR=p.r - (p1.r+p2.r)/2;
 	    			GeneratedPoint tuckedPoint = new GeneratedPoint(
-	    					p.r -deltaR,
+	    					p.r +deltaR,
 	    					new Point(p.pt.x+tuckVec.x, p.pt.y+tuckVec.y, p.pt.z+tuckVec.z));
 
 	    			unTuckedCurve.add(tuckedPoint);
