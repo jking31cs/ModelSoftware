@@ -75,12 +75,27 @@ public final class Utils {
 				
 			}
 		} else if (a instanceof SplineAxis) {
-			//figure out the norm at any point on the curve
-			//get point's values from the straight axis
-			//get perecentage down straight axis
-			//move that percentage down spline axis
-			//move r, z, theta amt recieved from straight axis
+			for(int i = 0; i < loop.points.size(); i++) {
+				//normal/binorm/tan
+				Vector N = ((SplineAxis)a).getN(((SplineAxis)a).bList.get(i));
+				Vector H = ((SplineAxis)a).getB(((SplineAxis)a).bList.get(i));
+				Vector T = ((SplineAxis)a).getT(((SplineAxis)a).bList.get(i));
+
+				Point p = loop.points.get(i);
+				Point A = ((SplineAxis)a).splinePoints.get(((SplineAxis)a).bList.get(i));
+
+				Vector AP = new Vector(p.x-A.x, p.y-A.y, p.z-A.z);
+
+				double x = AP.dotProduct(T);
+				double y = AP.dotProduct(H);
+				double z = AP.dotProduct(N);
+
+				toRet.addPoint(new Point(x, y, z));
+			}
+
 		}
+
 		return toRet;
 	}
+
 }

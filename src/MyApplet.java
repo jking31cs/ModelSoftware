@@ -78,7 +78,7 @@ public class MyApplet extends PApplet {
 				points.add(p);
 			}
 
-			axis = new SplineAxis(new Point(width/2, height, 0), points, this);
+			axis = new SplineAxis(new Point(width/2, height, 0), points, FindBValues(), this);
 		}
 		if (e.getKey() == 's' && drawMode) {
 			l1 = origl1;
@@ -95,6 +95,16 @@ public class MyApplet extends PApplet {
 			morphLoops.add(lerped);
 			t+=(1d/100);
 		}
+	}
+
+	public List<Double> FindBValues(){
+		List<Double> bVals = new ArrayList();
+		for(Point p : origl1.points) {
+			Point bPoint = axis.closestProject(p);
+			Double percentDownAxis = bPoint.y/height;
+			bVals.add(percentDownAxis);
+		}
+		return bVals;
 	}
 	
 	@Override

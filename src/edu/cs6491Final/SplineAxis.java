@@ -15,9 +15,10 @@ import processing.core.PApplet;
 public class SplineAxis extends Axis {
 	public List<Point> controlPoints = new ArrayList<>();
 	public List<Point> splinePoints = new ArrayList<>();
+	public List<Integer> bList = new ArrayList();
 	PApplet pApp;
 
-	public SplineAxis(Point origin, List<Point> controlPoints, PApplet p) {
+	public SplineAxis(Point origin, List<Point> controlPoints, List<Double> _bList, PApplet p) {
 		super(origin);
 		pApp = p;
 		this.controlPoints = controlPoints;
@@ -30,6 +31,11 @@ public class SplineAxis extends Axis {
         System.out.print("\n");
 
         quintic();
+
+        for(Double v : _bList) {
+			int index = (int)(v*(splinePoints.size()-1));
+			bList.add(index);
+		}
 	}
 
 	public void quintic() {
@@ -69,6 +75,7 @@ public class SplineAxis extends Axis {
 		}
 		output.add(p2);
 
+		//connect end to start
 		p1 = points.get(0);
 		double _mx = (p1.x + p2.x)/2;
 		double _my = (p1.y + p2.y)/2;
@@ -96,6 +103,7 @@ public class SplineAxis extends Axis {
 			output.add(m);
 		}
 
+		//connect end to start
 		p1 = points.get(0);
 		double _mx = (p1.x + p2.x)/2;
 		double _my = (p1.y + p2.y)/2;
@@ -104,6 +112,45 @@ public class SplineAxis extends Axis {
 		output.add(_m);
 
 		return output;
+	}
+
+	public Vector getN(int index){
+		Point a = getPointAtIndex(index);
+		Point b = getPointAtIndex(index+1);
+		Point c = getPointAtIndex(index+2);
+
+		Vector BA = new Vector(a.x-b.x, a.y-b.y, a.z-b.z);
+		Vector BC = new Vector(c.x-b.x, c.y-b.y, c.z-b.z);
+		
+		return (BA.crossProd(BC)).normalize();
+			
+	}
+
+	public Vector getT(int index){
+		Point a = getPointAtIndex(index);
+		Point b = getPointAtIndex(index+1);
+
+		Vector AB = new Vector(b.x-a.x, b.y-a.y, b.z-a.z);
+		return AB;
+	}
+
+	public Vector getB(int index){
+		Vector norm = getN(index);
+		Point a = getPointAtIndex(index);
+		Point b = getPointAtIndex(index+1);
+
+		Vector BA = new Vector(a.x-b.x, a.y-b.y, a.z-b.z);
+		return (BA.crossProd(norm)).normalize();
+	}
+
+	public Point getPointAtIndex(int index){
+		Point b = origin;
+		if((index+1)>(splinePoints.size()-1)) {
+			b = splinePoints.get(0);
+		} else {
+			b = splinePoints.get(index+1);
+		}
+		return b;
 	}
 
 	@Override
@@ -152,6 +199,14 @@ public class SplineAxis extends Axis {
 		}
 
 		p2.draw(p);
+
+		p.stroke(50, 50, 0);
+		System.out.println(bList.size());
+		for(int bP : bList) {
+			System.out.println(bP);
+			Point b = splinePoints.get(bP);
+			b.draw(p);
+		}
 		p.popMatrix();
 
 	}
