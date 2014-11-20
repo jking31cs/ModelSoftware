@@ -90,7 +90,14 @@ public final class Utils {
 				double y = AP.dotProduct(H);
 				double z = AP.dotProduct(N);
 
-				toRet.addPoint(new Point(x, y, z));
+				//P= B+xT+yH+zN
+				Vector Tx = new Vector(T.x*x, T.y*x, T.z*x);
+				Vector Hy = new Vector(H.x*y, H.y*y, H.z*y);
+				Vector Nz = new Vector(N.x*z, N.y*z, N.z*z);
+
+				Point finalP = ((A.add(Tx)).add(Hy)).add(Nz);
+
+				toRet.addPoint(finalP);
 			}
 
 		}
