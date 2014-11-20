@@ -1,6 +1,8 @@
 package edu.cs6491Final;
 
 public final class Utils {
+	public static double appHeight;
+	public static PApplet applet;
 	
 	/**
 	 * Mirrors a point around an axis by rotating the vector formed from the origin to the point PI radians
@@ -77,12 +79,12 @@ public final class Utils {
 		} else if (a instanceof SplineAxis) {
 			for(int i = 0; i < loop.points.size(); i++) {
 				//normal/binorm/tan
-				Vector N = ((SplineAxis)a).getN(((SplineAxis)a).bList.get(i));
-				Vector H = ((SplineAxis)a).getB(((SplineAxis)a).bList.get(i));
-				Vector T = ((SplineAxis)a).getT(((SplineAxis)a).bList.get(i));
+				Vector N = ((SplineAxis)a).getN(loop.GetFromBList(i));
+				Vector H = ((SplineAxis)a).getB(loop.GetFromBList(i));
+				Vector T = ((SplineAxis)a).getT(loop.GetFromBList(i));
 
 				Point p = loop.points.get(i);
-				Point A = ((SplineAxis)a).splinePoints.get(((SplineAxis)a).bList.get(i));
+				Point A = ((SplineAxis)a).splinePoints.get(loop.GetFromBList(i));
 
 				Vector AP = new Vector(p.x-A.x, p.y-A.y, p.z-A.z);
 
@@ -98,6 +100,9 @@ public final class Utils {
 				Point finalP = ((A.add(Tx)).add(Hy)).add(Nz);
 
 				toRet.addPoint(finalP);
+				System.out.println(finalP.toString());
+
+				A.Draw(applet);
 			}
 
 		}

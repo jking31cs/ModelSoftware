@@ -30,7 +30,8 @@ public class MyApplet extends PApplet {
 		axis = new StraightAxis(new Point(width/2, height, 0),new Vector(0,-1,0));
 		morphLoops = new ArrayList<>();
 		translate(width/2, height/2);
-		
+		Utils.appHeight = height;
+		Utils.applet = this;
 	}
 
 	@Override
@@ -78,7 +79,9 @@ public class MyApplet extends PApplet {
 				points.add(p);
 			}
 
-			axis = new SplineAxis(new Point(width/2, height, 0), points, FindBValues(), this);
+			//l1.SetBValues(height);
+			//l2.SetBValues(height);
+			axis = new SplineAxis(new Point(width/2, height, 0), points, this);
 		}
 		if (e.getKey() == 's' && drawMode) {
 			l1 = origl1;
@@ -95,16 +98,6 @@ public class MyApplet extends PApplet {
 			morphLoops.add(lerped);
 			t+=(1d/100);
 		}
-	}
-
-	public List<Double> FindBValues(){
-		List<Double> bVals = new ArrayList();
-		for(Point p : origl1.points) {
-			Point bPoint = axis.closestProject(p);
-			Double percentDownAxis = bPoint.y/height;
-			bVals.add(percentDownAxis);
-		}
-		return bVals;
 	}
 	
 	@Override
@@ -181,6 +174,8 @@ public class MyApplet extends PApplet {
 				calculateLoops();
 			}
 		} else if (axis instanceof SplineAxis) {
+			//l1.SetBValues(height);
+			//l2.SetBValues(height);
 			l1 = Utils.morphAboutAxis(axis, origl1);
 			l2 = Utils.morphAboutAxis(axis, origl2);
 			calculateLoops();

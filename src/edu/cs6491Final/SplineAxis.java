@@ -15,10 +15,9 @@ import processing.core.PApplet;
 public class SplineAxis extends Axis {
 	public List<Point> controlPoints = new ArrayList<>();
 	public List<Point> splinePoints = new ArrayList<>();
-	public List<Integer> bList = new ArrayList();
 	PApplet pApp;
 
-	public SplineAxis(Point origin, List<Point> controlPoints, List<Double> _bList, PApplet p) {
+	public SplineAxis(Point origin, List<Point> controlPoints, PApplet p) {
 		super(origin);
 		pApp = p;
 		this.controlPoints = controlPoints;
@@ -31,11 +30,6 @@ public class SplineAxis extends Axis {
         System.out.print("\n");
 
         quintic();
-
-        for(Double v : _bList) {
-			int index = (int)(v*(splinePoints.size()-1));
-			bList.add(index);
-		}
 	}
 
 	public void quintic() {
@@ -177,7 +171,7 @@ public class SplineAxis extends Axis {
 		Point p2 = origin;
 		for (int i = 0; i < splinePoints.size()-1; i++) {
 			Point p1 = splinePoints.get(i);
-			System.out.println("draw spline points " + p1.toString());
+			//System.out.println("draw spline points " + p1.toString());
 			p2 = splinePoints.get(i + 1);	
 			//p1.draw(p);
 			p.line(
@@ -201,12 +195,6 @@ public class SplineAxis extends Axis {
 		p2.draw(p);
 
 		p.stroke(50, 50, 0);
-		System.out.println(bList.size());
-		for(int bP : bList) {
-			System.out.println(bP);
-			Point b = splinePoints.get(bP);
-			b.draw(p);
-		}
 		p.popMatrix();
 
 	}

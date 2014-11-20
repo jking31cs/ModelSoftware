@@ -22,6 +22,19 @@ public class PolyLoop implements Drawable {
 		points.add(p);
 	}
 
+	public int GetFromBList(int i){
+		double result1 = (points.get(i).y/(Utils.appHeight));
+		int result = Double.valueOf(result1).intValue();
+		return result;
+	}
+
+	public ArrayList<Point> GetBList() {
+		List<Point> blist = new ArrayList<>();
+		for(Point pt : points) {
+
+		}
+	}
+
 	/**
 	 * This will draw a line between each point in order of the points listed to form a simple loop.
 	 */
