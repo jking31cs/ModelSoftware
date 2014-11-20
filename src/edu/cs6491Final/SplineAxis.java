@@ -131,7 +131,7 @@ public class SplineAxis extends Axis {
 		Point b = getPointAtIndex(index+1);
 
 		Vector AB = new Vector(b.x-a.x, b.y-a.y, b.z-a.z);
-		return AB;
+		return AB.normalize();
 	}
 
 	public Vector getB(int index){
