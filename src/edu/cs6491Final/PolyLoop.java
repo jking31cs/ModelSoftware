@@ -28,12 +28,12 @@ public class PolyLoop implements Drawable {
 		return result;
 	}
 
-	public ArrayList<Point> GetBList() {
-		List<Point> blist = new ArrayList<>();
-		for(Point pt : points) {
+	// public ArrayList<Point> GetBList() {
+	// 	List<Point> blist = new ArrayList<>();
+	// 	for(Point pt : points) {
 
-		}
-	}
+	// 	}
+	// }
 
 	/**
 	 * This will draw a line between each point in order of the points listed to form a simple loop.

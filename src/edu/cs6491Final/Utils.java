@@ -2,7 +2,7 @@ package edu.cs6491Final;
 
 public final class Utils {
 	public static double appHeight;
-	public static PApplet applet;
+//	public static PApplet applet;
 	
 	/**
 	 * Mirrors a point around an axis by rotating the vector formed from the origin to the point PI radians
@@ -84,7 +84,7 @@ public final class Utils {
 				Vector T = ((SplineAxis)a).getT(loop.GetFromBList(i));
 
 				Point p = loop.points.get(i);
-				Point A = ((SplineAxis)a).splinePoints.get(loop.GetFromBList(i));
+				Point A = ((SplineAxis)a).GetFromB(loop.GetFromBList(i));
 
 				Vector AP = new Vector(p.x-A.x, p.y-A.y, p.z-A.z);
 
@@ -102,7 +102,7 @@ public final class Utils {
 				toRet.addPoint(finalP);
 				System.out.println(finalP.toString());
 
-				A.Draw(applet);
+				//A.Draw(applet);
 			}
 
 		}

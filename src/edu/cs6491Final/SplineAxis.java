@@ -14,7 +14,7 @@ import processing.core.PApplet;
 
 public class SplineAxis extends Axis {
 	public List<Point> controlPoints = new ArrayList<>();
-	public List<Point> splinePoints = new ArrayList<>();
+	private List<Point> splinePoints = new ArrayList<>();
 	PApplet pApp;
 
 	public SplineAxis(Point origin, List<Point> controlPoints, PApplet p) {
@@ -30,6 +30,12 @@ public class SplineAxis extends Axis {
         System.out.print("\n");
 
         quintic();
+	}
+//	v*(splinePoints.size()-1)
+
+	public Point GetFromB(int percentage){
+		Point point = splinePoints.get(percentage*(splinePoints.size()-1));
+		return point;
 	}
 
 	public void quintic() {
@@ -109,6 +115,7 @@ public class SplineAxis extends Axis {
 	}
 
 	public Vector getN(int index){
+		index *= (splinePoints.size()-1);
 		Point a = getPointAtIndex(index);
 		Point b = getPointAtIndex(index+1);
 		Point c = getPointAtIndex(index+2);
@@ -121,6 +128,7 @@ public class SplineAxis extends Axis {
 	}
 
 	public Vector getT(int index){
+		index *= (splinePoints.size()-1);
 		Point a = getPointAtIndex(index);
 		Point b = getPointAtIndex(index+1);
 
@@ -129,6 +137,7 @@ public class SplineAxis extends Axis {
 	}
 
 	public Vector getB(int index){
+		index *= (splinePoints.size()-1);
 		Vector norm = getN(index);
 		Point a = getPointAtIndex(index);
 		Point b = getPointAtIndex(index+1);

@@ -31,7 +31,7 @@ public class MyApplet extends PApplet {
 		morphLoops = new ArrayList<>();
 		translate(width/2, height/2);
 		Utils.appHeight = height;
-		Utils.applet = this;
+		//Utils.applet = this;
 	}
 
 	@Override
