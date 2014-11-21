@@ -89,8 +89,8 @@ public final class Utils {
 				Point A = axis.getPointFromPercentage(percentage);
 
 				Vector AP = new Vector(p.x-A.x, p.y-A.y, p.z-A.z);
-				AP.normalize();
-				Vector tNormed = T;
+				//AP.normalize();
+				Vector tNormed = new Vector(T.x, T.y, T.z);
 				tNormed = tNormed.normalize();
 
 				double x = AP.dotProduct(tNormed);

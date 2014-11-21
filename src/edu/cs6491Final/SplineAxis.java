@@ -36,6 +36,11 @@ public class SplineAxis extends Axis {
 	}
 //	v*(splinePoints.size()-1)
 
+	public void UpdateLoopRefs(PolyLoop _l1, PolyLoop _l2){
+		l1 = _l1;
+		l2 = _l2;
+	}
+
 	public Point GetFromB(double percentage){
 		Point point = splinePoints.get(getIndexFromPercentage(percentage));
 		return point;
@@ -227,10 +232,11 @@ public class SplineAxis extends Axis {
 		for(int i = 0; i < l1.points.size(); i++){
 			double percentage = l1.GetPercentage(i);
 			getPointFromPercentage(percentage).draw(p);
-			//System.out.println(getIndexFromPercentage(percentage));
+			System.out.println(getIndexFromPercentage(percentage));
 		}
+		p.stroke(255, 0, 0);
 		for(int j = 0; j < l2.points.size(); j++){
-			double percentage = l1.GetPercentage(j);
+			double percentage = l2.GetPercentage(j);
 			getPointFromPercentage(percentage).draw(p);
 		}
 	}
