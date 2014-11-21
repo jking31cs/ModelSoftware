@@ -125,26 +125,69 @@ public class SplineLine implements Drawable{
 	        }
 	        return selected;
 	    }
+	    
+	    public Vector getNormalAtPoint(GeneratedPoint prev,GeneratedPoint curr, GeneratedPoint next){
+	    	Vector toRet=new Vector(0,0,0);
+	    	Vector toPrev=curr.pt.to(prev.pt).normalize();
+	    	Vector toNext=curr.pt.to(next.pt).normalize();
+	    	toRet=toPrev.add(toNext).normalize();
+	    	return toRet;	
+	    }
+	    public Vector getNormalAtPoint(GeneratedPoint curr, GeneratedPoint next){
+	    	Vector toRet=new Vector(0,0,0);
+	    	Vector toNext=curr.pt.to(next.pt).normalize();
+	    	toRet=toNext.normalize().rotate(Math.PI/2, new Vector(0, 0, 1));
+	    	return toRet;	
+	    }
 
 	    @Override
 	    public void draw(PApplet p) {
-	        for (ControlPoint pt : pts) pt.draw(p);
-
-
 
 	        if (pts.size() > 1) {
-	            List<GeneratedPoint> generatedPoints = calculateQuinticSpline();
-	            for (int i = 1; i < generatedPoints.size(); i++) {
-	                Point prev = generatedPoints.get(i-1).pt;
-	                Point cur = generatedPoints.get(i).pt;
-	                p.stroke(255, 0, 0);
-	                p.strokeWeight((float) generatedPoints.get(i-1).r);
-	                p.line(
-	                    (float) prev.x,(float) prev.y,(float) prev.z,
-	                    (float) cur.x, (float) cur.y, (float) cur.z
-	                );
-	            }
+	        	List<GeneratedPoint> generatedPoints = calculateQuinticSpline();
+	        	p.fill(255, 0, 0);
+	        	p.stroke(255, 0, 0);
+	        	p.beginShape();
+	        	GeneratedPoint first=generatedPoints.get(0);
+	        	GeneratedPoint second=generatedPoints.get(1);
+	        	GeneratedPoint last=generatedPoints.get(generatedPoints.size()-1);
+	        	GeneratedPoint secondLast=generatedPoints.get(generatedPoints.size()-2);
+	        	if(pts.size()>2){
+	        		for (int i = 1; i < generatedPoints.size() - 1; i++) {
+	        			GeneratedPoint prev = generatedPoints.get(i-1);
+	        			GeneratedPoint cur = generatedPoints.get(i);
+	        			GeneratedPoint next = generatedPoints.get(i+1);
+	        			Vector offset=getNormalAtPoint(prev,cur,next).mul(cur.r);
+	        			Vector offsetPoint=cur.pt.asVec().add(offset);
+	        			p.vertex((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z);
+	        		}
+	        		double deltaRot=Math.PI/20;
+	        		Vector offsetAtEnd=getNormalAtPoint(last,secondLast).mul(-last.r);
+	        		for(int i=0; i < Math.PI/deltaRot + 1; i++){
+	        			Vector offsetPoint=last.pt.asVec().add(offsetAtEnd);
+	        			p.vertex((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z);
+	        			offsetAtEnd=offsetAtEnd.rotate(deltaRot, new Vector(0, 0, -1));
+	        		}
+	        		
+	        		for (int i = generatedPoints.size() - 2; i > 1; i--) {
+	        			GeneratedPoint prev = generatedPoints.get(i+1);
+	        			GeneratedPoint cur = generatedPoints.get(i);
+	        			GeneratedPoint next = generatedPoints.get(i-1);
+	        			Vector offset=getNormalAtPoint(prev,cur,next).mul(-cur.r);
+	        			Vector offsetPoint=cur.pt.asVec().add(offset);
+	        			p.vertex((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z);
+	        		}
+	        		Vector offsetAtStart=getNormalAtPoint(first,second).mul(first.r);
+	        		for(int i=0; i < Math.PI/deltaRot +1; i++){
+	        			Vector offsetPoint=first.pt.asVec().add(offsetAtStart);
+	        			p.vertex((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z);
+	        			offsetAtStart=offsetAtStart.rotate(deltaRot, new Vector(0, 0, 1));
+	        		}
+	        	}
+	        	p.endShape(p.CLOSE);
 	        }
+	        
+	        for (ControlPoint pt : pts) pt.draw(p);
 
 	    }
 }
