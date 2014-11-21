@@ -14,7 +14,8 @@ public class MyApplet extends PApplet {
 	boolean drawMode, viewMode, editMode;
 	
 	PolyLoop origl1, origl2, l1, l2;
-	
+	private double increment = 0;
+	private double revolveMax = 360d;
 	Axis axis;
 	
 	List<PolyLoop> morphLoops;
@@ -40,10 +41,20 @@ public class MyApplet extends PApplet {
 			drawMode = true;
 			viewMode = false; 
 		}
-		if (e.getKey() == 'v' && drawMode) {
+		if (e.getKey() == '3' && drawMode) {
 			calculateLoops();
 			viewMode = true;
 			drawMode = false;
+		}
+		if(e.getKey() == 'p'){
+			increment += 10;
+			if(increment >= revolveMax) increment = revolveMax;
+			System.out.println(increment);
+		}
+		if(e.getKey() == 'o'){
+			increment -= 10;
+			if(increment < 0) increment = 0d;
+			System.out.println(increment);
 		}
 		if (e.getKey() == 'c') {
 			double radius = 10000;
@@ -93,10 +104,11 @@ public class MyApplet extends PApplet {
 	private void calculateLoops() {
 		morphLoops.clear();
 		double t = 0;
-		while (t <= 1) {
+		while (t <= increment/180d) {
+			System.out.println(t);
 			PolyLoop lerped = Utils.lerp(axis, l1, l2, t);
 			morphLoops.add(lerped);
-			t+=(1d/100);
+			t += (1d/100);
 		}
 	}
 	
@@ -171,13 +183,11 @@ public class MyApplet extends PApplet {
 				axis = new CircularAxis(axis.origin, ca.center.add(new Vector(-100,0,0)));
 				l1=Utils.morphAboutAxis(axis, origl1);
 				l2=Utils.morphAboutAxis(axis, origl2);
-				calculateLoops();
 			}
 		} else if (axis instanceof SplineAxis) {
 			l1 = Utils.morphAboutAxis(axis, l1);
 			l2 = Utils.morphAboutAxis(axis, l2);
 			((SplineAxis)axis).UpdateLoopRefs(l1, l2);
-			calculateLoops();
 		}
 		if (drawMode) {
 			stroke(0,0,255);
@@ -190,6 +200,11 @@ public class MyApplet extends PApplet {
 			stroke(255,0,0);
 			l2.draw(this);
 		} else {
+			calculateLoops();
+			if(viewMode) {
+				if(revolveMax >= increment)
+				increment += 2d;
+			}
 			pushMatrix();
 			camera();
 			lights();  // turns on view-dependent lighting
