@@ -16,9 +16,12 @@ public class SplineAxis extends Axis {
 	public List<Point> controlPoints = new ArrayList<>();
 	private List<Point> splinePoints = new ArrayList<>();
 	PApplet pApp;
+	PolyLoop l1, l2;
 
-	public SplineAxis(Point origin, List<Point> controlPoints, PApplet p) {
+	public SplineAxis(Point origin, List<Point> controlPoints, PApplet p, PolyLoop _l1, PolyLoop _l2) {
 		super(origin);
+		l1 = _l1;
+		l2 = _l2;
 		pApp = p;
 		this.controlPoints = controlPoints;
 		this.splinePoints = controlPoints;
@@ -204,7 +207,21 @@ public class SplineAxis extends Axis {
 		p2.draw(p);
 
 		p.stroke(50, 50, 0);
+		DrawProjection(p);
 		p.popMatrix();
 
 	}
+
+	public void DrawProjection(PApplet p){
+		for(int i = 0; i < l1.points.size(); i++){
+			int bVal = l1.GetFromBList(i);
+			GetFromB(bVal).draw(p);
+			System.out.println(bVal);
+		}
+		for(int j = 0; j < l2.points.size(); j++){
+			int bVal = l1.GetFromBList(j);
+			GetFromB(bVal).draw(p);
+		}
+	}
+
 }

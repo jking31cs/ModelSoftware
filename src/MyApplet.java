@@ -81,7 +81,7 @@ public class MyApplet extends PApplet {
 
 			//l1.SetBValues(height);
 			//l2.SetBValues(height);
-			axis = new SplineAxis(new Point(width/2, height, 0), points, this);
+			axis = new SplineAxis(new Point(width/2, height, 0), points, this, l1, l2);
 		}
 		if (e.getKey() == 's' && drawMode) {
 			l1 = origl1;
