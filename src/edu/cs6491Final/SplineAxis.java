@@ -119,9 +119,9 @@ public class SplineAxis extends Axis {
 
 	public Vector getN(double percentage){
 		int index = getIndexFromPercentage(percentage);
-		Point a = getPointAtIndex(index);
-		Point b = getPointAtIndex(index+1);
-		Point c = getPointAtIndex(index+2);
+		Point a = getPointAtIndex(index-1);
+		Point b = getPointAtIndex(index);
+		Point c = getPointAtIndex(index+1);
 
 		Vector BA = new Vector(a.x-b.x, a.y-b.y, a.z-b.z);
 		Vector BC = new Vector(c.x-b.x, c.y-b.y, c.z-b.z);

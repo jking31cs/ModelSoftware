@@ -93,12 +93,12 @@ public final class Utils {
 				Vector tNormed = new Vector(T.x, T.y, T.z);
 				tNormed = tNormed.normalize();
 
-				double x = AP.dotProduct(tNormed);
+				double x = AP.dotProduct(T);
 				double y = AP.dotProduct(H);
 				double z = AP.dotProduct(N);
 
 				//P= B+xT+yH+zN
-				Vector Tx = new Vector(T.x*x, T.y*x, T.z*x);
+				Vector Tx = new Vector(tNormed.x*x, tNormed.y*x, tNormed.z*x);
 				Vector Hy = new Vector(H.x*y, H.y*y, H.z*y);
 				Vector Nz = new Vector(N.x*z, N.y*z, N.z*z);
 
