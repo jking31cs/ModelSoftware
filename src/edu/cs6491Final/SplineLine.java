@@ -1,9 +1,11 @@
 package edu.cs6491Final;
 
 import processing.core.PApplet;
+import processing.core.PConstants;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 public class SplineLine implements Drawable{
 	 public static class ControlPoint implements Drawable {
@@ -48,7 +50,7 @@ public class SplineLine implements Drawable{
 	    		newControlPoints.add(new GeneratedPoint(cp.r, cp.pt));
 	    	}
 	    	
-	    	for(int subDivisionCtr=0; subDivisionCtr<10;subDivisionCtr++)
+	    	for(int subDivisionCtr=0; subDivisionCtr<5;subDivisionCtr++)
 	    	{
 	    		//Refine the curve
 	    		List<GeneratedPoint> refinedCurve = new ArrayList<>();
@@ -88,7 +90,7 @@ public class SplineLine implements Drawable{
 	    		}
 	    		tuckedCurve.add(refinedCurve.get(refinedCurve.size() - 1));
 	    		
-	    		//Untuck the curve
+	    		//Tuck the curve again
 	    		List<GeneratedPoint> unTuckedCurve = new ArrayList<>();
 	    		unTuckedCurve.add(tuckedCurve.get(0));
 	    		for(int ptIndex = 1; ptIndex < tuckedCurve.size() - 1; ptIndex++){
@@ -129,8 +131,18 @@ public class SplineLine implements Drawable{
 	    public Vector getNormalAtPoint(GeneratedPoint prev,GeneratedPoint curr, GeneratedPoint next){
 	    	Vector toRet=new Vector(0,0,0);
 	    	Vector toPrev=curr.pt.to(prev.pt).normalize();
+	    	Vector fromPrev=prev.pt.to(curr.pt).normalize();
 	    	Vector toNext=curr.pt.to(next.pt).normalize();
-	    	toRet=toPrev.add(toNext).normalize();
+	    	Vector cross=fromPrev.crossProd(toNext);
+	    	if(cross.z>0)
+	    	{
+	    		toRet=toPrev.add(toNext).normalize();
+	    		toRet=toRet.mul(-1);
+	    	}
+	    	else
+	    	{
+	    		toRet=toPrev.add(toNext).normalize();
+	    	}
 	    	return toRet;	
 	    }
 	    public Vector getNormalAtPoint(GeneratedPoint curr, GeneratedPoint next){
@@ -152,39 +164,50 @@ public class SplineLine implements Drawable{
 	        	GeneratedPoint second=generatedPoints.get(1);
 	        	GeneratedPoint last=generatedPoints.get(generatedPoints.size()-1);
 	        	GeneratedPoint secondLast=generatedPoints.get(generatedPoints.size()-2);
-	        	if(pts.size()>2){
-	        		for (int i = 1; i < generatedPoints.size() - 1; i++) {
-	        			GeneratedPoint prev = generatedPoints.get(i-1);
-	        			GeneratedPoint cur = generatedPoints.get(i);
-	        			GeneratedPoint next = generatedPoints.get(i+1);
-	        			Vector offset=getNormalAtPoint(prev,cur,next).mul(cur.r);
+	        	Stack<Vector> offsets=new Stack<>();
+	        	int ptCtr=0;
+	        	if(pts.size()>2){   
+	        		//Offset vertices on one side
+	        		for (ptCtr = 1; ptCtr < generatedPoints.size() - 1; ptCtr++) {
+	        			GeneratedPoint prev = generatedPoints.get(ptCtr-1);
+	        			GeneratedPoint cur = generatedPoints.get(ptCtr);
+	        			GeneratedPoint next = generatedPoints.get(ptCtr+1);
+	        			Vector offset=getNormalAtPoint(prev,cur,next).mul(Math.abs(cur.r));
+	        			offsets.push(offset);
 	        			Vector offsetPoint=cur.pt.asVec().add(offset);
 	        			p.vertex((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z);
 	        		}
+	        	}
+	        	
+	        		//Draw semi-circle at end
 	        		double deltaRot=Math.PI/20;
-	        		Vector offsetAtEnd=getNormalAtPoint(last,secondLast).mul(-last.r);
+	        		Vector offsetAtEnd=getNormalAtPoint(last,secondLast).mul(last.r);
 	        		for(int i=0; i < Math.PI/deltaRot + 1; i++){
 	        			Vector offsetPoint=last.pt.asVec().add(offsetAtEnd);
 	        			p.vertex((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z);
-	        			offsetAtEnd=offsetAtEnd.rotate(deltaRot, new Vector(0, 0, -1));
+	        			offsetAtEnd=offsetAtEnd.rotate(deltaRot, new Vector(0, 0, 1));
 	        		}
+	        	if(pts.size() >1)	{
 	        		
-	        		for (int i = generatedPoints.size() - 2; i > 1; i--) {
-	        			GeneratedPoint prev = generatedPoints.get(i+1);
-	        			GeneratedPoint cur = generatedPoints.get(i);
-	        			GeneratedPoint next = generatedPoints.get(i-1);
-	        			Vector offset=getNormalAtPoint(prev,cur,next).mul(-cur.r);
+	        		//Offset vertices on the other side
+	        		while(ptCtr>1){
+	        			GeneratedPoint cur = generatedPoints.get(ptCtr);
+	        			Vector offset=offsets.pop().mul(-1);
 	        			Vector offsetPoint=cur.pt.asVec().add(offset);
 	        			p.vertex((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z);
+	        			ptCtr--;
 	        		}
+	        	}
+	        		
+	        		//Draw semi-circle at start
 	        		Vector offsetAtStart=getNormalAtPoint(first,second).mul(first.r);
 	        		for(int i=0; i < Math.PI/deltaRot +1; i++){
 	        			Vector offsetPoint=first.pt.asVec().add(offsetAtStart);
 	        			p.vertex((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z);
 	        			offsetAtStart=offsetAtStart.rotate(deltaRot, new Vector(0, 0, 1));
 	        		}
-	        	}
-	        	p.endShape(p.CLOSE);
+	        	
+	        	p.endShape(PConstants.CLOSE);
 	        }
 	        
 	        for (ControlPoint pt : pts) pt.draw(p);
