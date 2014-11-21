@@ -158,7 +158,9 @@ public class SplineAxis extends Axis {
 		Point b = getPointAtIndex(index+1);
 
 		Vector BA = new Vector(a.x-b.x, a.y-b.y, a.z-b.z);
-		return (BA.crossProd(norm)).normalize();
+		BA = (BA.crossProd(norm)).normalize();
+		BA.draw(pApp, b);
+		return BA;
 	}
 
 	public Point getPointAtIndex(int index) {

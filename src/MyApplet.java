@@ -246,20 +246,27 @@ public class MyApplet extends PApplet {
 						endShape(CLOSE);
 						popMatrix();
 					}
-					//draw caps!
-					if(i == 0 || i == morphLoops.size()-1) {
-						if(increment != 360){
-							PolyLoop loop = morphLoops.get(i);
-							pushMatrix();
-							beginShape();
-							for(Point p : loop.points){
-								vertex((float)p.x, (float)p.y, (float)p.z);
-							}
-							endShape(CLOSE);
-							popMatrix();
-						}
+				}
+				//draw caps!
+				if(increment != 360){
+					PolyLoop loop = morphLoops.get(0);
+					pushMatrix();
+					beginShape();
+					for(Point p : loop.points){
+						vertex((float)p.x, (float)p.y, (float)p.z);
 					}
-
+					endShape(CLOSE);
+					popMatrix();
+				}
+				if(increment != 360){
+					PolyLoop loop = morphLoops.get(morphLoops.size()-1);
+					pushMatrix();
+					beginShape();
+					for(Point p : loop.points){
+						vertex((float)p.x, (float)p.y, (float)p.z);
+					}
+					endShape(CLOSE);
+					popMatrix();
 				}
 			}
 			popMatrix();
