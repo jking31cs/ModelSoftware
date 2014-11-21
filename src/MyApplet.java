@@ -12,6 +12,7 @@ public class MyApplet extends PApplet {
 	private static final long serialVersionUID = 1L;
 	
 	boolean drawMode, viewMode, editMode;
+	boolean revolve2DMode = false;
 	
 	PolyLoop origl1, origl2, l1, l2;
 	private double increment = 0;
@@ -41,10 +42,13 @@ public class MyApplet extends PApplet {
 			drawMode = true;
 			viewMode = false; 
 		}
-		if (e.getKey() == '3' && drawMode) {
+		if (e.getKey() == 'v' && drawMode) {
 			calculateLoops();
 			viewMode = true;
 			drawMode = false;
+		}
+		if (e.getKey() == '3'){
+			revolve2DMode = !revolve2DMode;
 		}
 		if(e.getKey() == 'p'){
 			increment += 10;
@@ -212,25 +216,30 @@ public class MyApplet extends PApplet {
 			rotateX(PI / 2); // rotates frame around X to make X and Y basis vectors parallel to the floor
 			axis.draw(this);
 			stroke(0);
-			for (int i = 0; i < morphLoops.size() - 1; i++) {
-				PolyLoop m1 = morphLoops.get(i);
-				PolyLoop m2 = morphLoops.get((i+1) % morphLoops.size());
-				for (int j = 0; j < m1.points.size(); j++) {
-					Point p1 = m1.points.get(j);
-					Point p2 = m2.points.get(j);
-					Point p3 = m2.points.get((j+1) % m1.points.size());
-					Point p4 = m1.points.get((j+1) % m1.points.size());
-					pushMatrix();
-					fill(0,0,255);
-					beginShape();
-					vertex((float) p1.x, (float) p1.y, (float) p1.z);
-					vertex((float) p2.x, (float) p2.y, (float) p2.z);
-					vertex((float) p3.x, (float) p3.y, (float) p3.z);
-					vertex((float) p4.x, (float) p4.y, (float) p4.z);
-					endShape(CLOSE);
-					popMatrix();
-				}
+			if(revolve2DMode){
+				PolyLoop last = morphLoops.get(morphLoops.size()-1);
+				last.draw(this);
+			} else {
+				for (int i = 0; i < morphLoops.size() - 1; i++) {
+					PolyLoop m1 = morphLoops.get(i);
+					PolyLoop m2 = morphLoops.get((i+1) % morphLoops.size());
+					for (int j = 0; j < m1.points.size(); j++) {
+						Point p1 = m1.points.get(j);
+						Point p2 = m2.points.get(j);
+						Point p3 = m2.points.get((j+1) % m1.points.size());
+						Point p4 = m1.points.get((j+1) % m1.points.size());
+						pushMatrix();
+						fill(0,0,255);
+						beginShape();
+						vertex((float) p1.x, (float) p1.y, (float) p1.z);
+						vertex((float) p2.x, (float) p2.y, (float) p2.z);
+						vertex((float) p3.x, (float) p3.y, (float) p3.z);
+						vertex((float) p4.x, (float) p4.y, (float) p4.z);
+						endShape(CLOSE);
+						popMatrix();
+					}
 
+				}
 			}
 			popMatrix();
 		}
