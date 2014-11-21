@@ -79,12 +79,14 @@ public final class Utils {
 		} else if (a instanceof SplineAxis) {
 			for(int i = 0; i < loop.points.size(); i++) {
 				//normal/binorm/tan
-				Vector N = ((SplineAxis)a).getN(loop.GetFromBList(i));
-				Vector H = ((SplineAxis)a).getB(loop.GetFromBList(i));
-				Vector T = ((SplineAxis)a).getT(loop.GetFromBList(i));
+				SplineAxis axis = ((SplineAxis) a);
+				double percentage = loop.GetPercentage(i);
+				Vector N = axis.getN(percentage);
+				Vector H = axis.getB(percentage);
+				Vector T = axis.getT(percentage);
 
 				Point p = loop.points.get(i);
-				Point A = ((SplineAxis)a).GetFromB(loop.GetFromBList(i));
+				Point A = axis.getPointFromPercentage(percentage);
 
 				Vector AP = new Vector(p.x-A.x, p.y-A.y, p.z-A.z);
 
@@ -100,7 +102,15 @@ public final class Utils {
 				Point finalP = ((A.add(Tx)).add(Hy)).add(Nz);
 
 				toRet.addPoint(finalP);
-				System.out.println(finalP.toString());
+
+				/*if (percentage > 0) {
+					System.out.println("----------------");
+					System.out.println((percentage*100) + "%");
+					System.out.println("N: " + N.toString());
+					System.out.println("T: " + T.toString());
+					System.out.println("H: " + H.toString());
+					System.out.println(finalP.toString());
+				}*/
 
 				//A.Draw(applet);
 			}

@@ -22,10 +22,9 @@ public class PolyLoop implements Drawable {
 		points.add(p);
 	}
 
-	public int GetFromBList(int i){
-		double result1 = (points.get(i).y/(Utils.appHeight));
-		int result = Double.valueOf(result1).intValue();
-		return result;
+	public double GetPercentage(int i){
+		double percentage = (points.get(i).y/(Utils.appHeight));
+		return percentage;
 	}
 
 	// public ArrayList<Point> GetBList() {

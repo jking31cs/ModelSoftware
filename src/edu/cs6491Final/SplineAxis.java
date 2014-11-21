@@ -36,8 +36,8 @@ public class SplineAxis extends Axis {
 	}
 //	v*(splinePoints.size()-1)
 
-	public Point GetFromB(int percentage){
-		Point point = splinePoints.get(percentage*(splinePoints.size()-1));
+	public Point GetFromB(double percentage){
+		Point point = splinePoints.get(getIndexFromPercentage(percentage));
 		return point;
 	}
 
@@ -78,14 +78,6 @@ public class SplineAxis extends Axis {
 		}
 		output.add(p2);
 
-		//connect end to start
-		/*p1 = points.get(0);
-		double _mx = (p1.x + p2.x)/2;
-		double _my = (p1.y + p2.y)/2;
-		double _mz = (p1.z + p2.z)/2;
-		Point _m = new Point(_mx, _my, _mz);
-		output.add(_m);		*/
-
 		return output;
 	}
 
@@ -106,32 +98,44 @@ public class SplineAxis extends Axis {
 			output.add(m);
 		}
 
-		//connect end to start
-		/*p1 = points.get(0);
-		double _mx = (p1.x + p2.x)/2;
-		double _my = (p1.y + p2.y)/2;
-		double _mz = (p1.z + p2.z)/2;
-		Point _m = new Point(_mx, _my, _mz);
-		output.add(_m);*/
-
 		return output;
 	}
 
-	public Vector getN(int index){
-		index *= (splinePoints.size()-1);
+	public int getIndexFromPercentage(double percentage) {
+		percentage *= (splinePoints.size()-1);
+		int index = Double.valueOf(percentage).intValue();
+		return index;
+	}
+
+	public Point getPointFromPercentage(double percentage) {
+		int index = getIndexFromPercentage(percentage);
+		return getPointAtIndex(index);
+	}
+
+	public Vector getN(double percentage){
+		int index = getIndexFromPercentage(percentage);
 		Point a = getPointAtIndex(index);
 		Point b = getPointAtIndex(index+1);
 		Point c = getPointAtIndex(index+2);
 
 		Vector BA = new Vector(a.x-b.x, a.y-b.y, a.z-b.z);
 		Vector BC = new Vector(c.x-b.x, c.y-b.y, c.z-b.z);
-		
-		return (BA.crossProd(BC)).normalize();
+
+		//System.out.println("BA : " + BA.toString());
+		//System.out.println("BC : " + BC.toString());
+		Vector cross = (BA.crossProd(BC)).normalize();
+		if (Double.isNaN(cross.x) || Double.isNaN(cross.y) || Double.isNaN(cross.z)) {
+			return (new Vector(0,0,1));
+		} else if (cross.x == 0 && cross.y == 0 && cross.z == 0) {
+			return (new Vector(0,0,1));
+		} else {
+			return cross;
+		}
 			
 	}
 
-	public Vector getT(int index){
-		index *= (splinePoints.size()-1);
+	public Vector getT(double percentage) {
+		int index = getIndexFromPercentage(percentage);
 		Point a = getPointAtIndex(index);
 		Point b = getPointAtIndex(index+1);
 
@@ -139,8 +143,8 @@ public class SplineAxis extends Axis {
 		return AB.normalize();
 	}
 
-	public Vector getB(int index){
-		index *= (splinePoints.size()-1);
+	public Vector getB(double percentage) {
+		int index = getIndexFromPercentage(percentage);
 		Vector norm = getN(index);
 		Point a = getPointAtIndex(index);
 		Point b = getPointAtIndex(index+1);
@@ -149,13 +153,20 @@ public class SplineAxis extends Axis {
 		return (BA.crossProd(norm)).normalize();
 	}
 
-	public Point getPointAtIndex(int index){
+	public Point getPointAtIndex(int index) {
 		Point b = origin;
-		if((index+1)>(splinePoints.size()-1)) {
-			b = splinePoints.get(0);
-		} else {
-			b = splinePoints.get(index+1);
+		/*while (index > (splinePoints.size()-1)) {
+			index -= (splinePoints.size()-1);
 		}
+		while (index < 0) {
+			index += (splinePoints.size()-1);
+		}*/
+		if (index > (splinePoints.size()-1)) {
+			index =  (splinePoints.size()-1);
+		} else if (index < 0) {
+			index = 0;
+		}
+		b = splinePoints.get(index);
 		return b;
 	}
 
@@ -214,14 +225,13 @@ public class SplineAxis extends Axis {
 
 	public void DrawProjection(PApplet p){
 		for(int i = 0; i < l1.points.size(); i++){
-			int bVal = l1.GetFromBList(i);
-			GetFromB(bVal).draw(p);
-			System.out.println(bVal);
+			double percentage = l1.GetPercentage(i);
+			getPointFromPercentage(percentage).draw(p);
+			//System.out.println(getIndexFromPercentage(percentage));
 		}
 		for(int j = 0; j < l2.points.size(); j++){
-			int bVal = l1.GetFromBList(j);
-			GetFromB(bVal).draw(p);
+			double percentage = l1.GetPercentage(j);
+			getPointFromPercentage(percentage).draw(p);
 		}
 	}
-
 }
