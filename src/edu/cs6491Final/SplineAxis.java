@@ -113,6 +113,7 @@ public class SplineAxis extends Axis {
 	}
 
 	public Point getPointFromPercentage(double percentage) {
+		System.out.println("LDAKFJIEWFAEIO***==== getPointFromPercentage " + percentage);
 		int index = getIndexFromPercentage(percentage);
 		return getPointAtIndex(index);
 	}
@@ -156,10 +157,13 @@ public class SplineAxis extends Axis {
 		Vector norm = getN(percentage);
 		Point a = getPointAtIndex(index);
 		Point b = getPointAtIndex(index+1);
+		System.out.println("+++++++++++a and b:" + index + ", " + (index+1) + ", " + percentage);
 
 		Vector BA = new Vector(a.x-b.x, a.y-b.y, a.z-b.z);
 		BA = (BA.crossProd(norm)).normalize();
-		BA.draw(pApp, b);
+		BA.draw(pApp, a);
+		pApp.stroke(0,255,0);
+		a.draw(pApp);
 		return BA;
 	}
 

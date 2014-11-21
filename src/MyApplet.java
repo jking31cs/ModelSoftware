@@ -197,8 +197,8 @@ public class MyApplet extends PApplet {
 				l2=Utils.morphAboutAxis(axis, origl2);
 			}
 		} else if (axis instanceof SplineAxis) {
-			l1 = Utils.morphAboutAxis(axis, origl1);
-			l2 = Utils.morphAboutAxis(axis, origl2);
+			l1 = Utils.morphAboutAxis(axis, l1);
+			l2 = Utils.morphAboutAxis(axis, l2);
 			((SplineAxis)axis).UpdateLoopRefs(l1, l2);
 		}
 		if (drawMode) {
