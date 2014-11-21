@@ -64,8 +64,10 @@ public class MyApplet extends PApplet {
 		}
 		if (e.getKey() == 'q') {
 			origl1 = new PolyLoop();
+			System.out.println("initial l1 points : ");
 			for (Point p : l1.points) {
 				origl1.addPoint(p);
+				System.out.println(p.toString());
 			}
 			origl2 = new PolyLoop();
 			for (Point p : l2.points) {
@@ -174,8 +176,8 @@ public class MyApplet extends PApplet {
 				calculateLoops();
 			}
 		} else if (axis instanceof SplineAxis) {
-			l1 = Utils.morphAboutAxis(axis, l1);
-			l2 = Utils.morphAboutAxis(axis, l2);
+			l1 = Utils.morphAboutAxis(axis, origl1);
+			l2 = Utils.morphAboutAxis(axis, origl2);
 			((SplineAxis)axis).UpdateLoopRefs(l1, l2);
 			calculateLoops();
 		}
