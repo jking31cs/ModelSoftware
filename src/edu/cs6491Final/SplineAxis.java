@@ -52,7 +52,7 @@ public class SplineAxis extends Axis {
 			// refine once
 			newSpline = refine(newSpline);
 			// dual four times
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < 2; i++) {
 				newSpline = dual(newSpline);
 			}
 		}
@@ -118,6 +118,7 @@ public class SplineAxis extends Axis {
 	}
 
 	public Vector getN(double percentage){
+		System.out.println("N percent = " + percentage);
 		int index = getIndexFromPercentage(percentage);
 		Point a = getPointAtIndex(index-1);
 		Point b = getPointAtIndex(index);
@@ -140,6 +141,7 @@ public class SplineAxis extends Axis {
 	}
 
 	public Vector getT(double percentage) {
+		System.out.println("T percent = " + percentage);
 		int index = getIndexFromPercentage(percentage);
 		Point a = getPointAtIndex(index);
 		Point b = getPointAtIndex(index+1);
@@ -149,8 +151,9 @@ public class SplineAxis extends Axis {
 	}
 
 	public Vector getB(double percentage) {
+		System.out.println("B percent = " + percentage);
 		int index = getIndexFromPercentage(percentage);
-		Vector norm = getN(index);
+		Vector norm = getN(percentage);
 		Point a = getPointAtIndex(index);
 		Point b = getPointAtIndex(index+1);
 
@@ -166,11 +169,13 @@ public class SplineAxis extends Axis {
 		while (index < 0) {
 			index += (splinePoints.size()-1);
 		}*/
-		if (index > (splinePoints.size()-1)) {
+
+		/*if (index > (splinePoints.size()-1)) {
 			index =  (splinePoints.size()-1);
 		} else if (index < 0) {
 			index = 0;
-		}
+		}*/
+
 		b = splinePoints.get(index);
 		return b;
 	}
@@ -232,7 +237,7 @@ public class SplineAxis extends Axis {
 		for(int i = 0; i < l1.points.size(); i++){
 			double percentage = l1.GetPercentage(i);
 			getPointFromPercentage(percentage).draw(p);
-			System.out.println(getIndexFromPercentage(percentage));
+			//System.out.println(getIndexFromPercentage(percentage));
 		}
 		p.stroke(255, 0, 0);
 		for(int j = 0; j < l2.points.size(); j++){

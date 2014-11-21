@@ -81,39 +81,46 @@ public final class Utils {
 				//normal/binorm/tan
 				SplineAxis axis = ((SplineAxis) a);
 				double percentage = loop.GetPercentage(i);
+				System.out.println("find norm");
 				Vector N = axis.getN(percentage);
+				System.out.println("N = " + N.toString());
+				System.out.println("find binorm");
 				Vector H = axis.getB(percentage);
+				System.out.println("H = " + H.toString());
+				System.out.println("find tangent");
 				Vector T = axis.getT(percentage);
+				T = T.normalize();
+				System.out.println("T = " + (T.toString()));
 
 				Point p = loop.points.get(i);
 				Point A = axis.getPointFromPercentage(percentage);
 
 				Vector AP = new Vector(p.x-A.x, p.y-A.y, p.z-A.z);
+				System.out.println("AP = " + AP.toString());
 				//AP.normalize();
-				Vector tNormed = new Vector(T.x, T.y, T.z);
-				tNormed = tNormed.normalize();
 
 				double x = AP.dotProduct(T);
 				double y = AP.dotProduct(H);
 				double z = AP.dotProduct(N);
 
 				//P= B+xT+yH+zN
-				Vector Tx = new Vector(tNormed.x*x, tNormed.y*x, tNormed.z*x);
+				Vector Tx = new Vector(T.x*x, T.y*x, T.z*x);
 				Vector Hy = new Vector(H.x*y, H.y*y, H.z*y);
 				Vector Nz = new Vector(N.x*z, N.y*z, N.z*z);
 
+				System.out.println(":::::::::::::::A before = " + A.toString());
 				Point finalP = ((A.add(Tx)).add(Hy)).add(Nz);
 
 				toRet.addPoint(finalP);
 
-				/*if (percentage > 0) {
+				if (percentage > 0) {
 					System.out.println("----------------");
 					System.out.println((percentage*100) + "%");
-					System.out.println("N: " + N.toString());
-					System.out.println("T: " + T.toString());
-					System.out.println("H: " + H.toString());
+					//System.out.println("N: " + N.toString());
+					//System.out.println("T: " + T.toString());
+					//System.out.println("H: " + H.toString());
 					System.out.println(finalP.toString());
-				}*/
+				}
 
 				//A.Draw(applet);
 			}
