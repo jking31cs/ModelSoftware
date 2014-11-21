@@ -13,6 +13,7 @@ public class MyApplet extends PApplet {
 	
 	boolean drawMode, viewMode, editMode;
 	boolean revolve2DMode = false;
+	boolean animating = true;
 	
 	PolyLoop origl1, origl2, l1, l2;
 	private double increment = 0;
@@ -50,15 +51,20 @@ public class MyApplet extends PApplet {
 		if (e.getKey() == '3'){
 			revolve2DMode = !revolve2DMode;
 		}
-		if(e.getKey() == 'p'){
-			increment += 10;
-			if(increment >= revolveMax) increment = revolveMax;
-			System.out.println(increment);
-		}
-		if(e.getKey() == 'o'){
+		if(e.getKey() == '['){
 			increment -= 10;
 			if(increment < 0) increment = 0d;
 			System.out.println(increment);
+			animating = false;
+		}
+		if(e.getKey() == ']'){
+			increment += 10;
+			if(increment >= revolveMax) increment = revolveMax;
+			System.out.println(increment);
+			animating = false;
+		}
+		if(e.getKey() == 'p'){
+			animating = !animating;
 		}
 		if (e.getKey() == 'c') {
 			double radius = 10000;
@@ -205,7 +211,7 @@ public class MyApplet extends PApplet {
 			l2.draw(this);
 		} else {
 			calculateLoops();
-			if(viewMode) {
+			if(viewMode && animating) {
 				if(revolveMax >= increment)
 				increment += 2d;
 			}
@@ -237,6 +243,19 @@ public class MyApplet extends PApplet {
 						vertex((float) p4.x, (float) p4.y, (float) p4.z);
 						endShape(CLOSE);
 						popMatrix();
+					}
+					//draw caps!
+					if(i == 0 || i == morphLoops.size()-1) {
+						if(increment != 360){
+							PolyLoop loop = morphLoops.get(i);
+							pushMatrix();
+							beginShape();
+							for(Point p : loop.points){
+								vertex((float)p.x, (float)p.y, (float)p.z);
+							}
+							endShape(CLOSE);
+							popMatrix();
+						}
 					}
 
 				}
