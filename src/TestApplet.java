@@ -27,7 +27,7 @@ public class TestApplet extends PApplet {
     public void mouseDragged(MouseEvent e) {
         Point mousePoint = new Point(e.getX(), e.getY(), 0);
         SplineLine.ControlPoint pt = line.closestPointWithinRange(
-            mousePoint, 50
+            mousePoint, 100
         );
         if (pt != null) {
             if (e.isControlDown()) {

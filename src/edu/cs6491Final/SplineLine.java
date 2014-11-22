@@ -137,7 +137,7 @@ public class SplineLine implements Drawable{
 		Vector nd1=tan.mul(-dprime);
 		Vector nd=nd1.add(norm).mul(1/Math.sqrt(1+dprime*dprime));
 		
-		return nd.mul(curr.r);
+		return nd.mul(curr.r/2);
 	}
 
 	public Vector getNormalAtPoint(GeneratedPoint prev,GeneratedPoint curr, GeneratedPoint next){
@@ -165,7 +165,7 @@ public class SplineLine implements Drawable{
 		double dprime=(curr.r-prev.r)/(prev.pt.to(curr.pt).getMag());
 		Vector nd1=(tan.mul(-dprime));
 		Vector nd2=norm.mul(Math.sqrt(1-(dprime*dprime)));
-		Vector nd=nd1.add(nd2).mul(Math.abs(curr.r));
+		Vector nd=nd1.add(nd2).mul(Math.abs(curr.r/2));
 		return nd;	
 	}
 	
@@ -206,7 +206,7 @@ public class SplineLine implements Drawable{
 
 			//Draw semi-circle at end
 			double deltaRot=Math.PI/20;
-			Vector offsetAtEnd=getNormalAtPoint(last,secondLast).mul(-last.r);
+			Vector offsetAtEnd=getNormalAtPoint(last,secondLast).mul(-last.r/2);
 			for(int i=0; i < Math.PI/deltaRot + 1; i++){
 				Vector offsetPoint=last.pt.asVec().add(offsetAtEnd);
 				p.vertex((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z);
@@ -234,7 +234,7 @@ public class SplineLine implements Drawable{
 			}
 
 			//Draw semi-circle at start
-			Vector offsetAtStart=getNormalAtPoint(first,second).mul(-first.r);
+			Vector offsetAtStart=getNormalAtPoint(first,second).mul(-first.r/2);
 			for(int i=0; i < Math.PI/deltaRot +1; i++){
 				Vector offsetPoint=first.pt.asVec().add(offsetAtStart);
 				p.vertex((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z);
@@ -267,10 +267,11 @@ public class SplineLine implements Drawable{
 	public void draw(PApplet p) {
 		
 		
-		if(offsetMode == "NORMAL")	{	p.noFill(); p.stroke(255, 0 ,0);}
-		if(offsetMode == "RADIAL")	{	p.noFill(); p.stroke(0, 255 ,0);}
-		if(offsetMode == "BALL") 	{	p.noFill(); p.stroke(0, 0 ,255);}
+		if(offsetMode == "NORMAL")	{	p.noFill(); p.stroke(255, 0 ,0); p.strokeWeight(3);}
+		if(offsetMode == "RADIAL")	{	p.noFill(); p.stroke(255, 20 , 147); p.strokeWeight(3);}
+		if(offsetMode == "BALL") 	{	p.noFill(); p.stroke(0, 0 ,255); p.strokeWeight(3);}
 		drawOffsetCurve(p, offsetMode);
+		p.strokeWeight(1);
 		drawSpine(p);
 
 		for (ControlPoint pt : pts) pt.draw(p);
