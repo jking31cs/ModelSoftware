@@ -2,6 +2,7 @@ import edu.cs6491Final.SplineLine;
 import edu.cs6491Final.Point;
 import processing.core.PApplet;
 import processing.event.MouseEvent;
+import processing.event.KeyEvent;
 
 /**
  * Created by jking31 on 11/11/14.
@@ -36,6 +37,14 @@ public class TestApplet extends PApplet {
                 pt.pt.y = mousePoint.y;
             }
         }
+    }
+    
+    public void keyPressed(KeyEvent e){
+    	if(e.getKey()=='n')	line.offsetMode="NORMAL";
+    	if(e.getKey()=='r')	line.offsetMode="RADIAL";
+    	if(e.getKey()=='b')	line.offsetMode="BALL";
+    	if(e.getKey()==']')	line.subDivisions++;
+    	if(e.getKey()=='[')	line.subDivisions--;
     }
 
     @Override
