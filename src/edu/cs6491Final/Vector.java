@@ -23,6 +23,13 @@ public class Vector{
 		this.y = y;
 		this.z = z;
 	}
+
+	public Vector(Point a, Point b){
+		//vector from a to b
+		x = b.x - a.x;
+		y = b.y - a.y;
+		z = b.z - a.z;
+	}
   
 	/**
 	 * Gets the magnitude of the Vector.

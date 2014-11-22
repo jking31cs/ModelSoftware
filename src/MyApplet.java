@@ -15,11 +15,13 @@ public class MyApplet extends PApplet {
 	boolean revolve2DMode = false;
 	boolean animating = true;
 	boolean controlPointMoved = false;
+	private List<Vector> norms;
 	
 	PolyLoop origl1, origl2, l1, l2;
 	private double increment = 0;
 	private double revolveMax = 360d;
 	Axis axis;
+	private Point F = new Point(0,0,0);
 	
 	List<PolyLoop> morphLoops;
 	
@@ -40,6 +42,9 @@ public class MyApplet extends PApplet {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
+		if (e.getKey() =='f') { // move focus point on plane
+		    F.sub(F.ToIJ(new Vector((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0))); 
+	    }
 		if (e.getKey() == 'd' && viewMode) {
 			drawMode = true;
 			viewMode = false; 
@@ -189,6 +194,7 @@ public class MyApplet extends PApplet {
 	@Override
 	public void draw() {
 		background(255);
+		translate((float)-F.x,(float)-F.y,(float)-F.z);
 		if (axis instanceof CircularAxis) {
 			CircularAxis ca = (CircularAxis) axis;
 			double oldRadius = ca.radius;
@@ -233,6 +239,22 @@ public class MyApplet extends PApplet {
 				PolyLoop last = morphLoops.get(morphLoops.size()-1);
 				last.draw(this);
 			} else {
+				//calculating normals for smoothing
+				norms = new ArrayList<Vector>();
+				for (int i = 0; i < morphLoops.size() - 1; i++) {
+					PolyLoop m1 = morphLoops.get(i);
+					PolyLoop m2 = morphLoops.get((i+1) % morphLoops.size());
+					for (int j = 0; j < m1.points.size(); j++) {
+						Point p1 = m1.points.get(j);
+						Point p2 = m2.points.get(j);
+						Point p3 = m2.points.get((j+1) % m1.points.size());
+						Vector v1 = new Vector(p2, p1);
+						Vector v2 = new Vector(p2, p3);
+						Vector norm = v2.crossProd(v1);
+						norms.add(norm);
+					}
+				}
+				//drawing geo
 				for (int i = 0; i < morphLoops.size() - 1; i++) {
 					PolyLoop m1 = morphLoops.get(i);
 					PolyLoop m2 = morphLoops.get((i+1) % morphLoops.size());
@@ -244,6 +266,7 @@ public class MyApplet extends PApplet {
 						pushMatrix();
 						fill(0,0,255);
 						beginShape();
+						FindNormal(i, j);
 						vertex((float) p1.x, (float) p1.y, (float) p1.z);
 						vertex((float) p2.x, (float) p2.y, (float) p2.z);
 						vertex((float) p3.x, (float) p3.y, (float) p3.z);
@@ -276,6 +299,40 @@ public class MyApplet extends PApplet {
 			}
 			popMatrix();
 		}
+	}
+
+	public void FindNormal(int i1, int i2){
+		PolyLoop l = morphLoops.get(i1);
+
+		List<Vector> ns = new ArrayList<Vector>();
+		Vector n1 = norms.get(i1*i2);
+		ns.add(n1);
+		if(i2-1 >= 0) {
+			Vector n2 = norms.get(i1*(i2-1));
+			ns.add(n2);
+		}
+		if(i2+1 < l.points.size()) {
+			Vector n3 = norms.get(i1*(i2+1));
+			ns.add(n3);
+		}
+		if(i1+1 < morphLoops.size()) {
+			Vector n2 = norms.get((i1+1)*i2);
+			ns.add(n2);
+		}
+		if(i1-1 >= 0) {
+			Vector n3 = norms.get((i1-1)*i2);
+			ns.add(n3);
+		}
+
+		Vector avgNorms = n1;
+		for(int i = 1; i < ns.size()-1; i++){
+			Vector addV = ns.get(i);
+			avgNorms = avgNorms.add(addV);
+		}
+		avgNorms = avgNorms.normalize();
+
+		//normal((float)avgNorms.x, (float)avgNorms.y, (float)avgNorms.z);
+		normal((float)n1.x, (float)n1.y, (float)n1.z);
 	}
 
 	public static void main(String[] args) {

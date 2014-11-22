@@ -8,7 +8,10 @@ import processing.core.PApplet;
  *
  */
 public class Point implements Drawable {
-	
+	//*********** PICK
+	Vector I= new Vector(1,0,0);
+	Vector J = new Vector(0,1,0); 
+	Vector K = new Vector(0,0,1); // screen projetions of global model frame
 	public double x,y,z;
 	
 	public Point(double x, double y, double z) {
@@ -16,9 +19,31 @@ public class Point implements Drawable {
 		this.y = y;
 		this.z = z;
 	}
+
+	public Vector ToIJ(Vector V) {
+		double x = det2(V,J) / det2(I,J);
+		double y = det2(V,I) / det2(J,I);
+		return new Vector(x,y,0);
+	}
+
+	void computeProjectedVectors() { 
+	  pt O = ToScreen(P(0,0,0));
+	  pt A = ToScreen(P(1,0,0));
+	  pt B = ToScreen(P(0,1,0));
+	  pt C = ToScreen(P(0,0,1));
+	  I=V(O,A);
+	  J=V(O,B);
+	  K=V(O,C);
+	 }
+
+	double det2(Vector U, Vector V) {return -U.y*V.x + U.x*V.y; };  
 	
 	public Point add(Vector v) {
 		return new Point(x+v.x, y+v.y, z+v.z);
+	}
+
+	public Point sub(Vector v){
+		return new Point(x-v.x, y-v.y, z-v.z);
 	}
 	
 	public Vector asVec() {
