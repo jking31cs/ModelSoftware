@@ -89,7 +89,7 @@ public final class Utils {
 				System.out.println("H = " + H.toString());
 				System.out.println("find tangent");
 				Vector T = axis.getT(percentage);
-				T = T.normalize();
+				//T = T.normalize();
 				System.out.println("T = " + (T.toString()));
 
 				Point p = loop.points.get(i);

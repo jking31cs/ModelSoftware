@@ -64,7 +64,7 @@ public class Vector{
 	
 	/**
 	 * Subtracts the vector from this vector.
-	 * @param v
+	 * @param
 	 * @return
 	 */
 	public Vector sub(Vector v) {

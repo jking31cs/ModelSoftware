@@ -107,9 +107,40 @@ public class SplineAxis extends Axis {
 	}
 
 	public int getIndexFromPercentage(double percentage) {
-		percentage *= (splinePoints.size()-1);
-		int index = Double.valueOf(percentage).intValue();
+		Double length = GetTotalSplineLength();
+		length *= percentage;
+		//percentage *= (splinePoints.size()-1);
+		int index = GetIndexFromLength(length);//Double.valueOf(percentage).intValue();
 		return index;
+	}
+
+	public int GetIndexFromLength(double l){
+		double traversedDist = 0d;
+		int index = 0;
+		for(int i = 0; i < splinePoints.size()-2; i++){
+			Point firstP = splinePoints.get(i);
+			Point nextP = splinePoints.get(i+1);
+			double add = Math.sqrt(Math.pow((nextP.x-firstP.x), 2) + Math.pow((nextP.y-firstP.y), 2) + Math.pow((nextP.z-firstP.z), 2));
+			if((traversedDist += add) > l){
+				index = i;
+				break;
+			}
+			traversedDist += add;
+		}
+
+		return index;
+
+	}
+
+	public double GetTotalSplineLength(){
+		double totalDist = 0d;
+		for(int i = 0; i < splinePoints.size()-2; i++){
+			Point firstP = splinePoints.get(i);
+			Point nextP = splinePoints.get(i+1);
+			double add = Math.sqrt(Math.pow((nextP.x-firstP.x), 2) + Math.pow((nextP.y-firstP.y), 2) + Math.pow((nextP.z-firstP.z), 2));
+			totalDist += add;
+		}
+		return totalDist;
 	}
 
 	public Point getPointFromPercentage(double percentage) {
@@ -144,10 +175,12 @@ public class SplineAxis extends Axis {
 	public Vector getT(double percentage) {
 		System.out.println("T percent = " + percentage);
 		int index = getIndexFromPercentage(percentage);
-		Point a = getPointAtIndex(index);
+		Point a = getPointAtIndex(index-1);
 		Point b = getPointAtIndex(index+1);
 
 		Vector AB = new Vector(b.x-a.x, b.y-a.y, b.z-a.z);
+		AB = AB.normalize();
+		AB.draw(pApp, a);
 		return AB;
 	}
 
@@ -156,10 +189,11 @@ public class SplineAxis extends Axis {
 		int index = getIndexFromPercentage(percentage);
 		Vector norm = getN(percentage);
 		Point a = getPointAtIndex(index);
-		Point b = getPointAtIndex(index+1);
+		//Point b = getPointAtIndex(index+1);
 		System.out.println("+++++++++++a and b:" + index + ", " + (index+1) + ", " + percentage);
 
-		Vector BA = new Vector(a.x-b.x, a.y-b.y, a.z-b.z);
+		//Vector BA = new Vector(a.x-b.x, a.y-b.y, a.z-b.z);
+		Vector BA = getT(percentage);
 		BA = (BA.crossProd(norm)).normalize();
 		BA.draw(pApp, a);
 		pApp.stroke(0,255,0);

@@ -14,6 +14,7 @@ public class MyApplet extends PApplet {
 	boolean drawMode, viewMode, editMode;
 	boolean revolve2DMode = false;
 	boolean animating = true;
+	boolean controlPointMoved = false;
 	
 	PolyLoop origl1, origl2, l1, l2;
 	private double increment = 0;
@@ -171,6 +172,7 @@ public class MyApplet extends PApplet {
 						pt.x = mousePoint.x;
 						pt.y = mousePoint.y;
 						((SplineAxis)axis).quintic();
+						controlPointMoved = true;
 						break;
 					}
 				} 
@@ -197,8 +199,11 @@ public class MyApplet extends PApplet {
 				l2=Utils.morphAboutAxis(axis, origl2);
 			}
 		} else if (axis instanceof SplineAxis) {
-			l1 = Utils.morphAboutAxis(axis, l1);
-			l2 = Utils.morphAboutAxis(axis, l2);
+			if(controlPointMoved) {
+				l1 = Utils.morphAboutAxis(axis, l1);
+				l2 = Utils.morphAboutAxis(axis, l2);
+				controlPointMoved = false;
+			}
 			((SplineAxis)axis).UpdateLoopRefs(l1, l2);
 		}
 		if (drawMode) {
