@@ -131,6 +131,16 @@ public class SplineLine implements Drawable{
 	}
 
 	public Vector getNormalOffsetAtPoint(GeneratedPoint prev,GeneratedPoint curr, GeneratedPoint next){
+		Vector norm=getNormalAtPoint(prev,curr, next).normalize();
+		Vector tan=norm.rotate(Math.PI/2, new Vector(0,0,1));
+		double dprime=(curr.r-prev.r)/(prev.pt.to(curr.pt).getMag());
+		Vector nd1=tan.mul(-dprime);
+		Vector nd=nd1.add(norm).mul(1/Math.sqrt(1+dprime*dprime));
+		
+		return nd.mul(curr.r);
+	}
+
+	public Vector getNormalAtPoint(GeneratedPoint prev,GeneratedPoint curr, GeneratedPoint next){
 		Vector toRet=new Vector(0,0,0);
 		Vector fromPrev=prev.pt.to(curr.pt).normalize();
 		Vector toNext=curr.pt.to(next.pt).normalize();
@@ -140,7 +150,7 @@ public class SplineLine implements Drawable{
 		
 		return toRet.mul(curr.r);
 	}
-
+	
 	public Vector getNormalAtPoint(GeneratedPoint curr, GeneratedPoint next){
 		Vector toRet=new Vector(0,0,0);
 		Vector toNext=curr.pt.to(next.pt).normalize();
@@ -150,7 +160,7 @@ public class SplineLine implements Drawable{
 
 	
 	public Vector getRadialOffsetAtPoint(GeneratedPoint prev,GeneratedPoint curr, GeneratedPoint next){    	
-		Vector norm=getNormalOffsetAtPoint(prev,curr, next).normalize();
+		Vector norm=getNormalAtPoint(prev,curr, next).normalize();
 		Vector tan=norm.rotate(Math.PI/2, new Vector(0,0,1));
 		double dprime=(curr.r-prev.r)/(prev.pt.to(curr.pt).getMag());
 		Vector nd1=(tan.mul(-dprime));
