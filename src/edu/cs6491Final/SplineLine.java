@@ -35,6 +35,7 @@ public class SplineLine implements Drawable{
 	
 	public String offsetMode="RADIAL";
 	public int subDivisions=3;
+	public boolean fillCurve=false;
 
 	public SplineLine() {
 		this.pts = new ArrayList<>();
@@ -133,7 +134,9 @@ public class SplineLine implements Drawable{
 	public Vector getNormalOffsetAtPoint(GeneratedPoint prev,GeneratedPoint curr, GeneratedPoint next){
 		Vector norm=getNormalAtPoint(prev,curr, next).normalize();
 		Vector tan=norm.rotate(Math.PI/2, new Vector(0,0,1));
-		double dprime=(curr.r-prev.r)/(prev.pt.to(curr.pt).getMag());
+		double dprime1=(curr.r-prev.r)/(prev.pt.to(curr.pt).getMag());
+		double dprime2=(next.r-curr.r)/(curr.pt.to(next.pt).getMag());
+		double dprime=(dprime1+dprime2)/2;
 		Vector nd1=tan.mul(-dprime);
 		Vector nd=nd1.add(norm).mul(1/Math.sqrt(1+dprime*dprime));
 		
@@ -162,7 +165,9 @@ public class SplineLine implements Drawable{
 	public Vector getRadialOffsetAtPoint(GeneratedPoint prev,GeneratedPoint curr, GeneratedPoint next){    	
 		Vector norm=getNormalAtPoint(prev,curr, next).normalize();
 		Vector tan=norm.rotate(Math.PI/2, new Vector(0,0,1));
-		double dprime=(curr.r-prev.r)/(prev.pt.to(curr.pt).getMag());
+		double dprime1=(curr.r-prev.r)/(prev.pt.to(curr.pt).getMag());
+		double dprime2=(next.r-curr.r)/(curr.pt.to(next.pt).getMag());
+		double dprime=(dprime1+dprime2)/2;
 		Vector nd1=(tan.mul(-dprime));
 		Vector nd2=norm.mul(Math.sqrt(1-(dprime*dprime)));
 		Vector nd=nd1.add(nd2).mul(Math.abs(curr.r/2));
@@ -270,9 +275,14 @@ public class SplineLine implements Drawable{
 		if(offsetMode == "NORMAL")	{	p.noFill(); p.stroke(255, 0 ,0); p.strokeWeight(3);}
 		if(offsetMode == "RADIAL")	{	p.noFill(); p.stroke(255, 20 , 147); p.strokeWeight(3);}
 		if(offsetMode == "BALL") 	{	p.noFill(); p.stroke(0, 0 ,255); p.strokeWeight(3);}
+		if(fillCurve)	{
+			if(offsetMode == "NORMAL")	{	p.fill(255, 0, 0); }
+			if(offsetMode == "RADIAL")	{	p.fill(255, 20, 147); }
+			if(offsetMode == "BALL") 	{	p.fill(0, 0 ,255); }
+		}
 		drawOffsetCurve(p, offsetMode);
 		p.strokeWeight(1);
-		drawSpine(p);
+		if(!fillCurve)	drawSpine(p);
 
 		for (ControlPoint pt : pts) pt.draw(p);
 

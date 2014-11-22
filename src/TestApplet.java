@@ -45,6 +45,7 @@ public class TestApplet extends PApplet {
     	if(e.getKey()=='b')	line.offsetMode="BALL";
     	if(e.getKey()==']')	line.subDivisions++;
     	if(e.getKey()=='[')	line.subDivisions--;
+    	if(e.getKey()=='f')	line.fillCurve=!line.fillCurve;
     }
 
     @Override
