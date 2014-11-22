@@ -5,13 +5,15 @@ import processing.core.PConstants;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class SplineLine implements Drawable{
+
 	public static class ControlPoint implements Drawable {
 
 		public double r;
-		public Point pt;
 
+		public Point pt;
 		public ControlPoint(double r, Point p) {
 			this.r = r;
 			this.pt = p;
@@ -23,19 +25,19 @@ public class SplineLine implements Drawable{
 			p.fill(0, 255, 0);
 			p.ellipse((float) pt.x, (float) pt.y, (float) r, (float) r);
 		}
-	}
 
-	private static class GeneratedPoint extends ControlPoint {
+	}
+	public static class GeneratedPoint extends ControlPoint {
+
 		public GeneratedPoint(double r, Point p) {
 			super(r, p);
 		}
 	}
-
 	public List<ControlPoint> pts;
-	
-	public String offsetMode="RADIAL";
-	public int subDivisions=3;
 
+	public String offsetMode="RADIAL";
+
+	public int subDivisions=3;
 	public SplineLine() {
 		this.pts = new ArrayList<>();
 	}
@@ -136,7 +138,7 @@ public class SplineLine implements Drawable{
 		double dprime=(curr.r-prev.r)/(prev.pt.to(curr.pt).getMag());
 		Vector nd1=tan.mul(-dprime);
 		Vector nd=nd1.add(norm).mul(1/Math.sqrt(1+dprime*dprime));
-		
+
 		return nd.mul(curr.r/2);
 	}
 
@@ -147,10 +149,28 @@ public class SplineLine implements Drawable{
 		Vector prevN=fromPrev.rotate(Math.PI/2, new Vector(0,0,1));
 		Vector nextN=toNext.rotate(Math.PI/2, new Vector(0,0,1));
 		toRet=prevN.add(nextN).mul(0.5).normalize();
-		
+
 		return toRet.mul(curr.r);
 	}
-	
+
+	public Vector getNormalAtPoint(Point p) {
+		GeneratedPoint curr = null;
+		GeneratedPoint next = null;
+		List<GeneratedPoint> points = calculateQuinticSpline();
+		for (int i = 1; i < points.size(); i++) {
+			GeneratedPoint g1 = points.get(i-1);
+			GeneratedPoint g2 = points.get(i);
+
+			if (g1.pt.equals(p) || g1.pt.to(p).normalize().equals(g1.pt.to(g2.pt).normalize())) {
+				curr = g1;
+				next = g2;
+				break;
+			}
+		}
+		return getNormalAtPoint(curr, next);
+
+	}
+
 	public Vector getNormalAtPoint(GeneratedPoint curr, GeneratedPoint next){
 		Vector toRet=new Vector(0,0,0);
 		Vector toNext=curr.pt.to(next.pt).normalize();
@@ -251,9 +271,9 @@ public class SplineLine implements Drawable{
 			List<GeneratedPoint> generatedPoints = calculateQuinticSpline();
 			p.noFill();
 			p.stroke(0);
-			for(GeneratedPoint g:generatedPoints){
-				p.ellipse((float) g.pt.x, (float) g.pt.y, (float) g.r, (float) g.r);
-			}
+//			for(GeneratedPoint g:generatedPoints){
+//				p.ellipse((float) g.pt.x, (float) g.pt.y, (float) g.r, (float) g.r);
+//			}
 			p.stroke(122, 255, 122);
 			for(int ptCtr=0;ptCtr<generatedPoints.size()-1;ptCtr++){
 				Point p1=generatedPoints.get(ptCtr).pt;
@@ -267,9 +287,9 @@ public class SplineLine implements Drawable{
 	public void draw(PApplet p) {
 		
 		
-		if(offsetMode == "NORMAL")	{	p.noFill(); p.stroke(255, 0 ,0); p.strokeWeight(3);}
-		if(offsetMode == "RADIAL")	{	p.noFill(); p.stroke(255, 20 , 147); p.strokeWeight(3);}
-		if(offsetMode == "BALL") 	{	p.noFill(); p.stroke(0, 0 ,255); p.strokeWeight(3);}
+		if(offsetMode.equals("NORMAL"))	{	p.noFill(); p.stroke(255, 0 ,0); p.strokeWeight(3);}
+		if(Objects.equals(offsetMode, "RADIAL"))	{	p.noFill(); p.stroke(255, 20 , 147); p.strokeWeight(3);}
+		if(Objects.equals(offsetMode, "BALL")) 	{	p.noFill(); p.stroke(0, 0 ,255); p.strokeWeight(3);}
 		drawOffsetCurve(p, offsetMode);
 		p.strokeWeight(1);
 		drawSpine(p);

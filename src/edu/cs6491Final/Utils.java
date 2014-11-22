@@ -1,5 +1,7 @@
 package edu.cs6491Final;
 
+import java.util.List;
+
 public final class Utils {
 	
 	/**
@@ -77,5 +79,61 @@ public final class Utils {
 		}
 		return toRet;
 	}
-	
+
+	/**
+	 * This assumes that p is on l1, find the q on l2 and the center point
+	 * @param p
+	 * @param l1
+	 * @param l2
+	 * @return
+	 */
+	public static BallMorphData getBallMorphDataAt(Point p, SplineLine l1, SplineLine l2) {
+
+		//First get out the normal vector at p in l1.
+		Vector normal_at_p = l1.getNormalAtPoint(p);
+		Point m1 = p.add(normal_at_p); //For line intersection.
+
+		boolean found = false;
+		List<SplineLine.GeneratedPoint> points = l2.calculateQuinticSpline();
+		Integer min = 0;
+		Integer max = points.size();
+		Integer qIndex = points.size()/2;
+		Point center = null;
+		while (!found) {
+			Point q = points.get(qIndex).pt;
+			Vector normal_at_q = l2.getNormalAtPoint(q);
+			Point m2 = q.add(normal_at_q);
+			Point m = intersectionBetweenLines(p, m1, q, m2);
+
+			if (Math.abs(p.distanceTo(m) - q.distanceTo(m)) < 1) {
+				center = m;
+				found = true;
+			} else if (p.distanceTo(m) > q.distanceTo(m)) {
+				Integer temp = qIndex;
+				qIndex = (qIndex + min) / 2;
+				max = temp;
+			} else {
+				Integer temp = qIndex;
+				qIndex = (qIndex + max) / 2;
+				min = temp;
+			}
+
+			if (max-min < 2) {
+				center = m;
+				found = true;
+			}
+		}
+
+
+		return new BallMorphData(p,points.get(qIndex).pt,center);
+	}
+
+	public static Point intersectionBetweenLines(Point p1,Point p2,Point p3,Point p4) {
+		double xTop = ((p1.x*p2.y - p1.y*p2.x)*(p3.x-p4.x)) - ((p1.x - p2.x)*(p3.x*p4.y - p3.y*p4.x));
+		double xBot = ((p1.x - p2.x)*(p3.y-p4.y))-((p1.y-p2.y)*(p3.x-p4.x));
+		double yTop = ((p1.x*p2.y - p1.y*p2.x)*(p3.y-p4.y)) - ((p1.y - p2.y)*(p3.x*p4.y - p3.y*p4.x));
+		double yBot = ((p1.x - p2.x)*(p3.y-p4.y))-((p1.y-p2.y)*(p3.x-p4.x));
+
+		return new Point(xTop/xBot, yTop/yBot, 0);
+	}
 }
