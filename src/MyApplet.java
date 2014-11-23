@@ -264,6 +264,7 @@ public class MyApplet extends PApplet {
 			//pointLight(255, 255, 255, width/2, height/2, 0);
 			rotateX(rx); rotateY(ry); // rotates the model around the new origin (center of screen)
 			rotateX(PI / 2); // rotates frame around X to make X and Y basis vectors parallel to the floor
+			smooth();
 			axis.draw(this);
 			stroke(0);
 			if(revolve2DMode){
@@ -287,7 +288,7 @@ public class MyApplet extends PApplet {
 						Vector norm = v1.crossProd(v2);
 						norm = norm.normalize();
 
-						if (i == 0 && j == debug) {
+						/*if (i == 0 && j == debug) {
 							p1.draw(this);
 							stroke(0,0,255);
 							p2.draw(this);
@@ -298,8 +299,8 @@ public class MyApplet extends PApplet {
 							v1.draw(this, p1);
 							v2.draw(this, p1);
 							stroke(255, 0, 0);
-							norm.draw(this, p1);						
-						}
+							norm.draw(this, p1);					
+						}*/
 
 						norms.add(norm);
 					}
@@ -319,7 +320,8 @@ public class MyApplet extends PApplet {
 						noStroke();
 						fill(0,0,255);
 						beginShape();
-						FindNormal(i, j);
+						Vector norm = FindNormal(i, j);
+						normal((float) norm.x, (float) norm.y, (float) norm.z);
 						vertex((float) p1.x, (float) p1.y, (float) p1.z);
 						vertex((float) p2.x, (float) p2.y, (float) p2.z);
 						vertex((float) p3.x, (float) p3.y, (float) p3.z);
@@ -328,24 +330,56 @@ public class MyApplet extends PApplet {
 						popMatrix();
 					}
 				}
+
+				textureWrap(REPEAT);
 				//draw caps!
 				if(increment != 360){
-					PolyLoop loop = morphLoops.get(0);
+
+					// START CAP
+					PolyLoop firstLoop = morphLoops.get(0);
+					Point A = firstLoop.points.get(0);
+					Point B = firstLoop.points.get(1);
+					Point C = firstLoop.points.get(2);
+
+					Vector tan = (A.to(B)).normalize();
+					Vector norm = ((B.to(A)).normalize()).crossProd((C.to(B)).normalize());
+					Vector binorm = norm.crossProd(tan);
+
+					stroke(0,0,0);
+					A.draw(this);
+					stroke(0,0,255);
+					B.draw(this);
+					stroke(255, 0, 0);
+					C.draw(this);
+
+					stroke(0,255,0);
+					tan.draw(this, A);
+					norm.draw(this, A);
+					binorm.draw(this, A);
+
 					pushMatrix();
 					beginShape();
 					texture(hatch);
-					for(Point p : loop.points){
-						vertex((float)p.x, (float)p.y, (float)p.z);
+					fill(1);
+					System.out.println("+++++++++++++++++");
+					for(Point p : firstLoop.points){
+						Vector AP = A.to(p);
+						float u = (float)(AP.dotProduct(tan));
+						float v = (float)(AP.dotProduct(binorm));
+						vertex((float)p.x, (float)p.y, (float)p.z, u, v);
+						System.out.println("U: " + u + ", V: " + v);
 					}
 					endShape(CLOSE);
 					popMatrix();
-				}
-				if(increment != 360){
-					PolyLoop loop = morphLoops.get(morphLoops.size()-1);
+
+
+
+					// END CAP
+					PolyLoop lastLoop = morphLoops.get(morphLoops.size()-1);
 					pushMatrix();
 					beginShape();
 					texture(hatch);
-					for(Point p : loop.points){
+					for(Point p : lastLoop.points){
 						vertex((float)p.x, (float)p.y, (float)p.z);
 					}
 					endShape(CLOSE);
@@ -379,7 +413,7 @@ public class MyApplet extends PApplet {
 		return (area1 + area2)/2d * com1.distanceTo(com2);
 	}
 
-	public void FindNormal(int i1, int i2){
+	public Vector FindNormal(int i1, int i2){
 		PolyLoop l = morphLoops.get(i1);
 
 		List<Vector> ns = new ArrayList<Vector>();
@@ -425,7 +459,7 @@ public class MyApplet extends PApplet {
 		}
 		avgNorms = avgNorms.normalize();
 
-		normal((float)avgNorms.x, (float)avgNorms.y, (float)avgNorms.z);
+		return avgNorms;
 		//normal((float)n1.x, (float)n1.y, (float)n1.z);
 	}
 
