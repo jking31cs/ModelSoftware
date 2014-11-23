@@ -196,7 +196,7 @@ public class Vector{
 	public void draw(PApplet p, Point point){
 		p.beginShape(p.LINES);
 		p.vertex((float)point.x,(float)point.y, (float)point.z);
-		p.vertex((float)(point.x + x*5), (float)(point.y+y*5), (float)(point.z+z*50));
+		p.vertex((float)(point.x + x*5), (float)(point.y+y*5), (float)(point.z+z*5));
 		p.endShape(); 
 	}
 

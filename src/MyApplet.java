@@ -280,6 +280,7 @@ public class MyApplet extends PApplet {
 						//v1 = v1.normalize();
 						//v2 = v2.normalize();
 						Vector norm = v1.crossProd(v2);
+						norm = norm.normalize();
 
 						if (i == 0 && j == debug) {
 							p1.draw(this);
@@ -294,8 +295,6 @@ public class MyApplet extends PApplet {
 							stroke(255, 0, 0);
 							norm.draw(this, p1);						
 						}
-
-						norm = norm.normalize();
 
 						norms.add(norm);
 					}
