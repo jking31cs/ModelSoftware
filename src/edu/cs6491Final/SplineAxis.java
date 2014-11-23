@@ -161,13 +161,13 @@ public class SplineAxis extends Axis {
 
 		//System.out.println("BA : " + BA.toString());
 		//System.out.println("BC : " + BC.toString());
-		Vector cross = (BA.crossProd(BC)).normalize();
+		Vector cross = (BA.crossProd(BC));
 		if (Double.isNaN(cross.x) || Double.isNaN(cross.y) || Double.isNaN(cross.z)) {
 			return (new Vector(0,0,1));
 		} else if (cross.x == 0 && cross.y == 0 && cross.z == 0) {
 			return (new Vector(0,0,1));
 		} else {
-			return cross;
+			return cross.normalize();
 		}
 			
 	}
@@ -180,7 +180,7 @@ public class SplineAxis extends Axis {
 
 		Vector AB = new Vector(b.x-a.x, b.y-a.y, b.z-a.z);
 		AB = AB.normalize();
-		AB.draw(pApp, a);
+		//AB.draw(pApp, a);
 		return AB;
 	}
 
@@ -194,10 +194,11 @@ public class SplineAxis extends Axis {
 
 		//Vector BA = new Vector(a.x-b.x, a.y-b.y, a.z-b.z);
 		Vector BA = getT(percentage);
-		BA = (BA.crossProd(norm)).normalize();
-		BA.draw(pApp, a);
+		BA = (BA.crossProd(norm));
 		pApp.stroke(0,255,0);
-		a.draw(pApp);
+		BA.draw(pApp, a);
+		BA = BA.normalize();
+		//a.draw(pApp);
 		return BA;
 	}
 
@@ -268,7 +269,7 @@ public class SplineAxis extends Axis {
 		p2.draw(p);
 
 		p.stroke(50, 50, 0);
-		DrawProjection(p);
+		//DrawProjection(p);
 		p.popMatrix();
 
 	}

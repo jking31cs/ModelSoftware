@@ -211,12 +211,15 @@ public class MyApplet extends PApplet {
 				calculateLoops();
 			}
 		} else if (axis instanceof SplineAxis) {
-			if(controlPointMoved) {
+			//if(controlPointMoved) {
+				rotateX(rx); rotateY(ry); // rotates the model around the new origin (center of screen)
+				rotateX(PI / 2); // rotates frame around X to make X and Y basis vectors parallel to the floor
+			
 				System.out.println("moved points");
-				l1 = Utils.morphAboutAxis(axis, origl1);
-				l2 = Utils.morphAboutAxis(axis, origl2);
+				l1 = Utils.morphAboutAxis(axis, l1);
+				l2 = Utils.morphAboutAxis(axis, l2);
 				controlPointMoved = false;
-			}
+			//}
 			calculateLoops();
 			((SplineAxis)axis).UpdateLoopRefs(l1, l2);
 		}
