@@ -52,6 +52,8 @@ public class TestApplet extends PApplet {
     public void draw() {
         background(255);
         line.draw(this);
+        if(line.pts.size()>2)
+        	line.getBoundingLoop().draw(this);
     }
 
     public static void main(String[] args) {
