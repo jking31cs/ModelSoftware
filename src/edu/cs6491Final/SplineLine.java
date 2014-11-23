@@ -32,6 +32,7 @@ public class SplineLine implements Drawable{
 	}
 
 	public List<ControlPoint> pts;
+	public List<GeneratedPoint> genPts;
 	
 	public String offsetMode="RADIAL";
 	public int subDivisions=3;
@@ -133,7 +134,7 @@ public class SplineLine implements Drawable{
 
 	public Vector getNormalOffsetAtPoint(GeneratedPoint prev,GeneratedPoint curr, GeneratedPoint next){
 		Vector norm=getNormalAtPoint(prev,curr, next).normalize();
-		Vector tan=norm.rotate(Math.PI/2, new Vector(0,0,1));
+		Vector tan=norm.rotate(Math.PI/2, getNormalToCurvePlane());
 		double dprime1=(curr.r-prev.r)/(prev.pt.to(curr.pt).getMag());
 		double dprime2=(next.r-curr.r)/(curr.pt.to(next.pt).getMag());
 		double dprime=(dprime1+dprime2)/2;
@@ -147,24 +148,34 @@ public class SplineLine implements Drawable{
 		Vector toRet=new Vector(0,0,0);
 		Vector fromPrev=prev.pt.to(curr.pt).normalize();
 		Vector toNext=curr.pt.to(next.pt).normalize();
-		Vector prevN=fromPrev.rotate(Math.PI/2, new Vector(0,0,1));
-		Vector nextN=toNext.rotate(Math.PI/2, new Vector(0,0,1));
+		Vector prevN=fromPrev.rotate(Math.PI/2, getNormalToCurvePlane());
+		Vector nextN=toNext.rotate(Math.PI/2, getNormalToCurvePlane());
 		toRet=prevN.add(nextN).mul(0.5).normalize();
 		
 		return toRet.mul(curr.r);
 	}
 	
+	public Vector getNormalToCurvePlane(){
+		Vector toRet=new Vector(0,0,0);
+		if(pts.size()>2){
+			Vector p1=pts.get(0).pt.to(pts.get(1).pt);
+			Vector p2=pts.get(1).pt.to(pts.get(2).pt);
+			toRet=p1.crossProd(p2).normalize();	
+		}
+		return toRet;
+	}
+	
 	public Vector getNormalAtPoint(GeneratedPoint curr, GeneratedPoint next){
 		Vector toRet=new Vector(0,0,0);
 		Vector toNext=curr.pt.to(next.pt).normalize();
-		toRet=toNext.normalize().rotate(Math.PI/2, new Vector(0, 0, 1));
+		toRet=toNext.normalize().rotate(Math.PI/2, getNormalToCurvePlane());
 		return toRet;	
 	}
 
 	
 	public Vector getRadialOffsetAtPoint(GeneratedPoint prev,GeneratedPoint curr, GeneratedPoint next){    	
 		Vector norm=getNormalAtPoint(prev,curr, next).normalize();
-		Vector tan=norm.rotate(Math.PI/2, new Vector(0,0,1));
+		Vector tan=norm.rotate(Math.PI/2, getNormalToCurvePlane());
 		double dprime1=(curr.r-prev.r)/(prev.pt.to(curr.pt).getMag());
 		double dprime2=(next.r-curr.r)/(curr.pt.to(next.pt).getMag());
 		double dprime=(dprime1+dprime2)/2;
@@ -183,20 +194,20 @@ public class SplineLine implements Drawable{
 	}
 	
 	public void drawOffsetCurve(PApplet p, String mode){
-		if (pts.size() > 1) {
-			List<GeneratedPoint> generatedPoints = calculateQuinticSpline();
+		if (pts.size() > 2) {
+			genPts = calculateQuinticSpline();
 			p.beginShape();
-			GeneratedPoint first=generatedPoints.get(0);
-			GeneratedPoint second=generatedPoints.get(1);
-			GeneratedPoint last=generatedPoints.get(generatedPoints.size()-1);
-			GeneratedPoint secondLast=generatedPoints.get(generatedPoints.size()-2);
+			GeneratedPoint first=genPts.get(0);
+			GeneratedPoint second=genPts.get(1);
+			GeneratedPoint last=genPts.get(genPts.size()-1);
+			GeneratedPoint secondLast=genPts.get(genPts.size()-2);
 			int ptCtr=0;
-			if(pts.size()>2){   
+			 
 				//Offset vertices on one side
-				for (ptCtr = 1; ptCtr < generatedPoints.size() - 1; ptCtr++) {
-					GeneratedPoint prev = generatedPoints.get(ptCtr-1);
-					GeneratedPoint cur = generatedPoints.get(ptCtr);
-					GeneratedPoint next = generatedPoints.get(ptCtr+1);
+				for (ptCtr = 1; ptCtr < genPts.size() - 1; ptCtr++) {
+					GeneratedPoint prev = genPts.get(ptCtr-1);
+					GeneratedPoint cur = genPts.get(ptCtr);
+					GeneratedPoint next = genPts.get(ptCtr+1);
 					Vector offset = new Vector(0,0,0);
 					if(mode == "NORMAL")
 						offset=getNormalOffsetAtPoint(prev,cur,next);
@@ -207,7 +218,7 @@ public class SplineLine implements Drawable{
 					Vector offsetPoint=cur.pt.asVec().add(offset);
 					p.vertex((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z);
 				}
-			}
+			
 
 			//Draw semi-circle at end
 			double deltaRot=Math.PI/20;
@@ -215,16 +226,16 @@ public class SplineLine implements Drawable{
 			for(int i=0; i < Math.PI/deltaRot + 1; i++){
 				Vector offsetPoint=last.pt.asVec().add(offsetAtEnd);
 				p.vertex((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z);
-				offsetAtEnd=offsetAtEnd.rotate(deltaRot, new Vector(0, 0, -1));
+				offsetAtEnd=offsetAtEnd.rotate(deltaRot, getNormalToCurvePlane().mul(-1));
 			}
-			if(pts.size() >1)	{
+			
 				
 				//Offset vertices on the other side
 				ptCtr--;
 				while(ptCtr>1){
-					GeneratedPoint prev = generatedPoints.get(ptCtr+1);
-					GeneratedPoint cur = generatedPoints.get(ptCtr);
-					GeneratedPoint next = generatedPoints.get(ptCtr-1);
+					GeneratedPoint prev = genPts.get(ptCtr+1);
+					GeneratedPoint cur = genPts.get(ptCtr);
+					GeneratedPoint next = genPts.get(ptCtr-1);
 					Vector offset = new Vector(0,0,0);
 					if(mode == "NORMAL")
 						offset=getNormalOffsetAtPoint(prev,cur,next);
@@ -236,14 +247,14 @@ public class SplineLine implements Drawable{
 					p.vertex((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z);
 					ptCtr--;
 				}
-			}
+			
 
 			//Draw semi-circle at start
 			Vector offsetAtStart=getNormalAtPoint(first,second).mul(-first.r/2);
 			for(int i=0; i < Math.PI/deltaRot +1; i++){
 				Vector offsetPoint=first.pt.asVec().add(offsetAtStart);
 				p.vertex((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z);
-				offsetAtStart=offsetAtStart.rotate(deltaRot, new Vector(0, 0, -1));
+				offsetAtStart=offsetAtStart.rotate(deltaRot, getNormalToCurvePlane().mul(-1));
 			}
 
 			p.endShape(PConstants.CLOSE);
@@ -251,18 +262,17 @@ public class SplineLine implements Drawable{
 	}
 	
 	public void drawSpine(PApplet p){
-		if(pts.size()>1)
+		if(pts.size()>2)
 		{
-			List<GeneratedPoint> generatedPoints = calculateQuinticSpline();
 			p.noFill();
 			p.stroke(0);
-			for(GeneratedPoint g:generatedPoints){
+			for(GeneratedPoint g:genPts){
 				p.ellipse((float) g.pt.x, (float) g.pt.y, (float) g.r, (float) g.r);
 			}
 			p.stroke(122, 255, 122);
-			for(int ptCtr=0;ptCtr<generatedPoints.size()-1;ptCtr++){
-				Point p1=generatedPoints.get(ptCtr).pt;
-				Point p2=generatedPoints.get(ptCtr+1).pt;
+			for(int ptCtr=0;ptCtr<genPts.size()-1;ptCtr++){
+				Point p1=genPts.get(ptCtr).pt;
+				Point p2=genPts.get(ptCtr+1).pt;
 				p.line((float) p1.x, (float) p1.y, (float) p2.x, (float) p2.y);
 			}
 		}
