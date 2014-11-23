@@ -7,6 +7,11 @@ import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 import java.nio.*;
 import processing.core.PImage;
+import processing.opengl.*;
+import javax.media.opengl.*;
+import javax.media.opengl.glu.*;
+import processing.core.PMatrix3D;
+//import com.sun.opengl.util.*; 
 
 public class MyApplet extends PApplet {
 
@@ -27,6 +32,7 @@ public class MyApplet extends PApplet {
 	Axis axis;
 	private Point F = new Point(0,0,0);
 	PImage hatch;
+	//PGraphicsOpenGL popengl;
 	
 	List<PolyLoop> morphLoops;
 	
@@ -34,7 +40,8 @@ public class MyApplet extends PApplet {
 	
 	@Override
 	public void setup() {
-		size(1024,768,P3D);
+		//popengl = (PGraphicsOpenGL) this.g;
+		size(1024,768, P3D);
 		drawMode = true;
 		l1 = new PolyLoop();
 		l2 = new PolyLoop();
@@ -44,6 +51,8 @@ public class MyApplet extends PApplet {
 		Utils.appHeight = height;
 		hatch = loadImage("./hatchPattern.jpg");
 		//Utils.applet = this;
+
+		//glShadeModel(pgl.GL_SMOOTH);
 	}
 
 	@Override
@@ -165,7 +174,6 @@ public class MyApplet extends PApplet {
 	
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		fDragging = true;
 		if (drawMode) {
 			Point mousePoint = new Point (e.getX(), e.getY(), 0);
 			for (int i = 0; i < l1.points.size(); i++) {
@@ -191,6 +199,7 @@ public class MyApplet extends PApplet {
 						pt.y = mousePoint.y;
 						((SplineAxis)axis).quintic();
 						controlPointMoved = true;
+						fDragging = true;
 						break;
 					}
 				} 
@@ -206,16 +215,6 @@ public class MyApplet extends PApplet {
 
 	@Override
 	public void draw() {
-
-		/*if ( fDragging != true ){
-			Utils.g_center = pick( mouseX, mouseY );
-			l1.idOfVertexWithClosestScreenProjectionTo(new Point(mouseX, mouseY, 0));
-		}
-		fill(color(255, 0, 0),100); 
-		Point showPt = l1.showPicked();
-		showPt.draw(this);*/
-
-
 		background(255);
 		translate((float)-F.x,(float)-F.y,(float)-F.z);
 		if (axis instanceof CircularAxis) {
@@ -241,6 +240,23 @@ public class MyApplet extends PApplet {
 			//}
 			calculateLoops();
 			((SplineAxis)axis).UpdateLoopRefs(l1, l2);
+
+			if ( fDragging != true ){
+				Utils.g_center = pick( mouseX, mouseY );
+				((SplineAxis)axis).idOfVertexWithClosestScreenProjectionTo(new Point(mouseX, mouseY, 0));
+			}
+			fill(color(255, 0, 0),100); 
+			Point showPt = ((SplineAxis)axis).showPicked();
+			showPt.draw(this);
+
+		    if ( Utils.g_center != null )
+		    {
+		      pushMatrix();
+		      translate((float)Utils.g_center.x,(float)Utils.g_center.y,(float)Utils.g_center.z );
+		      sphere(2);
+		      translate( (float)-Utils.g_center.x, (float)-Utils.g_center.y, (float)-Utils.g_center.z );
+		      popMatrix();
+		    }
 		}
 		if (drawMode) {
 			stroke(0,0,255);
@@ -433,22 +449,22 @@ public class MyApplet extends PApplet {
 		PApplet.main("MyApplet");
 	}
 
-	/*public static Point pick(int mX, int mY)
+	public Point pick(int mX, int mY)
 	{
-	  PGraphicsOpenGL pg = (PGraphicsOpenGL)g;
-	  PGL pgl = pg.beginPGL();
+	  PGL pgl = beginPGL();
 	  //GL2 gl = g.beginPGL.gl;
 	  FloatBuffer depthBuffer = ByteBuffer.allocateDirect(1 << 2).order(ByteOrder.nativeOrder()).asFloatBuffer();
-	  pgl.readPixels(mX, height - mY - 1, 1, 1, PGL.DEPTH_COMPONENT, PGL.FLOAT, depthBuffer);
+	  pgl.readPixels(mX, this.height - mY - 1, 1, 1, PGL.DEPTH_COMPONENT, PGL.FLOAT, depthBuffer);
 	  float depthValue = depthBuffer.get(0);
 	  depthBuffer.clear();
-	  pgl.endPGL();
+	  endPGL();
 
 	  //get 3d matrices
 	  PGraphics3D p3d = (PGraphics3D)g;
 	  PMatrix3D proj = p3d.projection.get();
 	  PMatrix3D modelView = p3d.modelview.get();
-	  PMatrix3D modelViewProjInv = proj; modelViewProjInv.apply( modelView ); 
+	  PMatrix3D modelViewProjInv = proj; 
+	  modelViewProjInv.apply( modelView ); 
 	  modelViewProjInv.invert();
 	  
 	  float[] viewport = {0, 0, p3d.width, p3d.height};
@@ -463,6 +479,6 @@ public class MyApplet extends PApplet {
 	  
 	  modelViewProjInv.mult( normalized, unprojected );
 	  return new Point( unprojected[0]/unprojected[3], unprojected[1]/unprojected[3], unprojected[2]/unprojected[3] );
-	}*/
+	}
 
 }

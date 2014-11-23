@@ -17,6 +17,7 @@ public class SplineAxis extends Axis {
 	private List<Point> splinePoints = new ArrayList<>();
 	PApplet pApp;
 	PolyLoop l1, l2;
+	int pickedControlPt = 0;
 
 	public SplineAxis(Point origin, List<Point> controlPoints, PApplet p, PolyLoop _l1, PolyLoop _l2) {
 		super(origin);
@@ -312,4 +313,26 @@ public class SplineAxis extends Axis {
 			getPointFromPercentage(percentage).draw(p);
 		}
 	}
+
+	public Point showPicked() {
+		Point pt = controlPoints.get(pickedControlPt);
+		return pt;
+	}
+
+	//pick stuff
+	public int idOfVertexWithClosestScreenProjectionTo(Point M) { // for picking a vertex with the mouse
+	    if ( Utils.g_center != null)
+	    {
+	      pickedControlPt=0; 
+	      for (int i=1; i< controlPoints.size(); i++) 
+	      {
+	        if (Utils.g_center.distanceTo(controlPoints.get(i)) <= Utils.g_center.distanceTo(controlPoints.get(i)))
+	        {
+	          pickedControlPt=i;
+	        }
+	      }
+	    }
+		//pv = pickedControlPt;
+	    return pickedControlPt;
+  	}
 }

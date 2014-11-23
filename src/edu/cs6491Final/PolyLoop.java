@@ -112,26 +112,4 @@ public class PolyLoop implements Drawable {
 		return "PolyLoop [points=" + points + "]";
 	}
 
-	public Point showPicked() {
-		Point pt = points.get(pickedVert);
-		return pt;
-	}
-
-	//pick stuff
-	public int idOfVertexWithClosestScreenProjectionTo(Point M) { // for picking a vertex with the mouse
-	    if ( Utils.g_center != null)
-	    {
-	      pickedVert=0; 
-	      for (int i=1; i< points.size(); i++) 
-	      {
-	        if (Utils.g_center.distanceTo(points.get(i)) <= Utils.g_center.distanceTo(points.get(i)))
-	        {
-	          pickedVert=i;
-	        }
-	      }
-	    }
-//	    pv = pickedVert;
-	    return pickedVert;
-  	}
-
 }
