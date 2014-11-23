@@ -45,23 +45,23 @@ public class UtilsTest {
 		assertEquals(25, newPoint.y, 1);
 		assertEquals(250, newPoint.z, 1);
 	}
-
-	@Test
-	@Ignore //Currently, this is close but not quite right.
-	public void testBallMorph() {
-		SplineLine l1 = new SplineLine();
-		SplineLine l2 = new SplineLine();
-		l1.addPoint(new Point(0,0,0), 1);
-		l1.addPoint(new Point(5,0,0), 1);
-		l2.addPoint(new Point(0,0,0), 1);
-		l2.addPoint(new Point(0,5,0), 1);
-
-		BallMorphData bmd = Utils.getBallMorphDataAt(new Point(3,0,0), l1, l2);
-
-		assertEquals(new Point(3,0,0), bmd.p);
-		assertEquals(new Point(0,3,0), bmd.q);
-		assertEquals(new Point(3,3,0), bmd.center);
-
-	}
+//
+//	@Test
+//	@Ignore //Currently, this is close but not quite right.
+//	public void testBallMorph() {
+//		SplineLine l1 = new SplineLine();
+//		SplineLine l2 = new SplineLine();
+//		l1.addPoint(new Point(0,0,0), 1);
+//		l1.addPoint(new Point(5,0,0), 1);
+//		l2.addPoint(new Point(0,0,0), 1);
+//		l2.addPoint(new Point(0,5,0), 1);
+//
+//		BallMorphData bmd = Utils.getBallMorphDataAt(new Point(3,0,0), l1, l2);
+//
+//		assertEquals(new Point(3,0,0), bmd.p);
+//		assertEquals(new Point(0,3,0), bmd.q);
+//		assertEquals(new Point(3,3,0), bmd.center);
+//
+//	}
 
 }

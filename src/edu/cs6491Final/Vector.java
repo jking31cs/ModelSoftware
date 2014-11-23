@@ -167,13 +167,9 @@ public class Vector {
 		if (getClass() != obj.getClass())
 			return false;
 		Vector other = (Vector) obj;
-		if (Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x))
-			return false;
-		if (Double.doubleToLongBits(y) != Double.doubleToLongBits(other.y))
-			return false;
-		if (Double.doubleToLongBits(z) != Double.doubleToLongBits(other.z))
-			return false;
-		return true;
+		return (Math.abs(this.x - other.x) < .05 &&
+			Math.abs(this.y - other.y) < .05 &&
+			Math.abs(this.z - other.z) < .05);
 	}
 
 	@Override

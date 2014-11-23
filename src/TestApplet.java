@@ -1,11 +1,9 @@
-import edu.cs6491Final.BallMorphData;
-import edu.cs6491Final.SplineLine;
-import edu.cs6491Final.Point;
-import edu.cs6491Final.Utils;
+import edu.cs6491Final.*;
 import processing.core.PApplet;
 import processing.event.MouseEvent;
 import processing.event.KeyEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,7 +14,8 @@ public class TestApplet extends PApplet {
     SplineLine l1;
     SplineLine l2;
     SplineLine active;
-    BallMorphData bmd;
+    List<BallMorphData> data = new ArrayList<>();
+    boolean doBallMorph = false;
 
     @Override
     public void setup() {
@@ -39,10 +38,10 @@ public class TestApplet extends PApplet {
         );
         if (pt != null) {
             if (e.isControlDown()) {
-                pt.r = mousePoint.distanceTo(pt.pt);
+                pt.r = mousePoint.distanceTo(pt);
             } else {
-                pt.pt.x = mousePoint.x;
-                pt.pt.y = mousePoint.y;
+                pt.x = mousePoint.x;
+                pt.y = mousePoint.y;
             }
         }
     }
@@ -55,26 +54,24 @@ public class TestApplet extends PApplet {
     	if(e.getKey()=='[')	l1.subDivisions--;
         if(e.getKey()=='1') active = l1;
         if(e.getKey()=='2') active = l2;
-        if(e.getKey()=='m') doBallMorph();
+        if(e.getKey()=='m') doBallMorph = !doBallMorph;
     }
 
-    private void doBallMorph() {
-        List<SplineLine.GeneratedPoint> pts1 = l1.calculateQuinticSpline();
-        bmd = Utils.getBallMorphDataAt(pts1.get(pts1.size()/2).pt, l1, l2);
-    }
-
+    int frameCount = 0;
     @Override
     public void draw() {
         background(255);
         l1.draw(this);
         l2.draw(this);
-        if (bmd != null) {
+
+        if (doBallMorph) {
             stroke(255,0,0);
-            fill(255,0,0);
-            bmd.p.draw(this);
-            bmd.q.draw(this);
-            bmd.center.draw(this);
+            CustomLine line = Utils.ballMorphInterpolation(l1,l2,(frameCount++ % 180)/180d);
+            line.draw(this);
+        } else {
+            frameCount = 0;
         }
+
     }
 
     public static void main(String[] args) {

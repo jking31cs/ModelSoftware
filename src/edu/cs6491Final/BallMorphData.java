@@ -4,29 +4,29 @@ package edu.cs6491Final;
  * Created by bobby on 11/22/14.
  */
 public class BallMorphData {
-	public Point p;
-	public Point q;
+	public GeneratedPoint p;
+	public GeneratedPoint q;
 	public Point center;
 
-	public BallMorphData(Point p, Point q, Point center) {
+	public BallMorphData(GeneratedPoint p, GeneratedPoint q, Point center) {
 		this.p = p;
 		this.q = q;
 		this.center = center;
 	}
 
-	public Point getP() {
+	public GeneratedPoint getP() {
 		return p;
 	}
 
-	public void setP(Point p) {
+	public void setP(GeneratedPoint p) {
 		this.p = p;
 	}
 
-	public Point getQ() {
+	public GeneratedPoint getQ() {
 		return q;
 	}
 
-	public void setQ(Point q) {
+	public void setQ(GeneratedPoint q) {
 		this.q = q;
 	}
 
@@ -36,6 +36,11 @@ public class BallMorphData {
 
 	public void setCenter(Point center) {
 		this.center = center;
+	}
+
+	public Point pointAlongBezier(double t) {
+		Vector v = p.asVec().mul(Math.pow(1 - t, 2)).add(center.asVec().mul(1 - t).mul(2 * t)).add(q.asVec().mul(Math.pow(t, 2)));
+		return new Point(v.x,v.y,v.z);
 	}
 
 	@Override
@@ -67,5 +72,12 @@ public class BallMorphData {
 			", q=" + q +
 			", center=" + center +
 			'}';
+	}
+
+	/**
+	 * This is a lerp on the radius.
+	 */
+	public double getRadius(double t) {
+		return (1-t)*p.r + t*q.r;
 	}
 }
