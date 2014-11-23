@@ -57,6 +57,10 @@ public class SplineAxis extends Axis {
 			}
 		}
 
+		/*int offset = (int)newSpline.size()/2;
+		for (int m = 0; m < offset; m++){
+			newSpline.remove(newSpline.size()-1);
+		}*/
 		splinePoints = newSpline;
 	}
 
@@ -83,6 +87,13 @@ public class SplineAxis extends Axis {
 		}
 		output.add(p2);
 
+		p1 = points.get(0);
+		double _mx = (p1.x + p2.x)/2;
+		double _my = (p1.y + p2.y)/2;
+		double _mz = (p1.z + p2.z)/2;
+		Point _m = new Point(_mx, _my, _mz);
+		output.add(_m);		
+
 		return output;
 	}
 
@@ -102,6 +113,13 @@ public class SplineAxis extends Axis {
 			Point m = new Point(mx, my, mz);
 			output.add(m);
 		}
+
+		p1 = points.get(0);
+		double _mx = (p1.x + p2.x)/2;
+		double _my = (p1.y + p2.y)/2;
+		double _mz = (p1.z + p2.z)/2;
+		Point _m = new Point(_mx, _my, _mz);
+		output.add(_m);
 
 		return output;
 	}
@@ -243,6 +261,7 @@ public class SplineAxis extends Axis {
 		//this.origin.draw(p);
 		p.noFill();
 		Point p2 = origin;
+		//don't draw first or last 1/14th points
 		for (int i = 0; i < splinePoints.size()-1; i++) {
 			Point p1 = splinePoints.get(i);
 			//System.out.println("draw spline points " + p1.toString());
