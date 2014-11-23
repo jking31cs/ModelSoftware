@@ -52,7 +52,7 @@ public class SplineAxis extends Axis {
 			// refine once
 			newSpline = refine(newSpline);
 			// dual four times
-			for (int i = 0; i < 2; i++) {
+			for (int i = 0; i < 4; i++) {
 				newSpline = dual(newSpline);
 			}
 		}
