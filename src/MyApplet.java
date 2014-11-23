@@ -1,17 +1,25 @@
-import java.util.ArrayList;
-import java.util.List;
-
-import edu.cs6491Final.*;
+import edu.cs6491Final.Axis;
+import edu.cs6491Final.CircularAxis;
+import edu.cs6491Final.Point;
+import edu.cs6491Final.PolyLoop;
+import edu.cs6491Final.SplineAxis;
+import edu.cs6491Final.SplineLine;
+import edu.cs6491Final.StraightAxis;
+import edu.cs6491Final.Utils;
+import edu.cs6491Final.Vector;
 import processing.core.PApplet;
+import processing.core.PImage;
+import processing.core.PMatrix3D;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
-import java.nio.*;
-import processing.core.PImage;
-import processing.opengl.*;
-import javax.media.opengl.*;
-import javax.media.opengl.glu.*;
-import processing.core.PMatrix3D;
-//import com.sun.opengl.util.*; 
+import processing.opengl.PGL;
+import processing.opengl.PGraphics3D;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MyApplet extends PApplet {
 
@@ -27,6 +35,9 @@ public class MyApplet extends PApplet {
 	int debug = 0;
 	
 	PolyLoop origl1, origl2, l1, l2;
+	
+	SplineLine sl1,sl2;
+	
 	private double increment = 0;
 	private double revolveMax = 360d;
 	Axis axis;
@@ -37,23 +48,6 @@ public class MyApplet extends PApplet {
 	List<PolyLoop> morphLoops;
 	
 	float dz = 0, rx = -(float) Math.PI/2, ry = 0;
-	
-	@Override
-	public void setup() {
-		//popengl = (PGraphicsOpenGL) this.g;
-		size(1024,768, P3D);
-		drawMode = true;
-		l1 = new PolyLoop();
-		l2 = new PolyLoop();
-		axis = new StraightAxis(new Point(width/2, height, 0),new Vector(0,-1,0));
-		morphLoops = new ArrayList<>();
-		translate(width/2, height/2,dz);
-		Utils.appHeight = height;
-		hatch = loadImage("./hatchPattern.jpg");
-		//Utils.applet = this;
-
-		//glShadeModel(pgl.GL_SMOOTH);
-	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
@@ -143,6 +137,12 @@ public class MyApplet extends PApplet {
 			l2.tuck(2d/3);
 			l2.tuck(-2d/3);
 		}
+		if(e.getKey()=='n')	{sl1.offsetMode="NORMAL"; sl2.offsetMode="NORMAL";}
+    	if(e.getKey()=='r')	{sl1.offsetMode="RADIAL"; sl2.offsetMode="RADIAL";}
+    	if(e.getKey()=='b')	{sl1.offsetMode="BALL"; sl2.offsetMode="BALL";}
+//    	if(e.getKey()==']')	{sl1.subDivisions++; sl2.subDivisions++;}
+//    	if(e.getKey()=='[')	{sl1.subDivisions--; sl2.subDivisions--;}
+    	if(e.getKey()=='f')	{sl1.fillCurve=!sl1.fillCurve; sl2.fillCurve=!sl2.fillCurve;}
 	}
 	
 	private void calculateLoops() {
@@ -164,11 +164,25 @@ public class MyApplet extends PApplet {
 			return;
 		}
 		if (drawMode) {
-			Point point = new Point(e.getX(), e.getY(), 0);
-			l1.addPoint(point);
-			l2.addPoint(Utils.mirrored(point, axis));
+			//Point point = new Point(e.getX(), e.getY(), 0);
+			//l1.addPoint(point);
+			//l2.addPoint(Utils.mirrored(point, axis));
 		}
 	}
+	
+	public void mouseClicked(MouseEvent e) {
+        if (sl1.closestPointWithinRange(new Point(e.getX(), e.getY(), 0), 20) == null)
+        {
+        	Point toAdd=new Point(e.getX(), e.getY(), 0);
+            sl1.addPoint(toAdd, 10);
+            sl2.addPoint(Utils.mirrored(toAdd, axis), 10);
+			l1 = sl1.getBoundingLoop();
+			l2 = sl2.getBoundingLoop();
+			if (l1 != null) {
+				System.out.println("I'm making a loop man: " + l1.points);
+			}
+        }
+    }
 	
 	@Override
 	public void mouseMoved() {
@@ -181,21 +195,29 @@ public class MyApplet extends PApplet {
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		if (drawMode) {
-			Point mousePoint = new Point (e.getX(), e.getY(), 0);
-			for (int i = 0; i < l1.points.size(); i++) {
-				Point p1 = l1.points.get(i);
-				Point p2 = l2.points.get(i);
-				if (p1.distanceTo(mousePoint) < 15) {
-					p1.x = mousePoint.x;
-					p1.y = mousePoint.y;
-					break;
-				}
-				if (p2.distanceTo(mousePoint) < 15) {
-					p2.x = mousePoint.x;
-					p2.y = mousePoint.y;
-					break;
-				}
-			}
+			Point mousePoint = new Point(e.getX(), e.getY(), 0);
+	        SplineLine.ControlPoint pt1 = sl1.closestPointWithinRange(
+	            mousePoint, 100
+	        );
+	        SplineLine.ControlPoint pt2 = sl2.closestPointWithinRange(
+		            mousePoint, 100
+		        );
+	        if (pt1 != null) {
+	            if (e.isControlDown()) {
+	                pt1.r = mousePoint.distanceTo(pt1.pt);
+	            } else {
+	                pt1.pt.x = mousePoint.x;
+	                pt1.pt.y = mousePoint.y;
+	            }
+	        }
+	        if (pt2 != null) {
+	            if (e.isControlDown()) {
+	                pt2.r = mousePoint.distanceTo(pt2.pt);
+	            } else {
+	                pt2.pt.x = mousePoint.x;
+	                pt2.pt.y = mousePoint.y;
+	            }
+	        }
 			editMode = true;
 
 			if(axis instanceof SplineAxis) {
@@ -220,6 +242,22 @@ public class MyApplet extends PApplet {
 	}
 
 	@Override
+	public void setup() {
+		size(1024, 768, P3D);
+		Utils.appHeight = height;
+		hatch = loadImage("./hatchPattern.jpg");
+		drawMode = true;
+		l1 = new PolyLoop();
+		l2 = new PolyLoop();
+		sl1=new SplineLine();
+		sl2=new SplineLine();
+		axis = new StraightAxis(new Point(width/2, height, 0),new Vector(0,-1,0));
+		morphLoops = new ArrayList<>();
+		translate(width/2, height/2);
+		
+	}
+	
+	@Override
 	public void draw() {
 		background(255);
 		translate((float)-F.x,(float)-F.y,(float)-F.z);
@@ -238,7 +276,6 @@ public class MyApplet extends PApplet {
 				rotateX(rx); rotateY(ry); // rotates the model around the new origin (center of screen)
 				rotateX(PI / 2); // rotates frame around X to make X and Y basis vectors parallel to the floor
 			
-				System.out.println("moved points");
 				l1 = Utils.morphAboutAxis(axis, origl1);
 				l2 = Utils.morphAboutAxis(axis, origl2);
 
@@ -269,15 +306,18 @@ public class MyApplet extends PApplet {
 			}
 		}
 		if (drawMode) {
-			stroke(0,0,255);
+			stroke(0, 0, 255);
 			axis.draw(this);
 
 			strokeWeight(1);
 			stroke(0);
-			l1.draw(this);
-
+			sl1.draw(this);
+			if (l1 != null) l1.draw(this);
+			
 			stroke(255,0,0);
-			l2.draw(this);
+			sl2.draw(this);
+			if (l2 != null) l2.draw(this);
+
 		} else {
 			calculateLoops();
 			if(viewMode && animating) {

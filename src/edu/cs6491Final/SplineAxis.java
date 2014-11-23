@@ -215,7 +215,7 @@ public class SplineAxis extends Axis {
 		Vector BA = getT(percentage);
 		BA = (BA.crossProd(norm));
 		pApp.stroke(0,255,0);
-		BA.draw(pApp, a);
+//		BA.draw(pApp, a);
 		BA = BA.normalize();
 		//a.draw(pApp);
 		return BA;
