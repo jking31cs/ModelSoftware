@@ -15,6 +15,7 @@ public class MyApplet extends PApplet {
 	boolean revolve2DMode = false;
 	boolean animating = true;
 	boolean controlPointMoved = false;
+	boolean outputVolume = false;
 	private List<Vector> norms;
 	int debug = 0;
 	
@@ -56,10 +57,13 @@ public class MyApplet extends PApplet {
 			drawMode = true;
 			viewMode = false; 
 		}
-		if (e.getKey() == 'v' && drawMode) {
+		if (e.getKey() == 'e' && drawMode) {
 			calculateLoops();
 			viewMode = true;
 			drawMode = false;
+		}
+		if (e.getKey() == 'v' && viewMode) {
+			outputVolume = true;
 		}
 		if (e.getKey() == '3'){
 			revolve2DMode = !revolve2DMode;
@@ -113,8 +117,6 @@ public class MyApplet extends PApplet {
 				points.add(p);
 			}
 
-			//l1.SetBValues(height);
-			//l2.SetBValues(height);
 			axis = new SplineAxis(new Point(width/2, height, 0), points, this, l1, l2);
 		}
 		if (e.getKey() == 's' && drawMode) {
@@ -332,7 +334,10 @@ public class MyApplet extends PApplet {
 					popMatrix();
 				}
 
-				System.out.println("//// TOTAL AREA = " + FindTotalVolume());
+				if (outputVolume) {
+					System.out.println("//// TOTAL VOLUME = " + FindTotalVolume());
+					outputVolume = false;
+				}
 			}
 			popMatrix();
 		}
