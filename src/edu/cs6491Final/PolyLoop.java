@@ -13,13 +13,16 @@ import processing.core.PApplet;
 public class PolyLoop implements Drawable {
 	
 	public List<Point> points;
+	public List<Point> origPt;
 	
 	public PolyLoop() {
 		this.points = new ArrayList<>();
+		this.origPt = new ArrayList<>();
 	}
 	
 	public void addPoint(Point p) {
 		points.add(p);
+		origPt.add(new Point(-1, -1, -1));
 	}
 
 	public double GetPercentage(int i){

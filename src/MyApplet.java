@@ -216,8 +216,8 @@ public class MyApplet extends PApplet {
 				rotateX(PI / 2); // rotates frame around X to make X and Y basis vectors parallel to the floor
 			
 				System.out.println("moved points");
-				l1 = Utils.morphAboutAxis(axis, l1);
-				l2 = Utils.morphAboutAxis(axis, l2);
+				l1 = Utils.morphAboutAxis(axis, origl1);
+				l2 = Utils.morphAboutAxis(axis, origl2);
 				controlPointMoved = false;
 			//}
 			calculateLoops();

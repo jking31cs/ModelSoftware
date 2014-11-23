@@ -99,17 +99,24 @@ public final class Utils {
 				//System.out.println("AP = " + AP.toString());
 				//AP.normalize();
 
-				double x = AP.dotProduct(T);
-				double y = AP.dotProduct(H);
-				double z = AP.dotProduct(N);
+				Point op = loop.origPt.get(i);
+				if(op.x == -1 && op.y == -1 && op.z == -1) {
+					op.x = AP.dotProduct(T);
+					op.y = AP.dotProduct(H);
+					op.z = AP.dotProduct(N);
+				}
 
 				//P= B+xT+yH+zN
-				Vector Tx = new Vector(T.x*x, T.y*x, T.z*x);
-				Vector Hy = new Vector(H.x*y, H.y*y, H.z*y);
-				Vector Nz = new Vector(N.x*z, N.y*z, N.z*z);
+				Vector Tx = new Vector(T.x*op.x, T.y*op.x, T.z*op.x);
+				Vector Hy = new Vector(H.x*op.y, H.y*op.y, H.z*op.y);
+				Vector Nz = new Vector(N.x*op.z, N.y*op.z, N.z*op.z);
+
+				axis.DrawTHN(A, Tx, Hy, Nz);
 
 				//System.out.println(":::::::::::::::A before = " + A.toString());
+				System.out.println("p:" + p.toString());
 				Point finalP = ((A.add(Tx)).add(Hy)).add(Nz);
+				System.out.println("final p: " +finalP.toString());
 
 				toRet.addPoint(finalP);
 
@@ -119,7 +126,6 @@ public final class Utils {
 					System.out.println("N: " + N.toString());
 					System.out.println("T: " + T.toString());
 					System.out.println("H: " + H.toString());
-					System.out.println(finalP.toString());
 				}
 
 				//A.Draw(applet);

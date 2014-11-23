@@ -274,6 +274,13 @@ public class SplineAxis extends Axis {
 
 	}
 
+	public void DrawTHN(Point A, Vector Tx, Vector Hy, Vector Nz) {
+		pApp.stroke(0,0,255);
+		Tx.draw(pApp, A);
+		Hy.draw(pApp, A.add(Tx));
+		//Nz.draw(pApp, A);
+	}
+
 	public void DrawProjection(PApplet p){
 		for(int i = 0; i < l1.points.size(); i++){
 			double percentage = l1.GetPercentage(i);
