@@ -117,7 +117,7 @@ public class Vector{
 	}
 	
 	public Vector crossProd(Vector v) {
-		return new Vector(this.y*v.z - this.z*v.y, this.x*v.z - this.z*v.x, this.x*v.y - this.y*v.x);
+		return new Vector(this.y*v.z - this.z*v.y, this.z*v.x - this.x*v.z, this.x*v.y - this.y*v.x);
 	}
 	
 	public double angleBetween(Vector v) {
@@ -196,8 +196,8 @@ public class Vector{
 	public void draw(PApplet p, Point point){
 		p.beginShape(p.LINES);
 		p.vertex((float)point.x,(float)point.y, (float)point.z);
-		p.vertex((float)(point.x + x*50), (float)(point.y+y*50), (float)(point.z+z*50));
-		p.endShape();
+		p.vertex((float)(point.x + x*5), (float)(point.y+y*5), (float)(point.z+z*50));
+		p.endShape(); 
 	}
 
 }

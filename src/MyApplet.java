@@ -16,6 +16,7 @@ public class MyApplet extends PApplet {
 	boolean animating = true;
 	boolean controlPointMoved = false;
 	private List<Vector> norms;
+	int debug = 0;
 	
 	PolyLoop origl1, origl2, l1, l2;
 	private double increment = 0;
@@ -44,6 +45,12 @@ public class MyApplet extends PApplet {
 	public void keyPressed(KeyEvent e) {
 		if (e.getKey() =='f') { // move focus point on plane
 		    F.sub(F.ToIJ(new Vector((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0))); 
+	    }
+	    if(e.getKey() == 'l'){
+	    	debug++;
+	    }
+	    if(e.getKey() == 'k'){
+	    	debug--;
 	    }
 		if (e.getKey() == 'd' && viewMode) {
 			drawMode = true;
@@ -126,7 +133,7 @@ public class MyApplet extends PApplet {
 			System.out.println(t);
 			PolyLoop lerped = Utils.lerp(axis, l1, l2, t);
 			morphLoops.add(lerped);
-			t += (1d/100);
+			t += (1d/10);
 		}
 	}
 	
@@ -203,12 +210,14 @@ public class MyApplet extends PApplet {
 				axis = new CircularAxis(axis.origin, ca.center.add(new Vector(-100,0,0)));
 				l1=Utils.morphAboutAxis(axis, origl1);
 				l2=Utils.morphAboutAxis(axis, origl2);
+				calculateLoops();
 			}
 		} else if (axis instanceof SplineAxis) {
 			if(controlPointMoved) {
 				l1 = Utils.morphAboutAxis(axis, l1);
 				l2 = Utils.morphAboutAxis(axis, l2);
 				controlPointMoved = false;
+				calculateLoops();
 			}
 			((SplineAxis)axis).UpdateLoopRefs(l1, l2);
 		}
@@ -231,6 +240,7 @@ public class MyApplet extends PApplet {
 			pushMatrix();
 			camera();
 			lights();  // turns on view-dependent lighting
+			//pointLight(255, 255, 255, width/2, height/2, 0);
 			rotateX(rx); rotateY(ry); // rotates the model around the new origin (center of screen)
 			rotateX(PI / 2); // rotates frame around X to make X and Y basis vectors parallel to the floor
 			axis.draw(this);
@@ -239,7 +249,7 @@ public class MyApplet extends PApplet {
 				PolyLoop last = morphLoops.get(morphLoops.size()-1);
 				last.draw(this);
 			} else {
-				//calculating normals for smoothing
+				//calculating normals for lighting and smoothing
 				norms = new ArrayList<Vector>();
 				for (int i = 0; i < morphLoops.size() - 1; i++) {
 					PolyLoop m1 = morphLoops.get(i);
@@ -248,12 +258,33 @@ public class MyApplet extends PApplet {
 						Point p1 = m1.points.get(j);
 						Point p2 = m2.points.get(j);
 						Point p3 = m2.points.get((j+1) % m1.points.size());
-						Vector v1 = new Vector(p2, p1);
-						Vector v2 = new Vector(p2, p3);
-						Vector norm = v2.crossProd(v1);
+
+						Vector v1 = new Vector(p1, p2);
+						Vector v2 = new Vector(p1, p3);
+						//v1 = v1.normalize();
+						//v2 = v2.normalize();
+						Vector norm = v1.crossProd(v2);
+
+						/*if (i == 0 && j == debug) {
+							p1.draw(this);
+							stroke(0,0,255);
+							p2.draw(this);
+							stroke(255, 0, 0);
+							p3.draw(this);
+
+							stroke(0,255,0);
+							v1.draw(this, p1);
+							v2.draw(this, p1);
+							stroke(255, 0, 0);
+							norm.draw(this, p1);						
+						}*/
+
+						norm = norm.normalize();
+
 						norms.add(norm);
 					}
 				}
+
 				//drawing geo
 				for (int i = 0; i < morphLoops.size() - 1; i++) {
 					PolyLoop m1 = morphLoops.get(i);
@@ -264,6 +295,7 @@ public class MyApplet extends PApplet {
 						Point p3 = m2.points.get((j+1) % m1.points.size());
 						Point p4 = m1.points.get((j+1) % m1.points.size());
 						pushMatrix();
+						stroke(0,0,255);
 						fill(0,0,255);
 						beginShape();
 						FindNormal(i, j);
@@ -305,24 +337,10 @@ public class MyApplet extends PApplet {
 		PolyLoop l = morphLoops.get(i1);
 
 		List<Vector> ns = new ArrayList<Vector>();
-		Vector n1 = norms.get(i1*i2);
+		Vector n1 = norms.get(i1 * l.points.size() + i2);
+
+		//n1.draw(this, l.points.get(i2));
 		ns.add(n1);
-		if(i2-1 >= 0) {
-			Vector n2 = norms.get(i1*(i2-1));
-			ns.add(n2);
-		}
-		if(i2+1 < l.points.size()) {
-			Vector n3 = norms.get(i1*(i2+1));
-			ns.add(n3);
-		}
-		if(i1+1 < morphLoops.size()) {
-			Vector n2 = norms.get((i1+1)*i2);
-			ns.add(n2);
-		}
-		if(i1-1 >= 0) {
-			Vector n3 = norms.get((i1-1)*i2);
-			ns.add(n3);
-		}
 
 		Vector avgNorms = n1;
 		for(int i = 1; i < ns.size()-1; i++){
@@ -331,8 +349,8 @@ public class MyApplet extends PApplet {
 		}
 		avgNorms = avgNorms.normalize();
 
-		//normal((float)avgNorms.x, (float)avgNorms.y, (float)avgNorms.z);
-		normal((float)n1.x, (float)n1.y, (float)n1.z);
+		normal((float)avgNorms.x, (float)avgNorms.y, (float)avgNorms.z);
+		//normal((float)n1.x, (float)n1.y, (float)n1.z);
 	}
 
 	public static void main(String[] args) {
