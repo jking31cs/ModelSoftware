@@ -409,8 +409,9 @@ public class MyApplet extends PApplet {
 
 	/*public static Point pick(int mX, int mY)
 	{
-	  //PGL pgl = pgl.beginPGL();
-	  GL2 gl = g.beginPGL.gl;
+	  PGraphicsOpenGL pg = (PGraphicsOpenGL)g;
+	  PGL pgl = pg.beginPGL();
+	  //GL2 gl = g.beginPGL.gl;
 	  FloatBuffer depthBuffer = ByteBuffer.allocateDirect(1 << 2).order(ByteOrder.nativeOrder()).asFloatBuffer();
 	  pgl.readPixels(mX, height - mY - 1, 1, 1, PGL.DEPTH_COMPONENT, PGL.FLOAT, depthBuffer);
 	  float depthValue = depthBuffer.get(0);
