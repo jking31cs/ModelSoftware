@@ -113,7 +113,7 @@ public final class Utils {
 				Vector Hy = new Vector(H.x*op.y, H.y*op.y, H.z*op.y);
 				Vector Nz = new Vector(N.x*op.z, N.y*op.z, N.z*op.z);
 
-				axis.DrawTHN(A, Tx, Hy, Nz);
+//				axis.DrawTHN(A, Tx, Hy, Nz);
 
 				//System.out.println(":::::::::::::::A before = " + A.toString());
 				//System.out.println("p:" + p.toString());
