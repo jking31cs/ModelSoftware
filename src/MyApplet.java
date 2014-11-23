@@ -6,7 +6,7 @@ import processing.core.PApplet;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 import java.nio.*;
-
+import processing.core.PImage;
 
 public class MyApplet extends PApplet {
 
@@ -25,7 +25,7 @@ public class MyApplet extends PApplet {
 	private double revolveMax = 360d;
 	Axis axis;
 	private Point F = new Point(0,0,0);
-	//PImage hatch;
+	PImage hatch;
 	
 	List<PolyLoop> morphLoops;
 	
@@ -41,7 +41,7 @@ public class MyApplet extends PApplet {
 		morphLoops = new ArrayList<>();
 		translate(width/2, height/2);
 		Utils.appHeight = height;
-		//hatch = loadImage("hatchPattern.jpg");
+		hatch = loadImage("C:/Users/Miranda/Documents/GitHub/ModelSoftware/src/edu/cs6491Final/data/hatchPattern.jpg");
 		//Utils.applet = this;
 	}
 
@@ -257,8 +257,8 @@ public class MyApplet extends PApplet {
 			}
 			pushMatrix();
 			camera();
-			//lights();  // turns on view-dependent lighting
-			pointLight(255, 255, 255, width/2, height/2, 0);
+			lights();  // turns on view-dependent lighting
+			//pointLight(255, 255, 255, width/2, height/2, 0);
 			rotateX(rx); rotateY(ry); // rotates the model around the new origin (center of screen)
 			rotateX(PI / 2); // rotates frame around X to make X and Y basis vectors parallel to the floor
 			axis.draw(this);
@@ -330,7 +330,7 @@ public class MyApplet extends PApplet {
 					PolyLoop loop = morphLoops.get(0);
 					pushMatrix();
 					beginShape();
-					//texture(hatch);
+					texture(hatch);
 					for(Point p : loop.points){
 						vertex((float)p.x, (float)p.y, (float)p.z);
 					}
@@ -341,7 +341,7 @@ public class MyApplet extends PApplet {
 					PolyLoop loop = morphLoops.get(morphLoops.size()-1);
 					pushMatrix();
 					beginShape();
-					//texture(hatch);
+					texture(hatch);
 					for(Point p : loop.points){
 						vertex((float)p.x, (float)p.y, (float)p.z);
 					}
