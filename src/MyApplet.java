@@ -5,6 +5,7 @@ import edu.cs6491Final.*;
 import processing.core.PApplet;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
+import java.nio.*;
 
 
 public class MyApplet extends PApplet {
@@ -198,16 +199,17 @@ public class MyApplet extends PApplet {
 	public void mouseWheel(MouseEvent event) {
 		dz -= event.getAmount(); 
 	}
-	
+
 	@Override
 	public void draw() {
 
-		if ( fDragging != true ){
-			Utils.g_center = Utils.pick( mouseX, mouseY );
-			l1.idOfVertexWithClosestScreenProjectionTo(Mouse()); // id of vertex of P with closest screen projection to mouse (us in keyPressed 'x'...
+		/*if ( fDragging != true ){
+			Utils.g_center = pick( mouseX, mouseY );
+			l1.idOfVertexWithClosestScreenProjectionTo(new Point(mouseX, mouseY, 0));
 		}
-		fill(red,100); 
-		l1.showPicked(10); // shows currently picked vertex in red (last key action 'x', 'z'
+		fill(color(255, 0, 0),100); 
+		Point showPt = l1.showPicked();
+		showPt.draw(this);*/
 
 
 		background(255);
@@ -370,5 +372,36 @@ public class MyApplet extends PApplet {
 	public static void main(String[] args) {
 		PApplet.main("MyApplet");
 	}
+
+	/*public static Point pick(int mX, int mY)
+	{
+	  //PGL pgl = pgl.beginPGL();
+	  GL2 gl = g.beginPGL.gl;
+	  FloatBuffer depthBuffer = ByteBuffer.allocateDirect(1 << 2).order(ByteOrder.nativeOrder()).asFloatBuffer();
+	  pgl.readPixels(mX, height - mY - 1, 1, 1, PGL.DEPTH_COMPONENT, PGL.FLOAT, depthBuffer);
+	  float depthValue = depthBuffer.get(0);
+	  depthBuffer.clear();
+	  pgl.endPGL();
+
+	  //get 3d matrices
+	  PGraphics3D p3d = (PGraphics3D)g;
+	  PMatrix3D proj = p3d.projection.get();
+	  PMatrix3D modelView = p3d.modelview.get();
+	  PMatrix3D modelViewProjInv = proj; modelViewProjInv.apply( modelView ); 
+	  modelViewProjInv.invert();
+	  
+	  float[] viewport = {0, 0, p3d.width, p3d.height};
+	  
+	  float[] normalized = new float[4];
+	  normalized[0] = ((mX - viewport[0]) / viewport[2]) * 2.0f - 1.0f;
+	  normalized[1] = ((height - mY - viewport[1]) / viewport[3]) * 2.0f - 1.0f;
+	  normalized[2] = depthValue * 2.0f - 1.0f;
+	  normalized[3] = 1.0f;
+	  
+	  float[] unprojected = new float[4];
+	  
+	  modelViewProjInv.mult( normalized, unprojected );
+	  return new Point( unprojected[0]/unprojected[3], unprojected[1]/unprojected[3], unprojected[2]/unprojected[3] );
+	}*/
 
 }

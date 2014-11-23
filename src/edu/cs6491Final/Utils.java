@@ -138,7 +138,7 @@ public final class Utils {
 		return toRet;
 	}
 
-	public static Point pick(int mX, int mY)
+/*	public static Point pick(int mX, int mY)
 	{
 	  PGL pgl = beginPGL();
 	  FloatBuffer depthBuffer = ByteBuffer.allocateDirect(1 << 2).order(ByteOrder.nativeOrder()).asFloatBuffer();
@@ -167,5 +167,5 @@ public final class Utils {
 	  modelViewProjInv.mult( normalized, unprojected );
 	  return new Point( unprojected[0]/unprojected[3], unprojected[1]/unprojected[3], unprojected[2]/unprojected[3] );
 	}
-
+*/
 }
