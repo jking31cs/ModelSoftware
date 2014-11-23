@@ -345,7 +345,7 @@ public class MyApplet extends PApplet {
 					Vector norm = ((B.to(A)).normalize()).crossProd((C.to(B)).normalize());
 					Vector binorm = norm.crossProd(tan);
 
-					stroke(0,0,0);
+					/*stroke(0,0,0);
 					A.draw(this);
 					stroke(0,0,255);
 					B.draw(this);
@@ -355,19 +355,17 @@ public class MyApplet extends PApplet {
 					stroke(0,255,0);
 					tan.draw(this, A);
 					norm.draw(this, A);
-					binorm.draw(this, A);
+					binorm.draw(this, A);*/
 
 					pushMatrix();
 					beginShape();
 					texture(hatch);
-					fill(1);
-					System.out.println("+++++++++++++++++");
+					noFill();
 					for(Point p : firstLoop.points){
 						Vector AP = A.to(p);
 						float u = (float)(AP.dotProduct(tan));
 						float v = (float)(AP.dotProduct(binorm));
 						vertex((float)p.x, (float)p.y, (float)p.z, u, v);
-						System.out.println("U: " + u + ", V: " + v);
 					}
 					endShape(CLOSE);
 					popMatrix();
@@ -376,11 +374,23 @@ public class MyApplet extends PApplet {
 
 					// END CAP
 					PolyLoop lastLoop = morphLoops.get(morphLoops.size()-1);
+					A = lastLoop.points.get(0);
+					B = lastLoop.points.get(1);
+					C = lastLoop.points.get(2);
+
+					tan = (A.to(B)).normalize();
+					norm = ((B.to(A)).normalize()).crossProd((C.to(B)).normalize());
+					binorm = norm.crossProd(tan);
+
 					pushMatrix();
 					beginShape();
 					texture(hatch);
+					noFill();
 					for(Point p : lastLoop.points){
-						vertex((float)p.x, (float)p.y, (float)p.z);
+						Vector AP = A.to(p);
+						float u = (float)(AP.dotProduct(tan));
+						float v = (float)(AP.dotProduct(binorm));
+						vertex((float)p.x, (float)p.y, (float)p.z, u, v);
 					}
 					endShape(CLOSE);
 					popMatrix();
