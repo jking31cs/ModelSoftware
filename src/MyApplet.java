@@ -36,7 +36,7 @@ public class MyApplet extends PApplet {
 	
 	List<PolyLoop> morphLoops;
 	
-	float dz = -490, rx = -(float) Math.PI/2, ry = 0;
+	float dz = 0, rx = -(float) Math.PI/2, ry = 0;
 	
 	@Override
 	public void setup() {
@@ -47,7 +47,7 @@ public class MyApplet extends PApplet {
 		l2 = new PolyLoop();
 		axis = new StraightAxis(new Point(width/2, height, 0),new Vector(0,-1,0));
 		morphLoops = new ArrayList<>();
-		translate(width/2, height/2);
+		translate(width/2, height/2,dz);
 		Utils.appHeight = height;
 		hatch = loadImage("./hatchPattern.jpg");
 		//Utils.applet = this;
@@ -290,6 +290,7 @@ public class MyApplet extends PApplet {
 			//pointLight(255, 255, 255, width/2, height/2, 0);
 			rotateX(rx); rotateY(ry); // rotates the model around the new origin (center of screen)
 			rotateX(PI / 2); // rotates frame around X to make X and Y basis vectors parallel to the floor
+			translate(0,0,dz);
 			smooth();
 			axis.draw(this);
 			stroke(0);
