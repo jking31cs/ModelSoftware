@@ -11,7 +11,9 @@ import processing.core.PImage;
 public class MyApplet extends PApplet {
 
 	private static final long serialVersionUID = 1L;
-	
+	int DIM = 20;
+	float SCL = 15;
+	float HSCL = SCL/2;
 	boolean drawMode, viewMode, editMode;
 	boolean revolve2DMode = false;
 	boolean animating = true;
@@ -280,11 +282,17 @@ public class MyApplet extends PApplet {
 						Point p2 = m2.points.get(j);
 						Point p3 = m2.points.get((j+1) % m1.points.size());
 
-						Vector v1 = new Vector(p1, p2);
-						Vector v2 = new Vector(p1, p3);
+						//Vector v1 = new Vector(p1, p2);
+						//Vector v2 = new Vector(p1, p3);
 						//v1 = v1.normalize();
 						//v2 = v2.normalize();
-						Vector norm = v1.crossProd(v2);
+						//Vector norm = v1.crossProd(v2);
+
+						Vector n1 = new Vector(x*SCL, (sin(x)+sin(z-1))*HSCL, (z-1)*SCL);
+				        Vector n2 = new Vector(x-1*SCL, (sin(x-1)+sin(z))*HSCL, z*SCL);
+				        Vector n3 = new Vector(x+1*SCL, (sin(x+1)+sin(z))*HSCL, z*SCL);
+				        Vector n4 = new Vector(x*SCL, (sin(x)+sin(z+1))*HSCL, (z+1)*SCL);
+				        Vector nrm = n2.sub(n3).crossProd(n1sub(n4));
 						norm = norm.normalize();
 
 						if (i == 0 && j == debug) {
