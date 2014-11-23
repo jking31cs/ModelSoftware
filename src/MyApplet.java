@@ -357,31 +357,34 @@ public class MyApplet extends PApplet {
 		//n1.draw(this, l.points.get(i2));
 		ns.add(n1);
 
-		//get faces on l/r of this one
-		if(((i1+1) * l.points.size() + i2) < l.points.size()) {
-			Vector n2 = norms.get((i1+1) * l.points.size() + i2); 
-			ns.add(n2);
-		}
-		if(((i1-1) * l.points.size() + i2) > 0) {
-			Vector n2 = norms.get((i1-1) * l.points.size() + i2); 
-			ns.add(n2);
-		}
 
-		//get face on top/bottom of this one
-		if(i2+1 >= l.points.size()) { //loop around to point 0
-			Vector n2 = norms.get(i1 * l.points.size()); 
-			ns.add(n2);
-		} else {
-			Vector n2 = norms.get(i1 * l.points.size() + i2+1); 
-			ns.add(n2);
-		}
+		if(mousePressed) {
+			//get faces on l/r of this one
+			if(((i1+1) * l.points.size() + i2) < l.points.size()) {
+				Vector n2 = norms.get((i1+1) * l.points.size() + i2); 
+				ns.add(n2);
+			}
+			if(((i1-1) * l.points.size() + i2) > 0) {
+				Vector n2 = norms.get((i1-1) * l.points.size() + i2); 
+				ns.add(n2);
+			}
 
-		if(i2-1 < 0) { //loop around to point 0
-			Vector n2 = norms.get(i1 * l.points.size() + l.points.size()-1); 
-			ns.add(n2);
-		} else {
-			Vector n2 = norms.get(i1 * l.points.size() + i2-1); 
-			ns.add(n2);
+			//get face on top/bottom of this one
+			if(i2+1 >= l.points.size()) { //loop around to point 0
+				Vector n2 = norms.get(i1 * l.points.size()); 
+				ns.add(n2);
+			} else {
+				Vector n2 = norms.get(i1 * l.points.size() + i2+1); 
+				ns.add(n2);
+			}
+
+			if(i2-1 < 0) { //loop around to point 0
+				Vector n2 = norms.get(i1 * l.points.size() + l.points.size()-1); 
+				ns.add(n2);
+			} else {
+				Vector n2 = norms.get(i1 * l.points.size() + i2-1); 
+				ns.add(n2);
+			}
 		}
 
 
