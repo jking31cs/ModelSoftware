@@ -326,7 +326,7 @@ public class SplineAxis extends Axis {
 	      pickedControlPt=0; 
 	      for (int i=1; i< controlPoints.size(); i++) 
 	      {
-	        if (Utils.g_center.distanceTo(controlPoints.get(i)) <= Utils.g_center.distanceTo(controlPoints.get(i)))
+	        if (M.distanceTo(controlPoints.get(i)) <= M.distanceTo(controlPoints.get(i)))
 	        {
 	          pickedControlPt=i;
 	        }
@@ -337,9 +337,8 @@ public class SplineAxis extends Axis {
   	}
 
   	public void movePicked(Vector moveV){
-  		System.out.println("moving point by " + moveV.toString());
   		Point toMove = controlPoints.get(pickedControlPt);
-  		toMove.add(moveV);
-  		System.out.println("moving point num " + pickedControlPt);
+  		toMove = toMove.add(moveV);
+  		controlPoints.set(pickedControlPt, toMove);
   	}
 }

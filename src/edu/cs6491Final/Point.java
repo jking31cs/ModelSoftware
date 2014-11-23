@@ -28,6 +28,8 @@ public class Point implements Drawable {
 
 	public Vector ToK(Vector V) {
 		float z = (float)(V.dotProduct(K)) / (float)(K.dotProduct(K));
+		System.out.println("v dot k: " + V.dotProduct(K));
+		System.out.println("k dot k: " + K.dotProduct(K));
  		return new Vector(0,0,z);
 	}
 

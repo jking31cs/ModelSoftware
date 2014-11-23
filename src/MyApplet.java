@@ -259,7 +259,7 @@ public class MyApplet extends PApplet {
 		      popMatrix();
 		    }*/
 		    if (keyPressed && key=='z') {
-				((SplineAxis)axis).movePicked(showPt.ToK(new Vector((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0)));
+				((SplineAxis)axis).movePicked(new Vector(0, 0, mouseY - pmouseY));
 			}
 		}
 		if (drawMode) {
