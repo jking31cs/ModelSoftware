@@ -353,72 +353,44 @@ public class MyApplet extends PApplet {
 
 				textureWrap(REPEAT);
 				//draw caps!
-				if(increment != 360){
+				if(increment < 360 && morphLoops.size() > 1){
+					for (int i = 0; i < morphLoops.size(); i += morphLoops.size()-1) {
+						System.out.println("size = " + morphLoops.size() + ", " + i);
+						// START CAP
+						PolyLoop loop = morphLoops.get(i);
+						Point A = loop.points.get(0);
+						Point B = loop.points.get(1);
+						Point C = loop.points.get(2);
 
-					// START CAP
-					PolyLoop firstLoop = morphLoops.get(0);
-					Point A = firstLoop.points.get(0);
-					Point B = firstLoop.points.get(1);
-					Point C = firstLoop.points.get(2);
+						Vector tan = (A.to(B)).normalize();
+						Vector norm = ((B.to(A)).normalize()).crossProd((C.to(B)).normalize());
+						Vector binorm = norm.crossProd(tan);
 
-					Vector tan = (A.to(B)).normalize();
-					Vector norm = ((B.to(A)).normalize()).crossProd((C.to(B)).normalize());
-					Vector binorm = norm.crossProd(tan);
+						/*stroke(0,0,0);
+						A.draw(this);
+						stroke(0,0,255);
+						B.draw(this);
+						stroke(255, 0, 0);
+						C.draw(this);
 
-					/*stroke(0,0,0);
-					A.draw(this);
-					stroke(0,0,255);
-					B.draw(this);
-					stroke(255, 0, 0);
-					C.draw(this);
+						stroke(0,255,0);
+						tan.draw(this, A);
+						norm.draw(this, A);
+						binorm.draw(this, A);*/
 
-					stroke(0,255,0);
-					tan.draw(this, A);
-					norm.draw(this, A);
-					binorm.draw(this, A);*/
-
-					pushMatrix();
-					beginShape();
-					texture(hatch);
-					noFill();
-					for(Point p : firstLoop.points){
-						Vector AP = A.to(p);
-						float u = (float)(AP.dotProduct(tan));
-						float v = (float)(AP.dotProduct(binorm));
-						vertex((float)p.x, (float)p.y, (float)p.z, u, v);
+						pushMatrix();
+						beginShape();
+						texture(hatch);
+						noFill();
+						for(Point p : loop.points){
+							Vector AP = A.to(p);
+							float u = (float)(AP.dotProduct(tan));
+							float v = (float)(AP.dotProduct(binorm));
+							vertex((float)p.x, (float)p.y, (float)p.z, u, v);
+						}
+						endShape(CLOSE);
+						popMatrix();
 					}
-					endShape(CLOSE);
-					popMatrix();
-
-
-
-					// END CAP
-					PolyLoop lastLoop = morphLoops.get(morphLoops.size()-1);
-					A = lastLoop.points.get(0);
-					B = lastLoop.points.get(1);
-					C = lastLoop.points.get(2);
-
-					tan = (A.to(B)).normalize();
-					norm = ((B.to(A)).normalize()).crossProd((C.to(B)).normalize());
-					binorm = norm.crossProd(tan);
-
-					pushMatrix();
-					beginShape();
-					texture(hatch);
-					noFill();
-					for(Point p : lastLoop.points){
-						Vector AP = A.to(p);
-						float u = (float)(AP.dotProduct(tan));
-						float v = (float)(AP.dotProduct(binorm));
-						vertex((float)p.x, (float)p.y, (float)p.z, u, v);
-					}
-					endShape(CLOSE);
-					popMatrix();
-				}
-
-				if (outputVolume) {
-					System.out.println("//// TOTAL VOLUME = " + FindTotalVolume());
-					outputVolume = false;
 				}
 			}
 			popMatrix();
