@@ -54,7 +54,9 @@ public class TestApplet extends PApplet {
     	if(e.getKey()=='[')	l1.subDivisions--;
         if(e.getKey()=='1') active = l1;
         if(e.getKey()=='2') active = l2;
-        if(e.getKey()=='m') doBallMorph = !doBallMorph;
+        if(e.getKey()=='m') {
+            doBallMorph = !doBallMorph;
+        }
     }
 
     int frameCount = 0;
@@ -65,11 +67,7 @@ public class TestApplet extends PApplet {
         l2.draw(this);
 
         if (doBallMorph) {
-            stroke(255,0,0);
-            CustomLine line = Utils.centerLine(l1.toCustomLine(),l2.toCustomLine());
-            line.draw(this);
-            CustomLine morph = Utils.ballMorphInterpolation(l1,l2, (frameCount++%180)/180d);
-            morph.draw(this);
+            Utils.ballMorphInterpolation(l1, l2, (frameCount++%180)/180d).draw(this);
         } else {
             frameCount = 0;
         }

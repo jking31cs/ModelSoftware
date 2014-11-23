@@ -72,27 +72,30 @@ public final class Utils {
 	}
 
 	public static CustomLine ballMorphInterpolation(SplineLine l1, SplineLine l2, double t) {
-		double s = .5;
-		double min = 0;
-		double max = 1;
-		CustomLine l1_line = l1.toCustomLine();
-		CustomLine l2_line = l2.toCustomLine();
-		CustomLine line = centerLine(l1_line,l2_line);
-		while (Math.abs(s-t) > .001) {
-			CustomLine temp = new CustomLine();
-			temp.addAll(line);
-			if (s > t) {
-				line = centerLine(l1_line, line);
-				l2_line = temp;
-				max = s;
-				s = (s + min)/2;
-			} else {
-				line = centerLine(line, l2_line);
-				l1_line = temp;
-				min = s;
-				s = (s+max)/2;
+		CustomLine l1_points = new CustomLine(){{this.addAll(l1.calculateQuinticSpline());}};
+		CustomLine l2_points = new CustomLine(){{this.addAll(l2.calculateQuinticSpline());}};
+		refinePoints(l2_points);
+		refinePoints(l2_points);
+		refinePoints(l2_points);
+		refinePoints(l2_points);
+		refinePoints(l2_points);
+		refinePoints(l2_points);
+		refinePoints(l2_points);
+		refinePoints(l2_points);
+		CustomLine line = new CustomLine();
+		for (int i = 0; i < l1_points.size()-1; i++) {
+			GeneratedPoint p = l1_points.get(i);
+			Vector normal_p = p.to(l1_points.get(i+1)).normalize().rotate(Math.PI / 2, new Vector(0, 0, 1));
+			for (int j = 0; j < l2_points.size()-1; j++) {
+				GeneratedPoint q = l2_points.get(j);
+				Vector normal_q = q.to(l2_points.get(j+1)).normalize().rotate(3*Math.PI/2, new Vector(0,0,1));
+				Point m = intersectionBetweenLines(p, p.add(normal_p), q, q.add(normal_q));
+				if (Math.abs(p.distanceTo(m)-q.distanceTo(m)) < 1) {
+					BallMorphData d = new BallMorphData(p,q,m);
+					double r = d.getRadius(t);
+					line.add(new GeneratedPoint(r, d.pointAlongBezier(t)));
+				}
 			}
-
 		}
 		return line;
 	}
@@ -132,20 +135,48 @@ public final class Utils {
 
 	public static CustomLine centerLine(CustomLine l1, CustomLine l2) {
 		CustomLine line = new CustomLine();
-		GeneratedPoint p = l1.get(0);
-		GeneratedPoint q = l2.get(0);
-		line.add(new GeneratedPoint((p.r+q.r)/2, p.add(p.to(q).mul(.5))));
-		for (int i = 0; i < l1.size() -1; i++) {
-			p = l1.get(i);
-			q = l2.get(i);
-			Vector tangent_p = p.to(l1.get(i+1)).normalize();
-			Vector tangent_q = q.to(l2.get(i+1)).normalize();
-			Point m = intersectionBetweenLines(p, p.add(tangent_p), q, q.add(tangent_q));
-			Vector angleBisector = m.to(p).add(m.to(q)).normalize();
-			Point p1 = p.add(p.to(q).mul(.5));
-			Point p2 = intersectionBetweenLines(p1, p1.add(angleBisector), l1.get(i+1), l2.get(i+1));
-			line.add(new GeneratedPoint((l1.get(i+1).r + l2.get(i+1).r) / 2, p2));
+		refinePoints(l2);
+		refinePoints(l2);
+		refinePoints(l2);
+		refinePoints(l2);
+		refinePoints(l2);
+		refinePoints(l2);
+		refinePoints(l2);
+		refinePoints(l2);
+		refinePoints(l2);
+		refinePoints(l2);
+		for (int i = 0; i < l1.size()-1; i++) {
+			double minDiff = Double.MAX_VALUE;
+			Point p = l1.get(i);
+			Vector normal_p = p.to(l1.get(i+1)).normalize().rotate(Math.PI/2, new Vector(0,0,1));
+			for (int j = 0; j < l2.size()-1; j++) {
+				Point q = l2.get(j);
+				Vector normal_q = q.to(l2.get(j+1)).normalize().rotate(3*Math.PI/2, new Vector(0,0,1));
+				Point m = intersectionBetweenLines(p, p.add(normal_p), q, q.add(normal_q));
+				if (Math.abs(p.distanceTo(m)-q.distanceTo(m)) < 1) {
+					line.add(new GeneratedPoint(10,m));
+					break;
+				}
+				if (Math.abs(p.distanceTo(m)-q.distanceTo(m)) < minDiff) {
+					minDiff = Math.abs(p.distanceTo(m)-q.distanceTo(m));
+				}
+			}
 		}
+
 		return line;
+	}
+
+	public static void refinePoints(CustomLine l2) {
+		List<GeneratedPoint> newPoints = new ArrayList<>();
+		for (int i = 0; i < l2.size() - 1; i++) {
+			GeneratedPoint p1 = l2.get(i);
+			GeneratedPoint p2 = l2.get(i+1);
+			newPoints.add(new GeneratedPoint((p1.r+p2.r)/2, p1.add(p1.to(p2).mul(.5))));
+		}
+		int addIndex = 1;
+		for (GeneratedPoint p : newPoints) {
+			l2.add(addIndex, p);
+			addIndex +=2;
+		}
 	}
 }
