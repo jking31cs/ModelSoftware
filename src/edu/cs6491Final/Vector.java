@@ -1,12 +1,13 @@
 package edu.cs6491Final;
 
 import static java.lang.Math.*;
+import processing.core.PApplet;
 
 /**
  * Unlike a Point, a vector represents more of a direction than a point in space.
  * @author jking31
  */
-public class Vector {
+public class Vector{
 	public final double x;
 	public final double y;
 	public final double z;
@@ -21,6 +22,13 @@ public class Vector {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+	}
+
+	public Vector(Point a, Point b){
+		//vector from a to b
+		x = b.x - a.x;
+		y = b.y - a.y;
+		z = b.z - a.z;
 	}
   
 	/**
@@ -63,7 +71,7 @@ public class Vector {
 	
 	/**
 	 * Subtracts the vector from this vector.
-	 * @param v
+	 * @param
 	 * @return
 	 */
 	public Vector sub(Vector v) {
@@ -109,7 +117,7 @@ public class Vector {
 	}
 	
 	public Vector crossProd(Vector v) {
-		return new Vector(this.y*v.z - this.z*v.y, this.x*v.z - this.z*v.x, this.x*v.y - this.y*v.x);
+		return new Vector(this.y*v.z - this.z*v.y, this.z*v.x - this.x*v.z, this.x*v.y - this.y*v.x);
 	}
 	
 	public double angleBetween(Vector v) {
@@ -184,4 +192,12 @@ public class Vector {
 			", z=" + z +
 			'}';
 	}
+
+	public void draw(PApplet p, Point point){
+		p.beginShape(p.LINES);
+		p.vertex((float)point.x,(float)point.y, (float)point.z);
+		p.vertex((float)(point.x + x*5), (float)(point.y+y*5), (float)(point.z+z*5));
+		p.endShape(); 
+	}
+
 }
