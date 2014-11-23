@@ -81,22 +81,22 @@ public final class Utils {
 				//normal/binorm/tan
 				SplineAxis axis = ((SplineAxis) a);
 				double percentage = loop.GetPercentage(i);
-				System.out.println("find norm");
+				//System.out.println("find norm");
 				Vector N = axis.getN(percentage);
-				System.out.println("N = " + N.toString());
-				System.out.println("find binorm");
+				//System.out.println("N = " + N.toString());
+				//System.out.println("find binorm");
 				Vector H = axis.getB(percentage);
-				System.out.println("H = " + H.toString());
-				System.out.println("find tangent");
+				//System.out.println("H = " + H.toString());
+				//System.out.println("find tangent");
 				Vector T = axis.getT(percentage);
 				//T = T.normalize();
-				System.out.println("T = " + (T.toString()));
+				//System.out.println("T = " + (T.toString()));
 
 				Point p = loop.points.get(i);
 				Point A = axis.getPointFromPercentage(percentage);
 
 				Vector AP = new Vector(p.x-A.x, p.y-A.y, p.z-A.z);
-				System.out.println("AP = " + AP.toString());
+				//System.out.println("AP = " + AP.toString());
 				//AP.normalize();
 
 				double x = AP.dotProduct(T);
@@ -108,7 +108,7 @@ public final class Utils {
 				Vector Hy = new Vector(H.x*y, H.y*y, H.z*y);
 				Vector Nz = new Vector(N.x*z, N.y*z, N.z*z);
 
-				System.out.println(":::::::::::::::A before = " + A.toString());
+				//System.out.println(":::::::::::::::A before = " + A.toString());
 				Point finalP = ((A.add(Tx)).add(Hy)).add(Nz);
 
 				toRet.addPoint(finalP);
@@ -116,9 +116,9 @@ public final class Utils {
 				if (percentage > 0) {
 					System.out.println("----------------");
 					System.out.println((percentage*100) + "%");
-					//System.out.println("N: " + N.toString());
-					//System.out.println("T: " + T.toString());
-					//System.out.println("H: " + H.toString());
+					System.out.println("N: " + N.toString());
+					System.out.println("T: " + T.toString());
+					System.out.println("H: " + H.toString());
 					System.out.println(finalP.toString());
 				}
 

@@ -144,13 +144,13 @@ public class SplineAxis extends Axis {
 	}
 
 	public Point getPointFromPercentage(double percentage) {
-		System.out.println("LDAKFJIEWFAEIO***==== getPointFromPercentage " + percentage);
+		//System.out.println("LDAKFJIEWFAEIO***==== getPointFromPercentage " + percentage);
 		int index = getIndexFromPercentage(percentage);
 		return getPointAtIndex(index);
 	}
 
 	public Vector getN(double percentage){
-		System.out.println("N percent = " + percentage);
+		//System.out.println("N percent = " + percentage);
 		int index = getIndexFromPercentage(percentage);
 		Point a = getPointAtIndex(index-1);
 		Point b = getPointAtIndex(index);
@@ -173,7 +173,7 @@ public class SplineAxis extends Axis {
 	}
 
 	public Vector getT(double percentage) {
-		System.out.println("T percent = " + percentage);
+		//System.out.println("T percent = " + percentage);
 		int index = getIndexFromPercentage(percentage);
 		Point a = getPointAtIndex(index-1);
 		Point b = getPointAtIndex(index+1);
@@ -185,12 +185,12 @@ public class SplineAxis extends Axis {
 	}
 
 	public Vector getB(double percentage) {
-		System.out.println("B percent = " + percentage);
+		//System.out.println("B percent = " + percentage);
 		int index = getIndexFromPercentage(percentage);
 		Vector norm = getN(percentage);
 		Point a = getPointAtIndex(index);
 		//Point b = getPointAtIndex(index+1);
-		System.out.println("+++++++++++a and b:" + index + ", " + (index+1) + ", " + percentage);
+		//System.out.println("+++++++++++a and b:" + index + ", " + (index+1) + ", " + percentage);
 
 		//Vector BA = new Vector(a.x-b.x, a.y-b.y, a.z-b.z);
 		Vector BA = getT(percentage);

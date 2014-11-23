@@ -23,7 +23,7 @@ public class PolyLoop implements Drawable {
 	}
 
 	public double GetPercentage(int i){
-		System.out.println("////////// Y = " + points.get(i).y + ", height = " + Utils.appHeight);
+		//System.out.println("////////// Y = " + points.get(i).y + ", height = " + Utils.appHeight);
 		double percentage = (points.get(i).y/(Utils.appHeight));
 		return percentage;
 	}

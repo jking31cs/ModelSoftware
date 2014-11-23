@@ -67,13 +67,11 @@ public class MyApplet extends PApplet {
 		if(e.getKey() == '['){
 			increment -= 10;
 			if(increment < 0) increment = 0d;
-			System.out.println(increment);
 			animating = false;
 		}
 		if(e.getKey() == ']'){
 			increment += 10;
 			if(increment >= revolveMax) increment = revolveMax;
-			System.out.println(increment);
 			animating = false;
 		}
 		if(e.getKey() == 'p'){
@@ -130,7 +128,7 @@ public class MyApplet extends PApplet {
 		morphLoops.clear();
 		double t = 0;
 		while (t <= increment/180d) {
-			System.out.println(t);
+			//System.out.println(t);
 			PolyLoop lerped = Utils.lerp(axis, l1, l2, t);
 			morphLoops.add(lerped);
 			t += (1d/10);
@@ -214,11 +212,12 @@ public class MyApplet extends PApplet {
 			}
 		} else if (axis instanceof SplineAxis) {
 			if(controlPointMoved) {
-				l1 = Utils.morphAboutAxis(axis, l1);
-				l2 = Utils.morphAboutAxis(axis, l2);
+				System.out.println("moved points");
+				l1 = Utils.morphAboutAxis(axis, origl1);
+				l2 = Utils.morphAboutAxis(axis, origl2);
 				controlPointMoved = false;
-				calculateLoops();
 			}
+			calculateLoops();
 			((SplineAxis)axis).UpdateLoopRefs(l1, l2);
 		}
 		if (drawMode) {
