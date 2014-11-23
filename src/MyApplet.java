@@ -25,7 +25,7 @@ public class MyApplet extends PApplet {
 	private double revolveMax = 360d;
 	Axis axis;
 	private Point F = new Point(0,0,0);
-	PImage hatch;
+	//PImage hatch;
 	
 	List<PolyLoop> morphLoops;
 	
@@ -41,7 +41,7 @@ public class MyApplet extends PApplet {
 		morphLoops = new ArrayList<>();
 		translate(width/2, height/2);
 		Utils.appHeight = height;
-		hatch = loadImage("hatchPattern.jpg");
+		//hatch = loadImage("hatchPattern.jpg");
 		//Utils.applet = this;
 	}
 
@@ -312,7 +312,8 @@ public class MyApplet extends PApplet {
 						Point p3 = m2.points.get((j+1) % m1.points.size());
 						Point p4 = m1.points.get((j+1) % m1.points.size());
 						pushMatrix();
-						stroke(0,0,255);
+						//stroke(0,0,255);
+						noStroke();
 						fill(0,0,255);
 						beginShape();
 						FindNormal(i, j);
@@ -329,7 +330,7 @@ public class MyApplet extends PApplet {
 					PolyLoop loop = morphLoops.get(0);
 					pushMatrix();
 					beginShape();
-					texture(hatch);
+					//texture(hatch);
 					for(Point p : loop.points){
 						vertex((float)p.x, (float)p.y, (float)p.z);
 					}
@@ -340,7 +341,7 @@ public class MyApplet extends PApplet {
 					PolyLoop loop = morphLoops.get(morphLoops.size()-1);
 					pushMatrix();
 					beginShape();
-					texture(hatch);
+					//texture(hatch);
 					for(Point p : loop.points){
 						vertex((float)p.x, (float)p.y, (float)p.z);
 					}
