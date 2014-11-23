@@ -42,7 +42,7 @@ public class MyApplet extends PApplet {
 		morphLoops = new ArrayList<>();
 		translate(width/2, height/2);
 		Utils.appHeight = height;
-		hatch = loadImage("C:/Users/Miranda/Documents/GitHub/ModelSoftware/src/edu/cs6491Final/data/hatchPattern.jpg");
+		hatch = loadImage("./hatchPattern.jpg");
 		//Utils.applet = this;
 	}
 
