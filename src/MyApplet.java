@@ -255,8 +255,8 @@ public class MyApplet extends PApplet {
 			}
 			pushMatrix();
 			camera();
-			lights();  // turns on view-dependent lighting
-			//pointLight(255, 255, 255, width/2, height/2, 0);
+			//lights();  // turns on view-dependent lighting
+			pointLight(255, 255, 255, width/2, height/2, 0);
 			rotateX(rx); rotateY(ry); // rotates the model around the new origin (center of screen)
 			rotateX(PI / 2); // rotates frame around X to make X and Y basis vectors parallel to the floor
 			axis.draw(this);
@@ -281,7 +281,7 @@ public class MyApplet extends PApplet {
 						//v2 = v2.normalize();
 						Vector norm = v1.crossProd(v2);
 
-						/*if (i == 0 && j == debug) {
+						if (i == 0 && j == debug) {
 							p1.draw(this);
 							stroke(0,0,255);
 							p2.draw(this);
@@ -293,7 +293,7 @@ public class MyApplet extends PApplet {
 							v2.draw(this, p1);
 							stroke(255, 0, 0);
 							norm.draw(this, p1);						
-						}*/
+						}
 
 						norm = norm.normalize();
 
@@ -354,9 +354,36 @@ public class MyApplet extends PApplet {
 
 		List<Vector> ns = new ArrayList<Vector>();
 		Vector n1 = norms.get(i1 * l.points.size() + i2);
-
 		//n1.draw(this, l.points.get(i2));
 		ns.add(n1);
+
+		//get faces on l/r of this one
+		if(((i1+1) * l.points.size() + i2) < l.points.size()) {
+			Vector n2 = norms.get((i1+1) * l.points.size() + i2); 
+			ns.add(n2);
+		}
+		if(((i1-1) * l.points.size() + i2) > 0) {
+			Vector n2 = norms.get((i1-1) * l.points.size() + i2); 
+			ns.add(n2);
+		}
+
+		//get face on top/bottom of this one
+		if(i2+1 >= l.points.size()) { //loop around to point 0
+			Vector n2 = norms.get(i1 * l.points.size()); 
+			ns.add(n2);
+		} else {
+			Vector n2 = norms.get(i1 * l.points.size() + i2+1); 
+			ns.add(n2);
+		}
+
+		if(i2-1 < 0) { //loop around to point 0
+			Vector n2 = norms.get(i1 * l.points.size() + l.points.size()-1); 
+			ns.add(n2);
+		} else {
+			Vector n2 = norms.get(i1 * l.points.size() + i2-1); 
+			ns.add(n2);
+		}
+
 
 		Vector avgNorms = n1;
 		for(int i = 1; i < ns.size()-1; i++){
