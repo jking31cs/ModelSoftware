@@ -5,7 +5,7 @@ package edu.cs6491Final;
  */
 public class GeneratedPoint extends Point{
 
-	public final double r;
+	public double r;
 
 	public GeneratedPoint(double r, Point p) {
 		super(p.x, p.y, p.z);

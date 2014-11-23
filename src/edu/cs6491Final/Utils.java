@@ -100,30 +100,6 @@ public final class Utils {
 		return line;
 	}
 
-	public static CustomLine bezierMorphInterpolation(SplineLine l1, SplineLine l2, double t) {
-		List<BallMorphData> data = new ArrayList<>();
-		List<GeneratedPoint> p_points = l1.calculateQuinticSpline();
-		List<GeneratedPoint> q_points = l2.calculateQuinticSpline();
-
-		if (p_points.size() != q_points.size()) throw new RuntimeException("Points must be the same size");
-
-		for (int i = 0; i < p_points.size(); i++) {
-			GeneratedPoint p = p_points.get(i);
-			GeneratedPoint q = q_points.get(i);
-			Vector p_normal = l1.getNormalAtPoint(p);
-			Vector q_normal = l2.getNormalAtPoint(q);
-			Point m = intersectionBetweenLines(p, p.add(p_normal), q, q.add(q_normal));
-			data.add(new BallMorphData(p,q,m));
-		}
-		CustomLine line = new CustomLine();
-		for (BallMorphData d : data) {
-			double radius = d.getRadius(t);
-			Point point = d.pointAlongBezier(t);
-			line.add(new GeneratedPoint(radius, point));
-		}
-		return line;
-	}
-
 	public static Point intersectionBetweenLines(Point p1,Point p2,Point p3,Point p4) {
 		double xTop = ((p1.x*p2.y - p1.y*p2.x)*(p3.x-p4.x)) - ((p1.x - p2.x)*(p3.x*p4.y - p3.y*p4.x));
 		double xBot = ((p1.x - p2.x)*(p3.y-p4.y))-((p1.y-p2.y)*(p3.x-p4.x));
