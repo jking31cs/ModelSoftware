@@ -17,6 +17,7 @@ public class MyApplet extends PApplet {
 	boolean animating = true;
 	boolean controlPointMoved = false;
 	boolean fDragging = false;
+	boolean outputVolume = false;
 	private List<Vector> norms;
 	int debug = 0;
 	
@@ -60,10 +61,13 @@ public class MyApplet extends PApplet {
 			drawMode = true;
 			viewMode = false; 
 		}
-		if (e.getKey() == 'v' && drawMode) {
+		if (e.getKey() == 'e' && drawMode) {
 			calculateLoops();
 			viewMode = true;
 			drawMode = false;
+		}
+		if (e.getKey() == 'v' && viewMode) {
+			outputVolume = true;
 		}
 		if (e.getKey() == '3'){
 			revolve2DMode = !revolve2DMode;
@@ -117,8 +121,6 @@ public class MyApplet extends PApplet {
 				points.add(p);
 			}
 
-			//l1.SetBValues(height);
-			//l2.SetBValues(height);
 			axis = new SplineAxis(new Point(width/2, height, 0), points, this, l1, l2);
 		}
 		if (e.getKey() == 's' && drawMode) {
@@ -234,6 +236,7 @@ public class MyApplet extends PApplet {
 				System.out.println("moved points");
 				l1 = Utils.morphAboutAxis(axis, origl1);
 				l2 = Utils.morphAboutAxis(axis, origl2);
+
 				controlPointMoved = false;
 			//}
 			calculateLoops();
@@ -253,7 +256,7 @@ public class MyApplet extends PApplet {
 			calculateLoops();
 			if(viewMode && animating) {
 				if(revolveMax >= increment)
-				increment += 2d;
+					increment += 2d;
 			}
 			pushMatrix();
 			camera();
@@ -348,9 +351,32 @@ public class MyApplet extends PApplet {
 					endShape(CLOSE);
 					popMatrix();
 				}
+
+				if (outputVolume) {
+					System.out.println("//// TOTAL VOLUME = " + FindTotalVolume());
+					outputVolume = false;
+				}
 			}
 			popMatrix();
 		}
+	}
+
+	public double FindTotalVolume() {
+		double total = 0d;
+		for (int i = 0; i < morphLoops.size()-1; i++) {
+			total += FindInterloopVolume(morphLoops.get(i), morphLoops.get((i+1) % morphLoops.size()));
+		}
+
+		return total;
+	}
+
+	public double FindInterloopVolume(PolyLoop loop1, PolyLoop loop2) {
+		Point com1 = loop1.COM();
+		Point com2 = loop2.COM();
+		double area1 = loop1.area();
+		double area2 = loop2.area();
+
+		return (area1 + area2)/2d * com1.distanceTo(com2);
 	}
 
 	public void FindNormal(int i1, int i2){
