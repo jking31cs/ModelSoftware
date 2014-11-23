@@ -109,7 +109,7 @@ public class Vector {
 	}
 	
 	public Vector crossProd(Vector v) {
-		return new Vector(this.y*v.z - this.z*v.y, this.x*v.z - this.z*v.x, this.x*v.y - this.y*v.x);
+		return new Vector(this.y*v.z - this.z*v.y, (this.x*v.z - this.z*v.x)*-1, this.x*v.y - this.y*v.x);
 	}
 	
 	public double angleBetween(Vector v) {

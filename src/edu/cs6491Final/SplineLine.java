@@ -9,12 +9,18 @@ import java.util.Objects;
 
 public class SplineLine implements Drawable{
 
+	public CustomLine toCustomLine() {
+		return new CustomLine(){{
+			this.addAll(calculateQuinticSpline());
+		}};
+	}
+
 	public static class ControlPoint extends Point {
 
 		public double r;
 
 		public ControlPoint(double r, Point p) {
-			super(p.x,p.y,p.z);
+			super(p.x, p.y, p.z);
 			this.r = r;
 		}
 
@@ -32,10 +38,10 @@ public class SplineLine implements Drawable{
 	public String offsetMode="RADIAL";
 
 	public int subDivisions=3;
+
 	public SplineLine() {
 		this.pts = new ArrayList<>();
 	}
-
 	public void addPoint(Point p, double r) {
 		this.pts.add(new ControlPoint(r, p));
 	}
@@ -174,10 +180,11 @@ public class SplineLine implements Drawable{
 	}
 
 	public Vector getNormalAtPoint(GeneratedPoint curr, GeneratedPoint next){
-		Vector toRet=new Vector(0,0,0);
-		Vector toNext=curr.to(next).normalize();
-		toRet=toNext.normalize().rotate(Math.PI/2, new Vector(0, 0, 1));
-		return toRet;	
+		return getTangentAt(curr, next).rotate(Math.PI/2, new Vector(0, 0, 1));
+	}
+
+	public Vector getTangentAt(GeneratedPoint curr, GeneratedPoint next) {
+		return curr.to(next).normalize();
 	}
 
 	

@@ -1,6 +1,7 @@
 package edu.cs6491Final;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,12 +72,27 @@ public final class Utils {
 	}
 
 	public static CustomLine ballMorphInterpolation(SplineLine l1, SplineLine l2, double t) {
-		List<BallMorphData> data = l1.calculateQuinticSpline().stream().map(
-			p -> getBallMorphDataAt(p, l1, l2)).collect(Collectors.toList());
-		CustomLine line = new CustomLine();
-		for (BallMorphData d : data) {
-			double r = (1-t)*d.p.r + t*d.q.r;
-			line.add(new GeneratedPoint(r, d.pointAlongBezier(t)));
+		double s = .5;
+		double min = 0;
+		double max = 1;
+		CustomLine l1_line = l1.toCustomLine();
+		CustomLine l2_line = l2.toCustomLine();
+		CustomLine line = centerLine(l1_line,l2_line);
+		while (Math.abs(s-t) > .001) {
+			CustomLine temp = new CustomLine();
+			temp.addAll(line);
+			if (s > t) {
+				line = centerLine(l1_line, line);
+				l2_line = temp;
+				max = s;
+				s = (s + min)/2;
+			} else {
+				line = centerLine(line, l2_line);
+				l1_line = temp;
+				min = s;
+				s = (s+max)/2;
+			}
+
 		}
 		return line;
 	}
@@ -105,62 +121,6 @@ public final class Utils {
 		return line;
 	}
 
-
-	/**
-	 * This assumes that p is on l1, find the q on l2 and the center point
-	 */
-	public static BallMorphData getBallMorphDataAt(GeneratedPoint p, SplineLine l1, SplineLine l2) {
-
-		//First get out the normal vector at p in l1.
-		Vector normal_at_p = l1.getNormalAtPoint(p);
-		Point m1 = p.add(normal_at_p); //For line intersection.
-
-		boolean found = false;
-		List<GeneratedPoint> points = l2.calculateQuinticSpline();
-
-		//let's refine points some more here for better options.
-		refinePoints(points);
-		refinePoints(points);
-		double minDiff = Double.MAX_VALUE;
-		Point center = null;
-		GeneratedPoint q = null;
-		for (GeneratedPoint gp : points) {
-			GeneratedPoint temp = gp;
-			Vector normal_at_temp = l2.getNormalAtPoint(temp);
-			Point m2 = temp.add(normal_at_temp);
-
-			Point m = intersectionBetweenLines(p,m1,temp,m2);
-
-			double diff = Math.abs(p.distanceTo(m) - temp.distanceTo(m));
-			if (diff < minDiff) {
-				minDiff = diff;
-				center = m;
-				q = temp;
-			}
-		}
-		return new BallMorphData(p,q,center);
-	}
-
-	private static void refinePoints(List<GeneratedPoint> points) {
-		List<GeneratedPoint> newPoints = new ArrayList<>();
-		for (int i = 0; i < points.size()-1; i++) {
-			GeneratedPoint p1 = points.get(i);
-			GeneratedPoint p2 = points.get(i + 1);
-			newPoints.add(getMidPoint(p1,p2));
-		}
-		int addIndex = 1;
-		for (GeneratedPoint pt : newPoints) {
-			points.add(addIndex, pt);
-			addIndex += 2;
-		}
-	}
-
-	private static GeneratedPoint getMidPoint(GeneratedPoint p1, GeneratedPoint p2) {
-		Point p = p1.add(p1.to(p2).mul(.5));
-		double r = (p1.r + p2.r) / 2;
-		return new GeneratedPoint(r,p);
-	}
-
 	public static Point intersectionBetweenLines(Point p1,Point p2,Point p3,Point p4) {
 		double xTop = ((p1.x*p2.y - p1.y*p2.x)*(p3.x-p4.x)) - ((p1.x - p2.x)*(p3.x*p4.y - p3.y*p4.x));
 		double xBot = ((p1.x - p2.x)*(p3.y-p4.y))-((p1.y-p2.y)*(p3.x-p4.x));
@@ -168,5 +128,24 @@ public final class Utils {
 		double yBot = ((p1.x - p2.x)*(p3.y-p4.y))-((p1.y-p2.y)*(p3.x-p4.x));
 
 		return new Point(xTop/xBot, yTop/yBot, 0);
+	}
+
+	public static CustomLine centerLine(CustomLine l1, CustomLine l2) {
+		CustomLine line = new CustomLine();
+		GeneratedPoint p = l1.get(0);
+		GeneratedPoint q = l2.get(0);
+		line.add(new GeneratedPoint((p.r+q.r)/2, p.add(p.to(q).mul(.5))));
+		for (int i = 0; i < l1.size() -1; i++) {
+			p = l1.get(i);
+			q = l2.get(i);
+			Vector tangent_p = p.to(l1.get(i+1)).normalize();
+			Vector tangent_q = q.to(l2.get(i+1)).normalize();
+			Point m = intersectionBetweenLines(p, p.add(tangent_p), q, q.add(tangent_q));
+			Vector angleBisector = m.to(p).add(m.to(q)).normalize();
+			Point p1 = p.add(p.to(q).mul(.5));
+			Point p2 = intersectionBetweenLines(p1, p1.add(angleBisector), l1.get(i+1), l2.get(i+1));
+			line.add(new GeneratedPoint((l1.get(i+1).r + l2.get(i+1).r) / 2, p2));
+		}
+		return line;
 	}
 }

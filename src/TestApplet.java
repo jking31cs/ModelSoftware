@@ -66,8 +66,10 @@ public class TestApplet extends PApplet {
 
         if (doBallMorph) {
             stroke(255,0,0);
-            CustomLine line = Utils.ballMorphInterpolation(l1,l2,(frameCount++ % 180)/180d);
+            CustomLine line = Utils.centerLine(l1.toCustomLine(),l2.toCustomLine());
             line.draw(this);
+            CustomLine morph = Utils.ballMorphInterpolation(l1,l2, (frameCount++%180)/180d);
+            morph.draw(this);
         } else {
             frameCount = 0;
         }
