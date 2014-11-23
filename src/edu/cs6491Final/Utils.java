@@ -114,19 +114,19 @@ public final class Utils {
 				axis.DrawTHN(A, Tx, Hy, Nz);
 
 				//System.out.println(":::::::::::::::A before = " + A.toString());
-				System.out.println("p:" + p.toString());
+				//System.out.println("p:" + p.toString());
 				Point finalP = ((A.add(Tx)).add(Hy)).add(Nz);
-				System.out.println("final p: " +finalP.toString());
+				//System.out.println("final p: " +finalP.toString());
 
 				toRet.addPoint(finalP);
 
-				if (percentage > 0) {
+				/*if (percentage > 0) {
 					System.out.println("----------------");
 					System.out.println((percentage*100) + "%");
 					System.out.println("N: " + N.toString());
 					System.out.println("T: " + T.toString());
 					System.out.println("H: " + H.toString());
-				}
+				}*/
 
 				//A.Draw(applet);
 			}

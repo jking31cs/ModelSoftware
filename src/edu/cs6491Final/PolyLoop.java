@@ -31,6 +31,30 @@ public class PolyLoop implements Drawable {
 		return percentage;
 	}
 
+	public double area() {
+		double area = 0d;
+
+		for (int i = 0; i < points.size()-1; i++) {
+			Vector v0 = points.get(i).asVec();
+			Vector v1 = points.get((i+1) % points.size()).asVec();
+			area += (v0.crossProd(v1).getMag())/2d;
+		}
+
+		return area/points.size();
+	}
+
+	public Point COM() {
+		Point com = new Point(0,0,0);
+
+		for (int i = 0; i < points.size()-1; i++) {
+			com.x += points.get(i).x / points.size();
+			com.y += points.get(i).y / points.size();
+			com.z += points.get(i).z / points.size();
+		}
+
+		return com;
+	}
+
 	// public ArrayList<Point> GetBList() {
 	// 	List<Point> blist = new ArrayList<>();
 	// 	for(Point pt : points) {

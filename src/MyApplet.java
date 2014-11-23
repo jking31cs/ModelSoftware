@@ -218,6 +218,7 @@ public class MyApplet extends PApplet {
 				System.out.println("moved points");
 				l1 = Utils.morphAboutAxis(axis, origl1);
 				l2 = Utils.morphAboutAxis(axis, origl2);
+
 				controlPointMoved = false;
 			//}
 			calculateLoops();
@@ -237,7 +238,7 @@ public class MyApplet extends PApplet {
 			calculateLoops();
 			if(viewMode && animating) {
 				if(revolveMax >= increment)
-				increment += 2d;
+					increment += 2d;
 			}
 			pushMatrix();
 			camera();
@@ -330,9 +331,29 @@ public class MyApplet extends PApplet {
 					endShape(CLOSE);
 					popMatrix();
 				}
+
+				System.out.println("//// TOTAL AREA = " + FindTotalVolume());
 			}
 			popMatrix();
 		}
+	}
+
+	public double FindTotalVolume() {
+		double total = 0d;
+		for (int i = 0; i < morphLoops.size()-1; i++) {
+			total += FindInterloopVolume(morphLoops.get(i), morphLoops.get((i+1) % morphLoops.size()));
+		}
+
+		return total;
+	}
+
+	public double FindInterloopVolume(PolyLoop loop1, PolyLoop loop2) {
+		Point com1 = loop1.COM();
+		Point com2 = loop2.COM();
+		double area1 = loop1.area();
+		double area2 = loop2.area();
+
+		return (area1 + area2)/2d * com1.distanceTo(com2);
 	}
 
 	public void FindNormal(int i1, int i2){
