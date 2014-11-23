@@ -15,6 +15,7 @@ public class MyApplet extends PApplet {
 	boolean revolve2DMode = false;
 	boolean animating = true;
 	boolean controlPointMoved = false;
+	boolean fDragging = false;
 	private List<Vector> norms;
 	int debug = 0;
 	
@@ -137,6 +138,7 @@ public class MyApplet extends PApplet {
 	
 	@Override
 	public void mouseReleased(MouseEvent e) {
+		fDragging = false;
 		if (editMode) {
 			editMode = false;
 			return;
@@ -158,6 +160,7 @@ public class MyApplet extends PApplet {
 	
 	@Override
 	public void mouseDragged(MouseEvent e) {
+		fDragging = true;
 		if (drawMode) {
 			Point mousePoint = new Point (e.getX(), e.getY(), 0);
 			for (int i = 0; i < l1.points.size(); i++) {
@@ -198,6 +201,15 @@ public class MyApplet extends PApplet {
 	
 	@Override
 	public void draw() {
+
+		if ( fDragging != true ){
+			Utils.g_center = Utils.pick( mouseX, mouseY );
+			l1.idOfVertexWithClosestScreenProjectionTo(Mouse()); // id of vertex of P with closest screen projection to mouse (us in keyPressed 'x'...
+		}
+		fill(red,100); 
+		l1.showPicked(10); // shows currently picked vertex in red (last key action 'x', 'z'
+
+
 		background(255);
 		translate((float)-F.x,(float)-F.y,(float)-F.z);
 		if (axis instanceof CircularAxis) {
