@@ -241,6 +241,7 @@ public class MyApplet extends PApplet {
 			calculateLoops();
 			((SplineAxis)axis).UpdateLoopRefs(l1, l2);
 
+			//figure out which control point we're manipulating
 			if ( fDragging != true ){
 				Utils.g_center = pick( mouseX, mouseY );
 				((SplineAxis)axis).idOfVertexWithClosestScreenProjectionTo(new Point(mouseX, mouseY, 0));
@@ -249,14 +250,17 @@ public class MyApplet extends PApplet {
 			Point showPt = ((SplineAxis)axis).showPicked();
 			showPt.draw(this);
 
-		    if ( Utils.g_center != null )
+		    /*if ( Utils.g_center != null )
 		    {
 		      pushMatrix();
 		      translate((float)Utils.g_center.x,(float)Utils.g_center.y,(float)Utils.g_center.z );
 		      sphere(2);
 		      translate( (float)-Utils.g_center.x, (float)-Utils.g_center.y, (float)-Utils.g_center.z );
 		      popMatrix();
-		    }
+		    }*/
+		    if (keyPressed && key=='z') {
+				((SplineAxis)axis).movePicked(showPt.ToK(new Vector((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0)));
+			}
 		}
 		if (drawMode) {
 			stroke(0,0,255);

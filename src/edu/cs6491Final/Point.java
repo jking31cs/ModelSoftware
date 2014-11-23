@@ -26,15 +26,10 @@ public class Point implements Drawable {
 		return new Vector(x,y,0);
 	}
 
-	/*void computeProjectedVectors() { 
-	  Point O = ToScreen(P(0,0,0));
-	  Point A = ToScreen(P(1,0,0));
-	  Point B = ToScreen(P(0,1,0));
-	  Point C = ToScreen(P(0,0,1));
-	  I=V(O,A);
-	  J=V(O,B);
-	  K=V(O,C);
-	 }*/
+	public Vector ToK(Vector V) {
+		float z = (float)(V.dotProduct(K)) / (float)(K.dotProduct(K));
+ 		return new Vector(0,0,z);
+	}
 
 	double det2(Vector U, Vector V) {return -U.y*V.x + U.x*V.y; };  
 	

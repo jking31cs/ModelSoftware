@@ -335,4 +335,11 @@ public class SplineAxis extends Axis {
 		//pv = pickedControlPt;
 	    return pickedControlPt;
   	}
+
+  	public void movePicked(Vector moveV){
+  		System.out.println("moving point by " + moveV.toString());
+  		Point toMove = controlPoints.get(pickedControlPt);
+  		toMove.add(moveV);
+  		System.out.println("moving point num " + pickedControlPt);
+  	}
 }
