@@ -15,6 +15,8 @@ public class MyApplet extends PApplet {
 	
 	PolyLoop origl1, origl2, l1, l2;
 	
+	SplineLine sl1,sl2;
+	
 	Axis axis;
 	
 	List<PolyLoop> morphLoops;
@@ -60,6 +62,12 @@ public class MyApplet extends PApplet {
 			l2.tuck(2d/3);
 			l2.tuck(-2d/3);
 		}
+		if(e.getKey()=='n')	{sl1.offsetMode="NORMAL"; sl2.offsetMode="NORMAL";}
+    	if(e.getKey()=='r')	{sl1.offsetMode="RADIAL"; sl2.offsetMode="RADIAL";}
+    	if(e.getKey()=='b')	{sl1.offsetMode="BALL"; sl2.offsetMode="BALL";}
+    	if(e.getKey()==']')	{sl1.subDivisions++; sl2.subDivisions++;}
+    	if(e.getKey()=='[')	{sl1.subDivisions--; sl2.subDivisions--;}
+    	if(e.getKey()=='f')	{sl1.fillCurve=!sl1.fillCurve; sl2.fillCurve=!sl2.fillCurve;}
 	}
 	
 	private void calculateLoops() {
@@ -79,11 +87,20 @@ public class MyApplet extends PApplet {
 			return;
 		}
 		if (drawMode) {
-			Point point = new Point(e.getX(), e.getY(), 0);
-			l1.addPoint(point);
-			l2.addPoint(Utils.mirrored(point, axis));
+			//Point point = new Point(e.getX(), e.getY(), 0);
+			//l1.addPoint(point);
+			//l2.addPoint(Utils.mirrored(point, axis));
 		}
 	}
+	
+	public void mouseClicked(MouseEvent e) {
+        if (sl1.closestPointWithinRange(new Point(e.getX(), e.getY(), 0), 20) == null)
+        {
+        	Point toAdd=new Point(e.getX(), e.getY(), 0);
+            sl1.addPoint(toAdd, 10);
+            sl2.addPoint(Utils.mirrored(toAdd, axis), 10);
+        }
+    }
 	
 	@Override
 	public void mouseMoved() {
@@ -96,21 +113,29 @@ public class MyApplet extends PApplet {
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		if (drawMode) {
-			Point mousePoint = new Point (e.getX(), e.getY(), 0);
-			for (int i = 0; i < l1.points.size(); i++) {
-				Point p1 = l1.points.get(i);
-				Point p2 = l2.points.get(i);
-				if (p1.distanceTo(mousePoint) < 15) {
-					p1.x = mousePoint.x;
-					p1.y = mousePoint.y;
-					break;
-				}
-				if (p2.distanceTo(mousePoint) < 15) {
-					p2.x = mousePoint.x;
-					p2.y = mousePoint.y;
-					break;
-				}
-			}
+			Point mousePoint = new Point(e.getX(), e.getY(), 0);
+	        SplineLine.ControlPoint pt1 = sl1.closestPointWithinRange(
+	            mousePoint, 100
+	        );
+	        SplineLine.ControlPoint pt2 = sl2.closestPointWithinRange(
+		            mousePoint, 100
+		        );
+	        if (pt1 != null) {
+	            if (e.isControlDown()) {
+	                pt1.r = mousePoint.distanceTo(pt1);
+	            } else {
+	                pt1.x = mousePoint.x;
+	                pt1.y = mousePoint.y;
+	            }
+	        }
+	        if (pt2 != null) {
+	            if (e.isControlDown()) {
+	                pt2.r = mousePoint.distanceTo(pt2);
+	            } else {
+	                pt2.x = mousePoint.x;
+	                pt2.y = mousePoint.y;
+	            }
+	        }
 			editMode = true;
 		}
 	}
@@ -127,6 +152,8 @@ public class MyApplet extends PApplet {
 		drawMode = true;
 		l1 = new PolyLoop();
 		l2 = new PolyLoop();
+		sl1=new SplineLine();
+		sl2=new SplineLine();
 		axis = new StraightAxis(new Point(width/2, height, 0),new Vector(0,-1,0));
 		morphLoops = new ArrayList<>();
 		translate(width/2, height/2);
@@ -151,9 +178,13 @@ public class MyApplet extends PApplet {
 			axis.draw(this);
 			stroke(0);
 			strokeWeight(1);
-			l1.draw(this);
+			sl1.draw(this);
+			l1=sl1.getBoundingLoop();
+			
 			stroke(255,0,0);
-			l2.draw(this);
+			sl2.draw(this);
+			l2=sl2.getBoundingLoop();
+		
 		} else {
 			pushMatrix();
 			camera();

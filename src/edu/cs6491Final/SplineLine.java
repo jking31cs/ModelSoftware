@@ -26,10 +26,12 @@ public class SplineLine implements Drawable{
 	public List<ControlPoint> pts;
 	public List<GeneratedPoint> genPts;
 	
+	
 	public String offsetMode="RADIAL";
 	public int subDivisions=3;
 	public boolean fillCurve=false;
-
+	
+	private PolyLoop offsetLoop;
 	public SplineLine() {
 		this.pts = new ArrayList<>();
 	}
@@ -187,6 +189,7 @@ public class SplineLine implements Drawable{
 	
 	public void drawOffsetCurve(PApplet p, String mode){
 		if (pts.size() > 2) {
+			offsetLoop=new PolyLoop();
 			genPts = calculateQuinticSpline();
 			p.beginShape();
 			GeneratedPoint first=genPts.get(0);
@@ -209,6 +212,7 @@ public class SplineLine implements Drawable{
 						offset=getBallOffsetAtPoint(prev,cur,next);
 					Vector offsetPoint=cur.asVec().add(offset);
 					p.vertex((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z);
+					offsetLoop.addPoint(new Point((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z));
 				}
 			
 
@@ -218,6 +222,7 @@ public class SplineLine implements Drawable{
 			for(int i=0; i < Math.PI/deltaRot + 1; i++){
 				Vector offsetPoint=last.asVec().add(offsetAtEnd);
 				p.vertex((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z);
+				offsetLoop.addPoint(new Point((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z));
 				offsetAtEnd=offsetAtEnd.rotate(deltaRot, getNormalToCurvePlane().mul(-1));
 			}
 			
@@ -229,14 +234,15 @@ public class SplineLine implements Drawable{
 					GeneratedPoint cur = genPts.get(ptCtr);
 					GeneratedPoint next = genPts.get(ptCtr-1);
 					Vector offset = new Vector(0,0,0);
-					if(mode == "NORMAL")
+					if(offsetMode.equals("NORMAL"))
 						offset=getNormalOffsetAtPoint(prev,cur,next);
-					else if (mode == "RADIAL")
+					else if (offsetMode.equals("RADIAL"))
 						offset=getRadialOffsetAtPoint(prev,cur,next);
-					else if (mode == "BALL")
+					else if (offsetMode.equals("BALL"))
 						offset=getBallOffsetAtPoint(prev,cur,next);
 					Vector offsetPoint=cur.asVec().add(offset);
 					p.vertex((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z);
+					offsetLoop.addPoint(new Point((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z));
 					ptCtr--;
 				}
 			
@@ -246,11 +252,16 @@ public class SplineLine implements Drawable{
 			for(int i=0; i < Math.PI/deltaRot +1; i++){
 				Vector offsetPoint=first.asVec().add(offsetAtStart);
 				p.vertex((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z);
+				offsetLoop.addPoint(new Point((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z));
 				offsetAtStart=offsetAtStart.rotate(deltaRot, getNormalToCurvePlane().mul(-1));
 			}
 
 			p.endShape(PConstants.CLOSE);
 		}
+	}
+	
+	public PolyLoop getBoundingLoop(){
+		return offsetLoop;
 	}
 	
 	public void drawSpine(PApplet p){
@@ -275,12 +286,12 @@ public class SplineLine implements Drawable{
 		
 		
 		if(offsetMode.equals("NORMAL"))	{	p.noFill(); p.stroke(255, 0 ,0); p.strokeWeight(3);}
-		if(Objects.equals(offsetMode, "RADIAL"))	{	p.noFill(); p.stroke(255, 20 , 147); p.strokeWeight(3);}
-		if(Objects.equals(offsetMode, "BALL")) 	{	p.noFill(); p.stroke(0, 0 ,255); p.strokeWeight(3);}
+		if(offsetMode.equals("RADIAL"))	{	p.noFill(); p.stroke(255, 20 , 147); p.strokeWeight(3);}
+		if(offsetMode.equals("BALL")) 	{	p.noFill(); p.stroke(0, 0 ,255); p.strokeWeight(3);}
 		if(fillCurve)	{
-			if(Objects.equals(offsetMode, "NORMAL"))	{	p.fill(255, 0, 0); }
-			if(Objects.equals(offsetMode, "RADIAL"))	{	p.fill(255, 20, 147); }
-			if(Objects.equals(offsetMode, "BALL")) 	{	p.fill(0, 0 ,255); }
+			if(offsetMode.equals("NORMAL"))	{	p.fill(255, 0, 0); }
+			if(offsetMode.equals("RADIAL"))	{	p.fill(255, 20, 147); }
+			if(offsetMode.equals("BALL") ) 	{	p.fill(0, 0 ,255); }
 		}
 		drawOffsetCurve(p, offsetMode);
 		p.strokeWeight(1);
