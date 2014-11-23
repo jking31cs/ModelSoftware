@@ -13,14 +13,55 @@ import processing.core.PApplet;
 public class PolyLoop implements Drawable {
 	
 	public List<Point> points;
+	public List<Point> origPt;
+	int pickedVert;
 	
 	public PolyLoop() {
 		this.points = new ArrayList<>();
+		this.origPt = new ArrayList<>();
 	}
 	
 	public void addPoint(Point p) {
 		points.add(p);
+		origPt.add(new Point(-1, -1, -1));
 	}
+
+	public double GetPercentage(int i){
+		//System.out.println("////////// Y = " + points.get(i).y + ", height = " + Utils.appHeight);
+		double percentage = (points.get(i).y/(Utils.appHeight));
+		return percentage;
+	}
+
+	public double area() {
+		double area = 0d;
+
+		for (int i = 0; i < points.size()-1; i++) {
+			Vector v0 = points.get(i).asVec();
+			Vector v1 = points.get((i+1) % points.size()).asVec();
+			area += (v0.crossProd(v1).getMag())/2d;
+		}
+
+		return area/points.size();
+	}
+
+	public Point COM() {
+		Point com = new Point(0,0,0);
+
+		for (int i = 0; i < points.size()-1; i++) {
+			com.x += points.get(i).x / points.size();
+			com.y += points.get(i).y / points.size();
+			com.z += points.get(i).z / points.size();
+		}
+
+		return com;
+	}
+
+	// public ArrayList<Point> GetBList() {
+	// 	List<Point> blist = new ArrayList<>();
+	// 	for(Point pt : points) {
+
+	// 	}
+	// }
 
 	/**
 	 * This will draw a line between each point in order of the points listed to form a simple loop.
@@ -39,6 +80,20 @@ public class PolyLoop implements Drawable {
 			);
 		}
 
+	}
+
+	public void tuck(double s) {
+		for (int i = points.size(); i < points.size() + points.size(); i++) {
+			Point cur = points.get(i % points.size());
+			Point prev = points.get((i - 1) % points.size());
+			Point next = points.get((i + 1) % points.size());
+
+			Vector ba = cur.to(prev);
+			Vector bc = cur.to(next);
+
+			Vector M_b = ba.add(bc).mul(.5);
+			cur.move(cur.add(M_b.mul(s)));
+		}
 	}
 
 	@Override
