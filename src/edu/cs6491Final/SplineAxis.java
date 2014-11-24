@@ -18,8 +18,6 @@ public class SplineAxis extends Axis {
 	PApplet pApp;
 	PolyLoop l1, l2;
 	public int pickedControlPt = 0;
-	private boolean normSet = false;
-	Vector norm;
 
 	public SplineAxis(Point origin, List<Point> controlPoints, PApplet p, PolyLoop _l1, PolyLoop _l2) {
 		super(origin);
@@ -34,7 +32,6 @@ public class SplineAxis extends Axis {
             System.out.print(pnt.toString() + "; ");
         }
         System.out.print("\n");
-        norm = getN(0d);
 
         quintic();
 	}
@@ -171,33 +168,76 @@ public class SplineAxis extends Axis {
 		return getPointAtIndex(index);
 	}
 
-	public Vector getN(double percentage){
-		if(normSet) {
-			return norm;
+	public Vector getStartNorm(){
+		Point a = getPointAtIndex(0);//index-1);
+		Point b = getPointAtIndex(1);//index);
+		Point c = getPointAtIndex(2);//index+1);
+
+		Vector BA = new Vector(a.x-b.x, a.y-b.y, a.z-b.z);
+		Vector BC = new Vector(c.x-b.x, c.y-b.y, c.z-b.z);
+
+		//System.out.println("BA : " + BA.toString());
+		//System.out.println("BC : " + BC.toString());
+		Vector cross = (BA.crossProd(BC));
+		//cross.draw(pApp, a);
+		if (Double.isNaN(cross.x) || Double.isNaN(cross.y) || Double.isNaN(cross.z)) {
+			return (new Vector(0,0,1));
+		} else if (cross.x == 0 && cross.y == 0 && cross.z == 0) {
+			return (new Vector(0,0,1));
 		} else {
-			normSet = true;
-			//System.out.println("N percent = " + percentage);
-			int index = getIndexFromPercentage(percentage);
-			Point a = getPointAtIndex(0);//index-1);
-			Point b = getPointAtIndex(1);//index);
-			Point c = getPointAtIndex(2);//index+1);
-
-			Vector BA = new Vector(a.x-b.x, a.y-b.y, a.z-b.z);
-			Vector BC = new Vector(c.x-b.x, c.y-b.y, c.z-b.z);
-
-			//System.out.println("BA : " + BA.toString());
-			//System.out.println("BC : " + BC.toString());
-			Vector cross = (BA.crossProd(BC));
-			//cross.draw(pApp, a);
-			if (Double.isNaN(cross.x) || Double.isNaN(cross.y) || Double.isNaN(cross.z)) {
-				return (new Vector(0,0,1));
-			} else if (cross.x == 0 && cross.y == 0 && cross.z == 0) {
-				return (new Vector(0,0,1));
-			} else {
-				return cross.normalize();
-			}
+			return cross.normalize();
 		}
-			
+	}
+
+	public Vector getFrameNorm(int index){
+		Point a = getPointAtIndex(index-1);
+		Point b = getPointAtIndex(index);
+		Point c = getPointAtIndex(index+1);
+
+		Vector BA = new Vector(a.x-b.x, a.y-b.y, a.z-b.z);
+		Vector BC = new Vector(c.x-b.x, c.y-b.y, c.z-b.z);
+
+		//System.out.println("BA : " + BA.toString());
+		//System.out.println("BC : " + BC.toString());
+		Vector cross = (BA.crossProd(BC));
+		//cross.draw(pApp, a);
+		if (Double.isNaN(cross.x) || Double.isNaN(cross.y) || Double.isNaN(cross.z)) {
+			return (new Vector(0,0,1));
+		} else if (cross.x == 0 && cross.y == 0 && cross.z == 0) {
+			return (new Vector(0,0,1));
+		} else {
+			return cross.normalize();
+		}
+	}
+
+	public Vector getN(double percentage){
+		int index = getIndexFromPercentage(percentage);
+		Vector start = getStartNorm();
+		Vector retrievedNorm = start;
+
+		Point b = getPointAtIndex(0);
+		Point normPoint = b.add(retrievedNorm);
+		//add each normal advection until desired one is reached
+		for(int i = 1; i < index; i++) {
+			//outgoing edge
+			b = getPointAtIndex(i);
+			Point c = getPointAtIndex(i+1);
+			Vector BC = new Vector(b, c);
+
+			//get start in the frame of bc
+			Vector N = getFrameNorm(i);
+			Vector H = getB(i/splinePoints.size());
+			Vector T = getT(i/splinePoints.size());
+			Vector Tx = new Vector(T.x*normPoint.x, T.y*normPoint.x, T.z*normPoint.x);
+			Vector Hy = new Vector(H.x*normPoint.y, H.y*normPoint.y, H.z*normPoint.y);
+			Vector Nz = new Vector(N.x*normPoint.z, N.y*normPoint.z, N.z*normPoint.z);
+			Point normInBC = ((b.add(Tx)).add(Hy)).add(Nz);
+			//move start by the norm of bc
+			normPoint = normInBC.add(BC);
+		}
+
+		retrievedNorm = b.to(normPoint);
+		return retrievedNorm.normalize();
 	}
 
 	public Vector getT(double percentage) {
@@ -293,9 +333,9 @@ public class SplineAxis extends Axis {
 
 	public void DrawTHN(Point A, Vector Tx, Vector Hy, Vector Nz) {
 		pApp.stroke(0,255,0);
-		Tx.mul(50).draw(pApp, A);
+		//Tx.mul(50).draw(pApp, A);
 		pApp.stroke(50, 255, 50);
-		Hy.mul(50).draw(pApp, A.add(Tx));
+		//Hy.mul(50).draw(pApp, A.add(Tx));
 		//System.out.println("normal is " + Nz.toString());
 		pApp.stroke(100, 255, 100);
 		Nz.mul(50).draw(pApp, A);
