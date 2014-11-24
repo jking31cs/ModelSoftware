@@ -529,11 +529,6 @@ public class MyApplet extends PApplet {
 		Point C = m_prev.points.get(j_start);								// same vertex on prev loop
 		Point D = m_next.points.get(j_start);								// same vertex on next loop
 
-		// start 10
-		// end 00
-		// A 1-1
-		// B 11
-		// C 10
 		Vector H = new Vector(0,0,0);
 		Vector N = new Vector(0,0,0);
 		Vector T = (start.to(end)).normalize();
@@ -562,9 +557,16 @@ public class MyApplet extends PApplet {
 		Vector normal2 = N.crossProd(T);	// face 2 normal
 
 		// camera's forward vector
-		Vector v = new Vector(0,0,-1d);
+		Point edgePos = start.mid(end);
+		Point camera = CameraPosition();
+		Vector v = camera.to(edgePos);
+		//Vector v = new Vector(0,0,-1d);
 
 		return ((normal1.dotProduct(v) > 0) != (normal2.dotProduct(v) > 0));
+	}
+
+	public Point CameraPosition() {
+		return new Point(width/2, 0, 0);
 	}
 
 	public double FindTotalVolume() {
