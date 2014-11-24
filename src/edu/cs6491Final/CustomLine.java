@@ -16,6 +16,7 @@ public class CustomLine extends ArrayList<GeneratedPoint> implements Drawable {
 	public PolyLoop offsetLoop = new PolyLoop();
 
 	@Override
+	
 	public void draw(PApplet p) {
 
 		for (GeneratedPoint pt : this) {
@@ -88,6 +89,74 @@ public class CustomLine extends ArrayList<GeneratedPoint> implements Drawable {
 		Vector normOffset=getNormalOffsetAtPoint(prev, curr, next).mul(0.5);
 		Vector radOffset=getRadialOffsetAtPoint(prev, curr, next).mul(0.5);
 		return normOffset.add(radOffset);
+	}
+
+	public PolyLoop getBoundingLoop(){
+		PolyLoop offsetLoop=new PolyLoop();
+
+		GeneratedPoint first=this.get(0);
+		GeneratedPoint second=this.get(1);
+		GeneratedPoint last=this.get(this.size()-1);
+		GeneratedPoint secondLast=this.get(this.size()-2);
+		int ptCtr=0;
+
+		//Offset vertices on one side
+		for (ptCtr = 1; ptCtr < this.size() - 1; ptCtr++) {
+			GeneratedPoint prev = this.get(ptCtr-1);
+			GeneratedPoint cur = this.get(ptCtr);
+			GeneratedPoint next = this.get(ptCtr+1);
+			Vector offset = new Vector(0,0,0);
+			if(Objects.equals(offsetMode, "NORMAL"))
+				offset=getNormalOffsetAtPoint(prev,cur,next);
+			else if (Objects.equals(offsetMode, "RADIAL"))
+				offset=getRadialOffsetAtPoint(prev,cur,next);
+			else if (Objects.equals(offsetMode, "BALL"))
+				offset=getBallOffsetAtPoint(prev,cur,next);
+			Vector offsetPoint=cur.asVec().add(offset);
+			offsetLoop.addPoint(new Point((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z));
+		}
+
+
+		//Draw semi-circle at end
+		double deltaRot=Math.PI/20;
+		Vector offsetAtEnd=getNormalAtPoint(last,secondLast).mul(-last.r/2);
+		for(int i=0; i < Math.PI/deltaRot + 1; i++){
+			Vector offsetPoint=last.asVec().add(offsetAtEnd);
+			offsetLoop.addPoint(new Point((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z));
+			offsetAtEnd=offsetAtEnd.rotate(deltaRot, getNormalToCurvePlane().mul(-1));
+		}
+
+
+		//Offset vertices on the other side
+		ptCtr--;
+		while(ptCtr>1){
+			GeneratedPoint prev = this.get(ptCtr+1);
+			GeneratedPoint cur = this.get(ptCtr);
+			GeneratedPoint next = this.get(ptCtr-1);
+			Vector offset = new Vector(0,0,0);
+			if(offsetMode.equals("NORMAL"))
+				offset=getNormalOffsetAtPoint(prev,cur,next);
+			else if (offsetMode.equals("RADIAL"))
+				offset=getRadialOffsetAtPoint(prev,cur,next);
+			else if (offsetMode.equals("BALL"))
+				offset=getBallOffsetAtPoint(prev,cur,next);
+			Vector offsetPoint=cur.asVec().add(offset);
+			offsetLoop.addPoint(new Point((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z));
+			ptCtr--;
+		}
+
+
+		//Draw semi-circle at start
+		Vector offsetAtStart=getNormalAtPoint(first,second).mul(-first.r/2);
+		for(int i=0; i < Math.PI/deltaRot +1; i++){
+			Vector offsetPoint=first.asVec().add(offsetAtStart);
+
+			offsetLoop.addPoint(new Point((float) offsetPoint.x, (float) offsetPoint.y, (float) offsetPoint.z));
+			offsetAtStart=offsetAtStart.rotate(deltaRot, getNormalToCurvePlane().mul(-1));
+		}
+
+
+		return offsetLoop;
 	}
 
 	public void drawOffsetCurve(PApplet p, String mode){

@@ -1,12 +1,7 @@
 package edu.cs6491Final;
-import processing.core.PApplet;
-
-import java.nio.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public final class Utils {
 	public static double appHeight;
@@ -156,6 +151,7 @@ public final class Utils {
 					BallMorphData d = new BallMorphData(p,q,m);
 					double r = d.getRadius(t);
 					line.add(new GeneratedPoint(r, d.pointAlongBezier(t)));
+					break;
 				}
 			}
 		}
@@ -221,11 +217,15 @@ public final class Utils {
 	public static PolyLoop ballMorphLerp(Axis axis, SplineLine sl1, SplineLine sl2, double t) {
 		SplineLine unmirrored = new SplineLine();
 		for (SplineLine.ControlPoint cp : sl2.pts) {
-			Point pv = rotate(cp, axis, Math.PI/2);
+			Point pv = mirrored(cp, axis);
 			unmirrored.addPoint(pv, cp.r);
 		}
 		CustomLine ballMorph = ballMorphInterpolation(sl1, unmirrored,t);
-		ballMorph.draw(new PApplet());
-		return ballMorph.offsetLoop;
+		CustomLine rot = new CustomLine();
+		for (GeneratedPoint p : ballMorph) {
+			Point newPoint = rotate(p, axis, Math.PI * t);
+			rot.add(new GeneratedPoint(p.r, newPoint));
+		}
+		return rot.getBoundingLoop();
 	}
 }
