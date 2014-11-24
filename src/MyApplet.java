@@ -23,6 +23,7 @@ public class MyApplet extends PApplet {
 	boolean controlPointMoved = false;
 	boolean fDragging = false;
 	boolean outputVolume = false;
+	boolean wireframe = false;
 	private List<Vector> norms;
 	int debug = 0;
 	
@@ -57,6 +58,9 @@ public class MyApplet extends PApplet {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
+		if (e.getKey() == 'w') { // wireframe mode toggle
+			wireframe = !wireframe;
+		}
 		if (e.getKey() =='f') { // move focus point on plane
 		    F.sub(F.ToIJ(new Vector((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0))); 
 	    }
@@ -333,19 +337,55 @@ public class MyApplet extends PApplet {
 					for (int j = 0; j < m1.points.size(); j++) {
 						Point p1 = m1.points.get(j);
 						Point p2 = m2.points.get(j);
-						Point p3 = m2.points.get((j+1) % m1.points.size());
+						Point p3 = m2.points.get((j+1) % m2.points.size());
 						Point p4 = m1.points.get((j+1) % m1.points.size());
+
 						pushMatrix();
-						//stroke(0,0,255);
-						noStroke();
-						fill(0,0,255);
 						beginShape();
-						Vector norm = FindNormal(i, j);
-						normal((float) norm.x, (float) norm.y, (float) norm.z);
-						vertex((float) p1.x, (float) p1.y, (float) p1.z);
-						vertex((float) p2.x, (float) p2.y, (float) p2.z);
-						vertex((float) p3.x, (float) p3.y, (float) p3.z);
-						vertex((float) p4.x, (float) p4.y, (float) p4.z);
+
+						if (wireframe) {
+							noFill();
+
+							Vector norm = FindNormal(i, j);
+							normal((float) norm.x, (float) norm.y, (float) norm.z);
+
+
+							// set stroke color to light blue when the next edge is a silhoette edge
+							vertex((float) p1.x, (float) p1.y, (float) p1.z);
+							if (IsSilhouette(i, j, i+1, j)) {
+								stroke(0,0,255);
+							} else {
+								stroke(255,0,0);
+							}
+							vertex((float) p2.x, (float) p2.y, (float) p2.z);
+							if (IsSilhouette(i+1, j, i+1, ((j+1) % m2.points.size()))) {
+								stroke(0,0,255);
+							} else {
+								stroke(255,0,0);
+							}
+							vertex((float) p3.x, (float) p3.y, (float) p3.z);
+							if (IsSilhouette(i+1, ((j+1) % m2.points.size()), i, ((j+1) % m2.points.size()))) {
+								stroke(0,0,255);
+							} else {
+								stroke(255,0,0);
+							}
+							vertex((float) p4.x, (float) p4.y, (float) p4.z);
+							if (IsSilhouette(i, ((j+1) % m2.points.size()), i, j)) {
+								stroke(0,0,255);
+							} else {
+								stroke(255,0,0);
+							}
+						} else {
+							noStroke();
+							fill(0,0,255);
+							Vector norm = FindNormal(i, j);
+							normal((float) norm.x, (float) norm.y, (float) norm.z);
+							vertex((float) p1.x, (float) p1.y, (float) p1.z);
+							vertex((float) p2.x, (float) p2.y, (float) p2.z);
+							vertex((float) p3.x, (float) p3.y, (float) p3.z);
+							vertex((float) p4.x, (float) p4.y, (float) p4.z);
+						}
+
 						endShape(CLOSE);
 						popMatrix();
 					}
@@ -355,7 +395,7 @@ public class MyApplet extends PApplet {
 				//draw caps!
 				if(increment < 360 && morphLoops.size() > 1){
 					for (int i = 0; i < morphLoops.size(); i += morphLoops.size()-1) {
-						System.out.println("size = " + morphLoops.size() + ", " + i);
+						//System.out.println("size = " + morphLoops.size() + ", " + i);
 						// START CAP
 						PolyLoop loop = morphLoops.get(i);
 						Point A = loop.points.get(0);
@@ -397,6 +437,58 @@ public class MyApplet extends PApplet {
 		}
 	}
 
+	public boolean IsSilhouette(int i_start, int j_start, int i_end, int j_end) {
+		PolyLoop m_start = morphLoops.get(i_start);		// startpoint's loop
+		PolyLoop m_end = morphLoops.get(i_end);			// endpoint's loop
+		PolyLoop m_neighbor = m_start;					// neighboring loop
+
+		if (i_start < m_start.points.size()-1) {		// determine if neighboring loop is before or after startpoint's loop
+			m_neighbor = morphLoops.get(i_start+1);
+		} else {
+			m_neighbor = morphLoops.get(i_start-1);
+		}
+
+		Point start = m_start.points.get(j_start);	// startpoint
+		Point end = m_end.points.get(j_end);		// endpoint
+		Point A = start;							// prev vertex on same loop
+
+		if (j_start <= 0) {
+			A = m_start.points.get((j_start-1) + m_start.points.size());
+		} else { 
+			A = m_start.points.get(j_start-1);
+		}
+		Point B = m_start.points.get((j_start+1) % m_start.points.size());	// next vertex on same loop
+		Point C = m_neighbor.points.get(j_start);								// same vertex on diff loop
+
+		Vector H = new Vector(0,0,0);
+		Vector N = new Vector(0,0,0);
+		Vector T = (start.to(end)).normalize();
+		if (end == A) {
+			// endpoint is prev vertex on same loop
+			H = (start.to(B)).normalize();
+			N = (start.to(C)).normalize();
+		} else if (end == B) {
+			// endpoint is next vertex on same loop
+			H = (start.to(C)).normalize();
+			N = (start.to(A)).normalize();
+		} else if (end == C) {
+			// endpoint is same vertex on diff loop
+			H = (start.to(A)).normalize();
+			N = (start.to(B)).normalize();
+		} else {
+			// invalid input, assume not a silhouette
+			return false;
+		}
+
+		Vector normal1 = T.crossProd(H);	// face 1 normal
+		Vector normal2 = T.crossProd(N);	// face 2 normal
+
+		// camera's forward vector
+		Vector v = new Vector(0,0,-1);
+
+		return (normal1.dotProduct(v) > 0 != normal2.dotProduct(v) > 0);
+	}
+
 	public double FindTotalVolume() {
 		double total = 0d;
 		for (int i = 0; i < morphLoops.size()-1; i++) {
@@ -415,48 +507,48 @@ public class MyApplet extends PApplet {
 		return (area1 + area2)/2d * com1.distanceTo(com2);
 	}
 
-	public Vector FindNormal(int i1, int i2){
+	public Vector FindNormal(int i1, int j1){
 		PolyLoop l = morphLoops.get(i1);
 
 		List<Vector> ns = new ArrayList<Vector>();
-		Vector n1 = norms.get(i1 * l.points.size() + i2);
-		//n1.draw(this, l.points.get(i2));
+		Vector n1 = norms.get(i1 * l.points.size() + j1);
+		//n1.draw(this, l.points.get(j1));
 		ns.add(n1);
 
 
 		if(mousePressed) {
 			//get faces on l/r of this one
-			if(((i1+1) * l.points.size() + i2) < l.points.size()) {
-				Vector n2 = norms.get((i1+1) * l.points.size() + i2); 
+			if(((i1+1) * l.points.size() + j1) < l.points.size()) {
+				Vector n2 = norms.get((i1+1) * l.points.size() + j1); 
 				ns.add(n2);
 			}
-			if(((i1-1) * l.points.size() + i2) > 0) {
-				Vector n2 = norms.get((i1-1) * l.points.size() + i2); 
+			if(((i1-1) * l.points.size() + j1) > 0) {
+				Vector n2 = norms.get((i1-1) * l.points.size() + j1); 
 				ns.add(n2);
 			}
 
 			//get face on top/bottom of this one
-			if(i2+1 >= l.points.size()) { //loop around to point 0
+			if(j1+1 >= l.points.size()) { //loop around to point 0
 				Vector n2 = norms.get(i1 * l.points.size()); 
 				ns.add(n2);
 			} else {
-				Vector n2 = norms.get(i1 * l.points.size() + i2+1); 
+				Vector n2 = norms.get(i1 * l.points.size() + j1+1); 
 				ns.add(n2);
 			}
 
-			if(i2-1 < 0) { //loop around to point 0
+			if(j1-1 < 0) { //loop around to point 0
 				Vector n2 = norms.get(i1 * l.points.size() + l.points.size()-1); 
 				ns.add(n2);
 			} else {
-				Vector n2 = norms.get(i1 * l.points.size() + i2-1); 
+				Vector n2 = norms.get(i1 * l.points.size() + j1-1); 
 				ns.add(n2);
 			}
 		}
 
 
 		Vector avgNorms = n1;
-		for(int i = 1; i < ns.size()-1; i++){
-			Vector addV = ns.get(i);
+		for(int k = 1; k < ns.size()-1; k++){
+			Vector addV = ns.get(k);
 			avgNorms = avgNorms.add(addV);
 		}
 		avgNorms = avgNorms.normalize();
