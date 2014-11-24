@@ -17,7 +17,7 @@ public class SplineAxis extends Axis {
 	private List<Point> splinePoints = new ArrayList<>();
 	PApplet pApp;
 	PolyLoop l1, l2;
-	int pickedControlPt = 0;
+	public int pickedControlPt = 0;
 
 	public SplineAxis(Point origin, List<Point> controlPoints, PApplet p, PolyLoop _l1, PolyLoop _l2) {
 		super(origin);
@@ -275,7 +275,7 @@ public class SplineAxis extends Axis {
 		}
 		//p2.draw(p);
 
-		p.stroke(100, 100, 50);
+		p.stroke(100, 100, 100);
 		for (int i = 0; i < controlPoints.size()-1; i++) {
 			Point p1 = controlPoints.get(i);
 			p2 = controlPoints.get(i + 1);	

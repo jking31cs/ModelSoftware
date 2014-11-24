@@ -17,12 +17,14 @@ public class MyApplet extends PApplet {
 
 	private static final long serialVersionUID = 1L;
 	
-	boolean drawMode, viewMode, editMode;
+	boolean drawMode, viewMode, editMode, smoothShaded;
 	boolean revolve2DMode = false;
 	boolean animating = true;
 	boolean controlPointMoved = false;
 	boolean fDragging = false;
 	boolean outputVolume = false;
+	boolean ptSelected = false;
+	int ptSelectedPos = 0;
 	private List<Vector> norms;
 	int debug = 0;
 	
@@ -49,7 +51,16 @@ public class MyApplet extends PApplet {
 		morphLoops = new ArrayList<>();
 		translate(width/2, height/2);
 		Utils.appHeight = height;
+		smoothShaded = false;
 		hatch = loadImage("./hatchPattern.jpg");
+
+		/*pushMatrix();
+		sphere(300);
+		translate(1024, 768, 0);
+		sphere(300);
+		popMatrix();
+		System.out.println("0,0,0: " + pick(0,0).toString());
+		System.out.println("0,0,0: " + pick(1024, 768).toString());*/
 		//Utils.applet = this;
 
 		//glShadeModel(pgl.GL_SMOOTH);
@@ -59,6 +70,9 @@ public class MyApplet extends PApplet {
 	public void keyPressed(KeyEvent e) {
 		if (e.getKey() =='f') { // move focus point on plane
 		    F.sub(F.ToIJ(new Vector((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0))); 
+	    }
+	    if (e.getKey() == 't') {
+	    	smoothShaded = !smoothShaded;
 	    }
 	    if(e.getKey() == 'l'){
 	    	debug++;
@@ -152,6 +166,7 @@ public class MyApplet extends PApplet {
 	
 	@Override
 	public void mouseReleased(MouseEvent e) {
+		ptSelected = false;
 		fDragging = false;
 		if (editMode) {
 			editMode = false;
@@ -193,14 +208,26 @@ public class MyApplet extends PApplet {
 			editMode = true;
 
 			if(axis instanceof SplineAxis) {
-				for( Point pt : ((SplineAxis)axis).controlPoints ){
-					if(pt.distanceTo(mousePoint) < 30) {
-						pt.x = mousePoint.x;
-						pt.y = mousePoint.y;
-						((SplineAxis)axis).quintic();
-						controlPointMoved = true;
-						fDragging = true;
+				Point flatMousePt = mousePoint;
+				flatMousePt.z = 0;
+				for(int i = 0; i < ((SplineAxis)axis).controlPoints.size(); i++ ){
+					Point pt = ((SplineAxis)axis).controlPoints.get(i);
+					if(pt.distanceTo(flatMousePt) < 30) {
+						ptSelected = true;
+						ptSelectedPos = i;
 						break;
+					}
+				}
+				if(ptSelected) {
+					Point pt = ((SplineAxis)axis).controlPoints.get(ptSelectedPos);
+					pt.x = flatMousePt.x;
+					pt.y = flatMousePt.y;
+					((SplineAxis)axis).quintic();
+					controlPointMoved = true;
+					fDragging = true;
+					if (keyPressed && key=='z') {
+						((SplineAxis)axis).pickedControlPt = ptSelectedPos;
+						((SplineAxis)axis).movePicked(new Vector(0, 0, mouseY - pmouseY));
 					}
 				} 
 			}
@@ -258,9 +285,6 @@ public class MyApplet extends PApplet {
 		      translate( (float)-Utils.g_center.x, (float)-Utils.g_center.y, (float)-Utils.g_center.z );
 		      popMatrix();
 		    }*/
-		    if (keyPressed && key=='z') {
-				((SplineAxis)axis).movePicked(new Vector(0, 0, mouseY - pmouseY));
-			}
 		}
 		if (drawMode) {
 			stroke(0,0,255);
@@ -452,7 +476,7 @@ public class MyApplet extends PApplet {
 		ns.add(n1);
 
 
-		if(mousePressed) {
+		if(smoothShaded) {
 			//get faces on l/r of this one
 			if(((i1+1) * l.points.size() + i2) < l.points.size()) {
 				Vector n2 = norms.get((i1+1) * l.points.size() + i2); 
