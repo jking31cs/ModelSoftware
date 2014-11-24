@@ -177,11 +177,13 @@ public class MyApplet extends PApplet {
 	public void mouseClicked(MouseEvent e) {
         if (sl1.closestPointWithinRange(new Point(e.getX(), e.getY(), 0), 20) == null)
         {
-        	Point toAdd=new Point(e.getX(), e.getY(), 0);
-            sl1.addPoint(toAdd, 10);
-            sl2.addPoint(Utils.mirrored(toAdd, axis), 10);
-            l1=sl1.getBoundingLoop();
-        	l2=sl2.getBoundingLoop();
+        	if (drawMode) {
+	        	Point toAdd=new Point(e.getX(), e.getY(), 0);
+	            sl1.addPoint(toAdd, 10);
+	            sl2.addPoint(Utils.mirrored(toAdd, axis), 10);
+	            l1=sl1.getBoundingLoop();
+	        	l2=sl2.getBoundingLoop();
+	        }
         }
     }
 	
@@ -241,7 +243,7 @@ public class MyApplet extends PApplet {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void mouseWheel(MouseEvent event) {
-		eyeZ -= event.getAmount();
+		eyeZ -= event.getAmount() * 25;
 	}
 
 	@Override
