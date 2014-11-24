@@ -15,6 +15,7 @@ import processing.core.PApplet;
 public class SplineAxis extends Axis {
 	public List<Point> controlPoints = new ArrayList<>();
 	private List<Point> splinePoints = new ArrayList<>();
+	private List<Vector> advectNorms = new ArrayList<>();
 	PApplet pApp;
 	PolyLoop l1, l2;
 	public int pickedControlPt = 0;
@@ -34,6 +35,7 @@ public class SplineAxis extends Axis {
         System.out.print("\n");
 
         quintic();
+        recalculateNorms();
 	}
 //	v*(splinePoints.size()-1)
 
@@ -214,15 +216,24 @@ public class SplineAxis extends Axis {
 		int index = getIndexFromPercentage(percentage);
 		return getN(index);
 	}
-	
+
 	public Vector getN(int index){
+		return advectNorms.get(index);
+	}
+
+	public void recalculateNorms(){
+		advectNorms = new ArrayList();
 		Vector start = getStartNorm();
 		Vector retrievedNorm = start;
 
 		Point b = getPointAtIndex(0);
 		Point normPoint = b.add(retrievedNorm);
+
+		retrievedNorm = b.to(normPoint);
+		advectNorms.add(retrievedNorm.normalize());
+
 		//add each normal advection until desired one is reached
-		for(int i = 1; i < index; i++) {
+		for(int i = 1; i < splinePoints.size(); i++) {
 			//outgoing edge
 			b = getPointAtIndex(i);
 			Point c = getPointAtIndex(i+1);
@@ -238,10 +249,9 @@ public class SplineAxis extends Axis {
 			Point normInBC = ((b.add(Tx)).add(Hy)).add(Nz);
 			//move start by the norm of bc
 			normPoint = normInBC.add(BC);
+			retrievedNorm = b.to(normPoint);
+			advectNorms.add(retrievedNorm.normalize());
 		}
-
-		retrievedNorm = b.to(normPoint);
-		return retrievedNorm.normalize();
 	}
 
 	public Vector getT(double percentage) {

@@ -89,6 +89,11 @@ public class MyApplet extends PApplet {
 			viewMode = true;
 			drawMode = false;
 		}
+		if(e.getKey() == 'b'){
+			if(axis instanceof SplineAxis) {
+				((SplineAxis)axis).recalculateNorms();
+			}
+		}
 		if (e.getKey() == 'v' && viewMode) {
 			outputVolume = true;
 		}
