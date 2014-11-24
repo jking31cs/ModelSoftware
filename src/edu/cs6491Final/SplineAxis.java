@@ -212,6 +212,10 @@ public class SplineAxis extends Axis {
 
 	public Vector getN(double percentage){
 		int index = getIndexFromPercentage(percentage);
+		return getN(index);
+	}
+	
+	public Vector getN(int index){
 		Vector start = getStartNorm();
 		Vector retrievedNorm = start;
 
@@ -226,8 +230,8 @@ public class SplineAxis extends Axis {
 
 			//get start in the frame of bc
 			Vector N = getFrameNorm(i);
-			Vector H = getB(i/splinePoints.size());
-			Vector T = getT(i/splinePoints.size());
+			Vector H = getB(i);
+			Vector T = getT(i);
 			Vector Tx = new Vector(T.x*normPoint.x, T.y*normPoint.x, T.z*normPoint.x);
 			Vector Hy = new Vector(H.x*normPoint.y, H.y*normPoint.y, H.z*normPoint.y);
 			Vector Nz = new Vector(N.x*normPoint.z, N.y*normPoint.z, N.z*normPoint.z);
@@ -241,8 +245,12 @@ public class SplineAxis extends Axis {
 	}
 
 	public Vector getT(double percentage) {
-		//System.out.println("T percent = " + percentage);
 		int index = getIndexFromPercentage(percentage);
+		return getT(index);
+	}
+
+	public Vector getT(int index) {
+		//System.out.println("T percent = " + percentage);
 		Point a = getPointAtIndex(index);
 		Point b = getPointAtIndex(index+1);
 
@@ -252,16 +260,20 @@ public class SplineAxis extends Axis {
 		return AB;
 	}
 
-	public Vector getB(double percentage) {
-		//System.out.println("B percent = " + percentage);
+	public Vector getB(double percentage){
 		int index = getIndexFromPercentage(percentage);
-		Vector norm = getN(percentage);
+		return getB(index);
+	}
+
+	public Vector getB(int index) {
+		//System.out.println("B percent = " + percentage);
+		Vector norm = getN(index);
 		//Point a = getPointAtIndex(index);
 		//Point b = getPointAtIndex(index+1);
 		//System.out.println("+++++++++++a and b:" + index + ", " + (index+1) + ", " + percentage);
 
 		//Vector BA = new Vector(a.x-b.x, a.y-b.y, a.z-b.z);
-		Vector BA = getT(percentage);
+		Vector BA = getT(index);
 		BA = (BA.crossProd(norm));
 		pApp.stroke(0,255,0);
 		//BA.draw(pApp, a);
