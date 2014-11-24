@@ -18,6 +18,8 @@ public class SplineAxis extends Axis {
 	PApplet pApp;
 	PolyLoop l1, l2;
 	public int pickedControlPt = 0;
+	private boolean normSet = false;
+	Vector norm;
 
 	public SplineAxis(Point origin, List<Point> controlPoints, PApplet p, PolyLoop _l1, PolyLoop _l2) {
 		super(origin);
@@ -32,6 +34,7 @@ public class SplineAxis extends Axis {
             System.out.print(pnt.toString() + "; ");
         }
         System.out.print("\n");
+        norm = getN(0d);
 
         quintic();
 	}
@@ -169,24 +172,30 @@ public class SplineAxis extends Axis {
 	}
 
 	public Vector getN(double percentage){
-		//System.out.println("N percent = " + percentage);
-		int index = getIndexFromPercentage(percentage);
-		Point a = getPointAtIndex(index-1);
-		Point b = getPointAtIndex(index);
-		Point c = getPointAtIndex(index+1);
-
-		Vector BA = new Vector(a.x-b.x, a.y-b.y, a.z-b.z);
-		Vector BC = new Vector(c.x-b.x, c.y-b.y, c.z-b.z);
-
-		//System.out.println("BA : " + BA.toString());
-		//System.out.println("BC : " + BC.toString());
-		Vector cross = (BA.crossProd(BC));
-		if (Double.isNaN(cross.x) || Double.isNaN(cross.y) || Double.isNaN(cross.z)) {
-			return (new Vector(0,0,1));
-		} else if (cross.x == 0 && cross.y == 0 && cross.z == 0) {
-			return (new Vector(0,0,1));
+		if(normSet) {
+			return norm;
 		} else {
-			return cross.normalize();
+			normSet = true;
+			//System.out.println("N percent = " + percentage);
+			int index = getIndexFromPercentage(percentage);
+			Point a = getPointAtIndex(0);//index-1);
+			Point b = getPointAtIndex(1);//index);
+			Point c = getPointAtIndex(2);//index+1);
+
+			Vector BA = new Vector(a.x-b.x, a.y-b.y, a.z-b.z);
+			Vector BC = new Vector(c.x-b.x, c.y-b.y, c.z-b.z);
+
+			//System.out.println("BA : " + BA.toString());
+			//System.out.println("BC : " + BC.toString());
+			Vector cross = (BA.crossProd(BC));
+			//cross.draw(pApp, a);
+			if (Double.isNaN(cross.x) || Double.isNaN(cross.y) || Double.isNaN(cross.z)) {
+				return (new Vector(0,0,1));
+			} else if (cross.x == 0 && cross.y == 0 && cross.z == 0) {
+				return (new Vector(0,0,1));
+			} else {
+				return cross.normalize();
+			}
 		}
 			
 	}
@@ -194,7 +203,7 @@ public class SplineAxis extends Axis {
 	public Vector getT(double percentage) {
 		//System.out.println("T percent = " + percentage);
 		int index = getIndexFromPercentage(percentage);
-		Point a = getPointAtIndex(index-1);
+		Point a = getPointAtIndex(index);
 		Point b = getPointAtIndex(index+1);
 
 		Vector AB = new Vector(b.x-a.x, b.y-a.y, b.z-a.z);
@@ -215,7 +224,7 @@ public class SplineAxis extends Axis {
 		Vector BA = getT(percentage);
 		BA = (BA.crossProd(norm));
 		pApp.stroke(0,255,0);
-		BA.draw(pApp, a);
+		//BA.draw(pApp, a);
 		BA = BA.normalize();
 		//a.draw(pApp);
 		return BA;
@@ -295,10 +304,11 @@ public class SplineAxis extends Axis {
 	}
 
 	public void DrawTHN(Point A, Vector Tx, Vector Hy, Vector Nz) {
-		pApp.stroke(0,0,255);
-		Tx.draw(pApp, A);
-		Hy.draw(pApp, A.add(Tx));
-		//Nz.draw(pApp, A);
+		pApp.stroke(0,255,0);
+		Tx.mul(50).draw(pApp, A);
+		Hy.mul(50).draw(pApp, A.add(Tx));
+		System.out.println("normal is " + Nz.toString());
+		Nz.mul(50).draw(pApp, A);
 	}
 
 	public void DrawProjection(PApplet p){
