@@ -47,7 +47,7 @@ public class MyApplet extends PApplet {
 	
 	List<PolyLoop> morphLoops;
 	
-	float dz = 0, rx = -(float) Math.PI/2, ry = 0;
+	float eyeX,eyeY,eyeZ;
 
 	@Override
 	public void keyPressed(KeyEvent e) {
@@ -185,12 +185,12 @@ public class MyApplet extends PApplet {
     }
 	
 	@Override
-	public void mouseMoved() {
-		if (keyPressed && key==' ') {
-			rx-=PI*(mouseY-pmouseY)/height;
-			ry+=PI*(mouseX-pmouseX)/width;
+	public void mouseMoved(MouseEvent e) {
+		if (keyPressed && key == ' ') {
+			eyeY -= mouseY-pmouseY;
+			eyeX += mouseX-pmouseX;
 		}
-	}	
+	}
 	
 	@Override
 	public void mouseDragged(MouseEvent e) {
@@ -238,7 +238,7 @@ public class MyApplet extends PApplet {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void mouseWheel(MouseEvent event) {
-		dz -= event.getAmount(); 
+		eyeZ -= event.getAmount();
 	}
 
 	@Override
@@ -253,14 +253,15 @@ public class MyApplet extends PApplet {
 		sl2=new SplineLine();
 		axis = new StraightAxis(new Point(width/2, height, 0),new Vector(0,-1,0));
 		morphLoops = new ArrayList<>();
-		translate(width/2, height/2);
-		
+		eyeX = width/2;
+		eyeY = height/2;
+		eyeZ = 500;
+
 	}
 	
 	@Override
 	public void draw() {
 		background(255);
-		translate((float)-F.x,(float)-F.y,(float)-F.z);
 		if (axis instanceof CircularAxis) {
 			CircularAxis ca = (CircularAxis) axis;
 			double oldRadius = ca.radius;
@@ -272,15 +273,10 @@ public class MyApplet extends PApplet {
 				calculateLoops();
 			}
 		} else if (axis instanceof SplineAxis) {
-			//if(controlPointMoved) {
-				rotateX(rx); rotateY(ry); // rotates the model around the new origin (center of screen)
-				rotateX(PI / 2); // rotates frame around X to make X and Y basis vectors parallel to the floor
-			
-				l1 = Utils.morphAboutAxis(axis, origl1);
-				l2 = Utils.morphAboutAxis(axis, origl2);
+			l1 = Utils.morphAboutAxis(axis, origl1);
+			l2 = Utils.morphAboutAxis(axis, origl2);
 
-				controlPointMoved = false;
-			//}
+			controlPointMoved = false;
 			calculateLoops();
 			((SplineAxis)axis).UpdateLoopRefs(l1, l2);
 
@@ -292,15 +288,6 @@ public class MyApplet extends PApplet {
 			fill(color(255, 0, 0),100); 
 			Point showPt = ((SplineAxis)axis).showPicked();
 			showPt.draw(this);
-
-		    /*if ( Utils.g_center != null )
-		    {
-		      pushMatrix();
-		      translate((float)Utils.g_center.x,(float)Utils.g_center.y,(float)Utils.g_center.z );
-		      sphere(2);
-		      translate( (float)-Utils.g_center.x, (float)-Utils.g_center.y, (float)-Utils.g_center.z );
-		      popMatrix();
-		    }*/
 		    if (keyPressed && key=='z') {
 				((SplineAxis)axis).movePicked(new Vector(0, 0, mouseY - pmouseY));
 			}
@@ -325,12 +312,9 @@ public class MyApplet extends PApplet {
 					increment += 2d;
 			}
 			pushMatrix();
-			camera();
+			camera(eyeX, eyeY, eyeZ, width / 2, height / 2, 0, 0, 1, 0);
 			lights();  // turns on view-dependent lighting
 			//pointLight(255, 255, 255, width/2, height/2, 0);
-			rotateX(rx); rotateY(ry); // rotates the model around the new origin (center of screen)
-			rotateX(PI / 2); // rotates frame around X to make X and Y basis vectors parallel to the floor
-			translate(0,0,dz);
 			smooth();
 			axis.draw(this);
 			stroke(0);
