@@ -55,6 +55,10 @@ public class Point implements Drawable {
 		return this.to(p).getMag();
 	}
 
+	public Point mid(Point p) {
+		return new Point(x/2 + p.x/2, y/2 + p.y/2, z/2 + p.z/2);
+	}
+
 	/**
 	 * This draws a sphere in 3D space at the point.
 	 */

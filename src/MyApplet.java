@@ -31,6 +31,7 @@ public class MyApplet extends PApplet {
 	boolean controlPointMoved = false;
 	boolean fDragging = false;
 	boolean outputVolume = false;
+	boolean wireframe = false;
 	private List<Vector> norms;
 	int debug = 0;
 	
@@ -51,6 +52,9 @@ public class MyApplet extends PApplet {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
+		if (e.getKey() == 'w') { // wireframe mode toggle
+			wireframe = !wireframe;
+		}
 		if (e.getKey() =='f') { // move focus point on plane
 		    F.sub(F.ToIJ(new Vector((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0))); 
 	    }
@@ -291,6 +295,7 @@ public class MyApplet extends PApplet {
 				((SplineAxis)axis).movePicked(new Vector(0, 0, mouseY - pmouseY));
 			}
 		}
+
 		if (drawMode) {
 			stroke(0, 0, 255);
 			axis.draw(this);
@@ -311,6 +316,11 @@ public class MyApplet extends PApplet {
 				if(revolveMax >= increment)
 					increment += 2d;
 			}
+
+			if (outputVolume) {
+				System.out.println("//////// TOTAL VOLUME = " + FindTotalVolume());
+			}
+
 			pushMatrix();
 			camera(eyeX, eyeY, eyeZ, width / 2, height / 2, 0, 0, 1, 0);
 			lights();  // turns on view-dependent lighting
@@ -363,97 +373,231 @@ public class MyApplet extends PApplet {
 					PolyLoop m2 = morphLoops.get((i+1) % morphLoops.size());
 					for (int j = 0; j < m1.points.size(); j++) {
 						Point p1 = m1.points.get(j);
+						int i1 = i;
+						int j1 = j;
 						Point p2 = m2.points.get(j);
+						int i2 = (i+1) % morphLoops.size();
+						int j2 = j;
 						Point p3 = m2.points.get((j+1) % m1.points.size());
+						int i3 = (i+1) % morphLoops.size();
+						int j3 = (j+1) % m1.points.size();
 						Point p4 = m1.points.get((j+1) % m1.points.size());
+						int i4 = i;
+						int j4 = (j+1) % m1.points.size();
+
 						pushMatrix();
-						//stroke(0,0,255);
-						noStroke();
-						fill(0,0,255);
-						beginShape();
-						Vector norm = FindNormal(i, j);
-						normal((float) norm.x, (float) norm.y, (float) norm.z);
-						vertex((float) p1.x, (float) p1.y, (float) p1.z);
-						vertex((float) p2.x, (float) p2.y, (float) p2.z);
-						vertex((float) p3.x, (float) p3.y, (float) p3.z);
-						vertex((float) p4.x, (float) p4.y, (float) p4.z);
-						endShape(CLOSE);
+
+						if (wireframe) {
+							noFill();
+
+							Vector norm = FindNormal(i, j);
+							normal((float) norm.x, (float) norm.y, (float) norm.z);
+
+							// set stroke color to light blue when the next edge is a silhoette edge
+							beginShape(LINES);
+							if (IsSilhouette(i1, j1, i2, j2)) {
+								stroke(0,0,255, 255);
+								strokeWeight(5);
+							} else {
+								stroke(0,0,255, 25);
+								strokeWeight(1);
+							}
+							vertex((float) p1.x, (float) p1.y, (float) p1.z);
+							vertex((float) p2.x, (float) p2.y, (float) p2.z);
+							endShape();
+
+							beginShape(LINES);
+							if (IsSilhouette(i2, j2, i3, j3)) {
+								stroke(0,0,255, 255);
+								strokeWeight(5);
+							} else {
+								stroke(0,0,255, 25);
+								strokeWeight(1);
+							}
+							vertex((float) p2.x, (float) p2.y, (float) p2.z);
+							vertex((float) p3.x, (float) p3.y, (float) p3.z);
+							endShape();
+
+							beginShape(LINES);
+							if (IsSilhouette(i3, j3, i4, j4)) {
+								stroke(0,0,255, 255);
+								strokeWeight(5);
+							} else {
+								stroke(0,0,255, 25);
+								strokeWeight(1);
+							}
+							vertex((float) p3.x, (float) p3.y, (float) p3.z);
+							vertex((float) p4.x, (float) p4.y, (float) p4.z);
+							endShape();
+
+							beginShape(LINES);
+							if (IsSilhouette(i4, j4, i1, j1)) {
+								stroke(0,0,255, 255);
+								strokeWeight(5);
+							} else {
+								stroke(0,0,255, 25);
+								strokeWeight(1);
+							}
+							vertex((float) p4.x, (float) p4.y, (float) p4.z);
+							vertex((float) p1.x, (float) p1.y, (float) p1.z);
+							endShape();
+						} else {
+							noStroke();
+							fill(0,0,255);
+
+							Vector norm = FindNormal(i, j);
+							normal((float) norm.x, (float) norm.y, (float) norm.z);
+
+							beginShape();
+							vertex((float) p1.x, (float) p1.y, (float) p1.z);
+							vertex((float) p2.x, (float) p2.y, (float) p2.z);
+							vertex((float) p3.x, (float) p3.y, (float) p3.z);
+							vertex((float) p4.x, (float) p4.y, (float) p4.z);
+							endShape(CLOSE);
+						}
+
 						popMatrix();
 					}
 				}
 
 				textureWrap(REPEAT);
 				//draw caps!
-				if(increment != 360){
+				if(increment < 360 && morphLoops.size() > 1 && !wireframe){
+					for (int i = 0; i < morphLoops.size(); i += morphLoops.size()-1) {
+						//System.out.println("size = " + morphLoops.size() + ", " + i);
+						// START CAP
+						PolyLoop loop = morphLoops.get(i);
+						Point A = loop.points.get(0);
+						Point B = loop.points.get(1);
+						Point C = loop.points.get(2);
 
-					// START CAP
-					PolyLoop firstLoop = morphLoops.get(0);
-					Point A = firstLoop.points.get(0);
-					Point B = firstLoop.points.get(1);
-					Point C = firstLoop.points.get(2);
+						Vector tan = (A.to(B)).normalize();
+						Vector norm = ((B.to(A)).normalize()).crossProd((C.to(B)).normalize());
+						Vector binorm = norm.crossProd(tan);
 
-					Vector tan = (A.to(B)).normalize();
-					Vector norm = ((B.to(A)).normalize()).crossProd((C.to(B)).normalize());
-					Vector binorm = norm.crossProd(tan);
+						/*stroke(0,0,0);
+						A.draw(this);
+						stroke(0,0,255);
+						B.draw(this);
+						stroke(255, 0, 0);
+						C.draw(this);
 
-					/*stroke(0,0,0);
-					A.draw(this);
-					stroke(0,0,255);
-					B.draw(this);
-					stroke(255, 0, 0);
-					C.draw(this);
+						stroke(0,255,0);
+						tan.draw(this, A);
+						norm.draw(this, A);
+						binorm.draw(this, A);*/
 
-					stroke(0,255,0);
-					tan.draw(this, A);
-					norm.draw(this, A);
-					binorm.draw(this, A);*/
-
-					pushMatrix();
-					beginShape();
-					texture(hatch);
-					noFill();
-					for(Point p : firstLoop.points){
-						Vector AP = A.to(p);
-						float u = (float)(AP.dotProduct(tan));
-						float v = (float)(AP.dotProduct(binorm));
-						vertex((float)p.x, (float)p.y, (float)p.z, u, v);
+						pushMatrix();
+						beginShape();
+						texture(hatch);
+						noFill();
+						for(Point p : loop.points){
+							Vector AP = A.to(p);
+							float u = (float)(AP.dotProduct(tan));
+							float v = (float)(AP.dotProduct(binorm));
+							vertex((float)p.x, (float)p.y, (float)p.z, u, v);
+						}
+						endShape(CLOSE);
+						popMatrix();
 					}
-					endShape(CLOSE);
-					popMatrix();
-
-
-
-					// END CAP
-					PolyLoop lastLoop = morphLoops.get(morphLoops.size()-1);
-					A = lastLoop.points.get(0);
-					B = lastLoop.points.get(1);
-					C = lastLoop.points.get(2);
-
-					tan = (A.to(B)).normalize();
-					norm = ((B.to(A)).normalize()).crossProd((C.to(B)).normalize());
-					binorm = norm.crossProd(tan);
-
-					pushMatrix();
-					beginShape();
-					texture(hatch);
-					noFill();
-					for(Point p : lastLoop.points){
-						Vector AP = A.to(p);
-						float u = (float)(AP.dotProduct(tan));
-						float v = (float)(AP.dotProduct(binorm));
-						vertex((float)p.x, (float)p.y, (float)p.z, u, v);
-					}
-					endShape(CLOSE);
-					popMatrix();
-				}
-
-				if (outputVolume) {
-					System.out.println("//// TOTAL VOLUME = " + FindTotalVolume());
-					outputVolume = false;
 				}
 			}
 			popMatrix();
 		}
+	}
+
+	public boolean IsSilhouette(int i_start, int j_start, int i_end, int j_end) {
+		PolyLoop m_start = morphLoops.get(i_start);			// startpoint's loop
+		PolyLoop m_end = morphLoops.get(i_end);				// endpoint's loop
+		PolyLoop m_prev = m_start;							// prev neighboring loop
+		PolyLoop m_next = m_start;							// next neighboring loop
+		if ((i_start == i_end) && ((i_start == 0) || (i_start == morphLoops.size()-1))) {
+			// edge of first or last face
+			return true;
+		} else if ((i_start != i_end) && (i_start == 0)) {
+			// edge connecting to first face
+			m_prev = morphLoops.get(i_start+1);
+			m_next = m_prev;
+		} else if ((i_start != i_end) && (i_end == 0)) {
+			// edge connecting to first face
+			m_prev = morphLoops.get(i_end);
+			m_next = m_prev;
+		} else if ((i_start != i_end) && (i_start == morphLoops.size()-1)) {
+			// edge connecting to last face
+			m_prev = morphLoops.get(i_start-1);
+			m_next = m_prev;
+		} else if ((i_start != i_end) && (i_end == morphLoops.size()-1)) {
+			// edge connecting to last face
+			m_prev = morphLoops.get(i_end);
+			m_next = m_prev;
+		} else if (morphLoops.size() < 2) {
+			// only two faces, always draw them
+			return true;
+		} else {
+			// edge has nothing to do with first or last face
+			m_prev = morphLoops.get(i_start-1);		
+			m_next = morphLoops.get(i_start+1);
+		}
+
+		
+
+		/*if (i_start < morphLoops.size()-1) {		// determine if neighboring loop is before or after startpoint's loop
+			m_neighbor = morphLoops.get(i_start+1);
+		} else {
+			m_neighbor = morphLoops.get(i_start-1);
+		}*/
+
+		Point start = m_start.points.get(j_start);	// startpoint
+		Point end = m_end.points.get(j_end);		// endpoint
+		Point A = start;							// prev vertex on same loop
+
+		if (j_start <= 0) {
+			A = m_start.points.get((j_start-1) + m_start.points.size());
+		} else { 
+			A = m_start.points.get(j_start-1);
+		}
+		Point B = m_start.points.get((j_start+1) % m_start.points.size());	// next vertex on same loop
+		Point C = m_prev.points.get(j_start);								// same vertex on prev loop
+		Point D = m_next.points.get(j_start);								// same vertex on next loop
+
+		Vector H = new Vector(0,0,0);
+		Vector N = new Vector(0,0,0);
+		Vector T = (start.to(end)).normalize();
+		if (end == A) {
+			// endpoint is prev vertex on same loop
+			//System.out.println("prev same");
+			H = (start.to(C)).normalize();
+			N = (start.to(D)).normalize();
+		} else if (end == B) {
+			// endpoint is next vertex on same loop
+			//System.out.println("next same");
+			H = (start.to(C)).normalize();
+			N = (start.to(D)).normalize();
+		} else if (end == C || end == D) {
+			// endpoint is same vertex on prev loop
+			//System.out.println("same diff");
+			H = (start.to(A)).normalize();
+			N = (start.to(B)).normalize();
+		} else {
+			// invalid input, assume not a silhouette
+			System.out.println("invalid silhouette: " + i_start + ", " + j_start + "; " + i_end + ", " + j_end);
+			return false;
+		}
+
+		Vector normal1 = T.crossProd(H);	// face 1 normal
+		Vector normal2 = N.crossProd(T);	// face 2 normal
+
+		// camera's forward vector
+		Point edgePos = start.mid(end);
+		Point camera = CameraPosition();
+		Vector v = camera.to(edgePos);
+		//Vector v = new Vector(0,0,-1d);
+
+		return ((normal1.dotProduct(v) > 0) != (normal2.dotProduct(v) > 0));
+	}
+
+	public Point CameraPosition() {
+		return new Point(eyeX, eyeY, eyeZ);
 	}
 
 	public double FindTotalVolume() {
@@ -474,48 +618,48 @@ public class MyApplet extends PApplet {
 		return (area1 + area2)/2d * com1.distanceTo(com2);
 	}
 
-	public Vector FindNormal(int i1, int i2){
+	public Vector FindNormal(int i1, int j1){
 		PolyLoop l = morphLoops.get(i1);
 
 		List<Vector> ns = new ArrayList<Vector>();
-		Vector n1 = norms.get(i1 * l.points.size() + i2);
-		//n1.draw(this, l.points.get(i2));
+		Vector n1 = norms.get(i1 * l.points.size() + j1);
+		//n1.draw(this, l.points.get(j1));
 		ns.add(n1);
 
 
 		if(mousePressed) {
 			//get faces on l/r of this one
-			if(((i1+1) * l.points.size() + i2) < l.points.size()) {
-				Vector n2 = norms.get((i1+1) * l.points.size() + i2); 
+			if(((i1+1) * l.points.size() + j1) < l.points.size()) {
+				Vector n2 = norms.get((i1+1) * l.points.size() + j1); 
 				ns.add(n2);
 			}
-			if(((i1-1) * l.points.size() + i2) > 0) {
-				Vector n2 = norms.get((i1-1) * l.points.size() + i2); 
+			if(((i1-1) * l.points.size() + j1) > 0) {
+				Vector n2 = norms.get((i1-1) * l.points.size() + j1); 
 				ns.add(n2);
 			}
 
 			//get face on top/bottom of this one
-			if(i2+1 >= l.points.size()) { //loop around to point 0
+			if(j1+1 >= l.points.size()) { //loop around to point 0
 				Vector n2 = norms.get(i1 * l.points.size()); 
 				ns.add(n2);
 			} else {
-				Vector n2 = norms.get(i1 * l.points.size() + i2+1); 
+				Vector n2 = norms.get(i1 * l.points.size() + j1+1); 
 				ns.add(n2);
 			}
 
-			if(i2-1 < 0) { //loop around to point 0
+			if(j1-1 < 0) { //loop around to point 0
 				Vector n2 = norms.get(i1 * l.points.size() + l.points.size()-1); 
 				ns.add(n2);
 			} else {
-				Vector n2 = norms.get(i1 * l.points.size() + i2-1); 
+				Vector n2 = norms.get(i1 * l.points.size() + j1-1); 
 				ns.add(n2);
 			}
 		}
 
 
 		Vector avgNorms = n1;
-		for(int i = 1; i < ns.size()-1; i++){
-			Vector addV = ns.get(i);
+		for(int k = 1; k < ns.size()-1; k++){
+			Vector addV = ns.get(k);
 			avgNorms = avgNorms.add(addV);
 		}
 		avgNorms = avgNorms.normalize();
