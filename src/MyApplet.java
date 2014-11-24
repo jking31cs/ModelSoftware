@@ -283,6 +283,11 @@ public class MyApplet extends PApplet {
 				if(revolveMax >= increment)
 					increment += 2d;
 			}
+
+			if (outputVolume) {
+				System.out.println("//////// TOTAL VOLUME = " + FindTotalVolume());
+			}
+
 			pushMatrix();
 			camera();
 			lights();  // turns on view-dependent lighting
@@ -360,9 +365,11 @@ public class MyApplet extends PApplet {
 							// set stroke color to light blue when the next edge is a silhoette edge
 							beginShape(LINES);
 							if (IsSilhouette(i1, j1, i2, j2)) {
-								stroke(0,0,255);
+								stroke(0,0,255, 255);
+								strokeWeight(5);
 							} else {
-								stroke(255,0,0);
+								stroke(0,0,255, 25);
+								strokeWeight(1);
 							}
 							vertex((float) p1.x, (float) p1.y, (float) p1.z);
 							vertex((float) p2.x, (float) p2.y, (float) p2.z);
@@ -370,9 +377,11 @@ public class MyApplet extends PApplet {
 
 							beginShape(LINES);
 							if (IsSilhouette(i2, j2, i3, j3)) {
-								stroke(0,0,255);
+								stroke(0,0,255, 255);
+								strokeWeight(5);
 							} else {
-								stroke(255,0,0);
+								stroke(0,0,255, 25);
+								strokeWeight(1);
 							}
 							vertex((float) p2.x, (float) p2.y, (float) p2.z);
 							vertex((float) p3.x, (float) p3.y, (float) p3.z);
@@ -380,9 +389,11 @@ public class MyApplet extends PApplet {
 
 							beginShape(LINES);
 							if (IsSilhouette(i3, j3, i4, j4)) {
-								stroke(0,0,255);
+								stroke(0,0,255, 255);
+								strokeWeight(5);
 							} else {
-								stroke(255,0,0);
+								stroke(0,0,255, 25);
+								strokeWeight(1);
 							}
 							vertex((float) p3.x, (float) p3.y, (float) p3.z);
 							vertex((float) p4.x, (float) p4.y, (float) p4.z);
@@ -390,9 +401,11 @@ public class MyApplet extends PApplet {
 
 							beginShape(LINES);
 							if (IsSilhouette(i4, j4, i1, j1)) {
-								stroke(0,0,255);
+								stroke(0,0,255, 255);
+								strokeWeight(5);
 							} else {
-								stroke(255,0,0);
+								stroke(0,0,255, 25);
+								strokeWeight(1);
 							}
 							vertex((float) p4.x, (float) p4.y, (float) p4.z);
 							vertex((float) p1.x, (float) p1.y, (float) p1.z);
@@ -469,7 +482,7 @@ public class MyApplet extends PApplet {
 		PolyLoop m_next = m_start;							// next neighboring loop
 		if ((i_start == i_end) && ((i_start == 0) || (i_start == morphLoops.size()-1))) {
 			// edge of first or last face
-			return false;
+			return true;
 		} else if ((i_start != i_end) && (i_start == 0)) {
 			// edge connecting to first face
 			m_prev = morphLoops.get(i_start+1);
@@ -486,15 +499,16 @@ public class MyApplet extends PApplet {
 			// edge connecting to last face
 			m_prev = morphLoops.get(i_end);
 			m_next = m_prev;
+		} else if (morphLoops.size() < 2) {
+			// only two faces, always draw them
+			return true;
 		} else {
 			// edge has nothing to do with first or last face
 			m_prev = morphLoops.get(i_start-1);		
 			m_next = morphLoops.get(i_start+1);
 		}
 
-		if (morphLoops.size() < 2) {
-			return false;
-		}
+		
 
 		/*if (i_start < morphLoops.size()-1) {		// determine if neighboring loop is before or after startpoint's loop
 			m_neighbor = morphLoops.get(i_start+1);
@@ -545,7 +559,7 @@ public class MyApplet extends PApplet {
 		}
 
 		Vector normal1 = T.crossProd(H);	// face 1 normal
-		Vector normal2 = T.crossProd(N);	// face 2 normal
+		Vector normal2 = N.crossProd(T);	// face 2 normal
 
 		// camera's forward vector
 		Vector v = new Vector(0,0,-1d);
