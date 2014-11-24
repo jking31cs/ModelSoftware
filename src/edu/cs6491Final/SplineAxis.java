@@ -233,7 +233,8 @@ public class SplineAxis extends Axis {
 		advectNorms.add(retrievedNorm.normalize());
 
 		//add each normal advection until desired one is reached
-		for(int i = 1; i < splinePoints.size(); i++) {
+		for(int i = 1; i < splinePoints.size()-1; i++) {
+			System.out.println("should add a thing");
 			//outgoing edge
 			b = getPointAtIndex(i);
 			Point c = getPointAtIndex(i+1);
@@ -241,7 +242,7 @@ public class SplineAxis extends Axis {
 
 			//get start in the frame of bc
 			Vector N = getFrameNorm(i);
-			Vector H = getB(i);
+			Vector H = getFrameB(i);
 			Vector T = getT(i);
 			Vector Tx = new Vector(T.x*normPoint.x, T.y*normPoint.x, T.z*normPoint.x);
 			Vector Hy = new Vector(H.x*normPoint.y, H.y*normPoint.y, H.z*normPoint.y);
@@ -273,6 +274,15 @@ public class SplineAxis extends Axis {
 	public Vector getB(double percentage){
 		int index = getIndexFromPercentage(percentage);
 		return getB(index);
+	}
+
+	private Vector getFrameB(int index){
+		Vector norm = getFrameNorm(index);
+		Vector BA = getT(index);
+		BA = (BA.crossProd(norm));
+		pApp.stroke(0,255,0);
+		BA = BA.normalize();
+		return BA;
 	}
 
 	public Vector getB(int index) {
