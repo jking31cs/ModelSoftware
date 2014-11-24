@@ -266,6 +266,7 @@ public class MyApplet extends PApplet {
 				((SplineAxis)axis).movePicked(showPt.ToK(new Vector((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0)));
 			}
 		}
+
 		if (drawMode) {
 			stroke(0,0,255);
 			axis.draw(this);
@@ -341,12 +342,12 @@ public class MyApplet extends PApplet {
 						Point p2 = m2.points.get(j);
 						int i2 = (i+1) % morphLoops.size();
 						int j2 = j;
-						Point p3 = m2.points.get((j+1) % m2.points.size());
+						Point p3 = m2.points.get((j+1) % m1.points.size());
 						int i3 = (i+1) % morphLoops.size();
-						int j3 = (j+1) % m2.points.size();
+						int j3 = (j+1) % m1.points.size();
 						Point p4 = m1.points.get((j+1) % m1.points.size());
 						int i4 = i;
-						int j4 = (j+1) % m2.points.size();
+						int j4 = (j+1) % m1.points.size();
 
 						pushMatrix();
 
@@ -358,7 +359,7 @@ public class MyApplet extends PApplet {
 
 							// set stroke color to light blue when the next edge is a silhoette edge
 							beginShape(LINES);
-							if (IsSilhouette(i1, j1, i2, j2, i2)) {
+							if (IsSilhouette(i1, j1, i2, j2)) {
 								stroke(0,0,255);
 							} else {
 								stroke(255,0,0);
@@ -368,7 +369,7 @@ public class MyApplet extends PApplet {
 							endShape();
 
 							beginShape(LINES);
-							if (IsSilhouette(i2, j2, i3, j3, i1)) {
+							if (IsSilhouette(i2, j2, i3, j3)) {
 								stroke(0,0,255);
 							} else {
 								stroke(255,0,0);
@@ -378,7 +379,7 @@ public class MyApplet extends PApplet {
 							endShape();
 
 							beginShape(LINES);
-							if (IsSilhouette(i3, j3, i4, j4, i1)) {
+							if (IsSilhouette(i3, j3, i4, j4)) {
 								stroke(0,0,255);
 							} else {
 								stroke(255,0,0);
@@ -388,7 +389,7 @@ public class MyApplet extends PApplet {
 							endShape();
 
 							beginShape(LINES);
-							if (IsSilhouette(i4, j4, i1, j1, i2)) {
+							if (IsSilhouette(i4, j4, i1, j1)) {
 								stroke(0,0,255);
 							} else {
 								stroke(255,0,0);
@@ -396,12 +397,13 @@ public class MyApplet extends PApplet {
 							vertex((float) p4.x, (float) p4.y, (float) p4.z);
 							vertex((float) p1.x, (float) p1.y, (float) p1.z);
 							endShape();
-
 						} else {
 							noStroke();
 							fill(0,0,255);
+
 							Vector norm = FindNormal(i, j);
 							normal((float) norm.x, (float) norm.y, (float) norm.z);
+
 							beginShape();
 							vertex((float) p1.x, (float) p1.y, (float) p1.z);
 							vertex((float) p2.x, (float) p2.y, (float) p2.z);
@@ -460,20 +462,45 @@ public class MyApplet extends PApplet {
 		}
 	}
 
-	public boolean IsSilhouette(int i_start, int j_start, int i_end, int j_end, int i_neighbor) {
+	public boolean IsSilhouette(int i_start, int j_start, int i_end, int j_end) {
 		PolyLoop m_start = morphLoops.get(i_start);			// startpoint's loop
 		PolyLoop m_end = morphLoops.get(i_end);				// endpoint's loop
-		PolyLoop m_neighbor = morphLoops.get(i_neighbor);	// neighboring loop
-
-		if (morphLoops.size() < 2) {
-			return true;
+		PolyLoop m_prev = m_start;							// prev neighboring loop
+		PolyLoop m_next = m_start;							// next neighboring loop
+		if ((i_start == i_end) && ((i_start == 0) || (i_start == morphLoops.size()-1))) {
+			// edge of first or last face
+			return false;
+		} else if ((i_start != i_end) && (i_start == 0)) {
+			// edge connecting to first face
+			m_prev = morphLoops.get(i_start+1);
+			m_next = m_prev;
+		} else if ((i_start != i_end) && (i_end == 0)) {
+			// edge connecting to first face
+			m_prev = morphLoops.get(i_end);
+			m_next = m_prev;
+		} else if ((i_start != i_end) && (i_start == morphLoops.size()-1)) {
+			// edge connecting to last face
+			m_prev = morphLoops.get(i_start-1);
+			m_next = m_prev;
+		} else if ((i_start != i_end) && (i_end == morphLoops.size()-1)) {
+			// edge connecting to last face
+			m_prev = morphLoops.get(i_end);
+			m_next = m_prev;
+		} else {
+			// edge has nothing to do with first or last face
+			m_prev = morphLoops.get(i_start-1);		
+			m_next = morphLoops.get(i_start+1);
 		}
 
-		if (i_start < morphLoops.size()-1) {		// determine if neighboring loop is before or after startpoint's loop
+		if (morphLoops.size() < 2) {
+			return false;
+		}
+
+		/*if (i_start < morphLoops.size()-1) {		// determine if neighboring loop is before or after startpoint's loop
 			m_neighbor = morphLoops.get(i_start+1);
 		} else {
 			m_neighbor = morphLoops.get(i_start-1);
-		}
+		}*/
 
 		Point start = m_start.points.get(j_start);	// startpoint
 		Point end = m_end.points.get(j_end);		// endpoint
@@ -485,26 +512,35 @@ public class MyApplet extends PApplet {
 			A = m_start.points.get(j_start-1);
 		}
 		Point B = m_start.points.get((j_start+1) % m_start.points.size());	// next vertex on same loop
-		Point C = m_neighbor.points.get(j_start);								// same vertex on diff loop
+		Point C = m_prev.points.get(j_start);								// same vertex on prev loop
+		Point D = m_next.points.get(j_start);								// same vertex on next loop
 
+		// start 10
+		// end 00
+		// A 1-1
+		// B 11
+		// C 10
 		Vector H = new Vector(0,0,0);
 		Vector N = new Vector(0,0,0);
 		Vector T = (start.to(end)).normalize();
 		if (end == A) {
 			// endpoint is prev vertex on same loop
-			H = (start.to(B)).normalize();
-			N = (start.to(C)).normalize();
+			//System.out.println("prev same");
+			H = (start.to(C)).normalize();
+			N = (start.to(D)).normalize();
 		} else if (end == B) {
 			// endpoint is next vertex on same loop
+			//System.out.println("next same");
 			H = (start.to(C)).normalize();
-			N = (start.to(A)).normalize();
-		} else if (end == C) {
-			// endpoint is same vertex on diff loop
+			N = (start.to(D)).normalize();
+		} else if (end == C || end == D) {
+			// endpoint is same vertex on prev loop
+			//System.out.println("same diff");
 			H = (start.to(A)).normalize();
 			N = (start.to(B)).normalize();
 		} else {
 			// invalid input, assume not a silhouette
-			System.out.println("WHAT: " + i_start + ", " + j_start + "; " + i_end + ", " + j_end);
+			System.out.println("invalid silhouette: " + i_start + ", " + j_start + "; " + i_end + ", " + j_end);
 			return false;
 		}
 
@@ -514,7 +550,7 @@ public class MyApplet extends PApplet {
 		// camera's forward vector
 		Vector v = new Vector(0,0,-1d);
 
-		return (normal1.dotProduct(v) > 0 != normal2.dotProduct(v) > 0);
+		return ((normal1.dotProduct(v) > 0) != (normal2.dotProduct(v) > 0));
 	}
 
 	public double FindTotalVolume() {
