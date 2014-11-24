@@ -216,7 +216,7 @@ public class SplineAxis extends Axis {
 		//System.out.println("B percent = " + percentage);
 		int index = getIndexFromPercentage(percentage);
 		Vector norm = getN(percentage);
-		Point a = getPointAtIndex(index);
+		//Point a = getPointAtIndex(index);
 		//Point b = getPointAtIndex(index+1);
 		//System.out.println("+++++++++++a and b:" + index + ", " + (index+1) + ", " + percentage);
 
@@ -232,19 +232,6 @@ public class SplineAxis extends Axis {
 
 	public Point getPointAtIndex(int index) {
 		Point b = origin;
-		/*while (index > (splinePoints.size()-1)) {
-			index -= (splinePoints.size()-1);
-		}
-		while (index < 0) {
-			index += (splinePoints.size()-1);
-		}*/
-
-		/*if (index > (splinePoints.size()-1)) {
-			index =  (splinePoints.size()-1);
-		} else if (index < 0) {
-			index = 0;
-		}*/
-
 		b = splinePoints.get(index);
 		return b;
 	}
@@ -274,6 +261,7 @@ public class SplineAxis extends Axis {
 		//don't draw first or last 1/14th points
 		for (int i = 0; i < splinePoints.size()-1; i++) {
 			Point p1 = splinePoints.get(i);
+			//DrawTHN(p1, getT(i/splinePoints.size()), getB(i/splinePoints.size()), getN(i/splinePoints.size()));
 			//System.out.println("draw spline points " + p1.toString());
 			p2 = splinePoints.get(i + 1);	
 			//p1.draw(p);
@@ -306,8 +294,10 @@ public class SplineAxis extends Axis {
 	public void DrawTHN(Point A, Vector Tx, Vector Hy, Vector Nz) {
 		pApp.stroke(0,255,0);
 		Tx.mul(50).draw(pApp, A);
+		pApp.stroke(50, 255, 50);
 		Hy.mul(50).draw(pApp, A.add(Tx));
-		System.out.println("normal is " + Nz.toString());
+		//System.out.println("normal is " + Nz.toString());
+		pApp.stroke(100, 255, 100);
 		Nz.mul(50).draw(pApp, A);
 	}
 
