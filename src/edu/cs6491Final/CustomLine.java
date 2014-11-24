@@ -11,7 +11,9 @@ import java.util.List;
  */
 public class CustomLine extends ArrayList<GeneratedPoint> implements Drawable {
 
+	SplineLine sl =new SplineLine();
 	@Override
+	
 	public void draw(PApplet p) {
 		for (GeneratedPoint pt : this) {
 			p.ellipseMode(PConstants.CENTER);
@@ -22,5 +24,8 @@ public class CustomLine extends ArrayList<GeneratedPoint> implements Drawable {
 			Point p2 = this.get(i);
 			p.line((float) p1.x, (float) p1.y, (float) p2.x, (float) p2.y);
 		}
+		
+		sl.genPts=this;
+		sl.drawOffsetCurve(p, "NORMAL");
 	}
 }
