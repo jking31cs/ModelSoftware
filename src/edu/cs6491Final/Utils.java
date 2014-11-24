@@ -1,4 +1,7 @@
 package edu.cs6491Final;
+import processing.core.PApplet;
+
+import java.nio.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,6 +9,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public final class Utils {
+	public static double appHeight;
+	public static Point g_center = new Point(0,0,0);
+//	public static PApplet applet;
 	
 	/**
 	 * Mirrors a point around an axis by rotating the vector formed from the origin to the point PI radians
@@ -67,7 +73,63 @@ public final class Utils {
 				toRet.addPoint(new Point(morphPos.x, morphPos.y, morphPos.z));
 				
 			}
+		} else if (a instanceof SplineAxis) {
+			for(int i = 0; i < loop.points.size(); i++) {
+				//normal/binorm/tan
+				SplineAxis axis = ((SplineAxis) a);
+				double percentage = loop.GetPercentage(i);
+				//System.out.println("find norm");
+				Vector N = axis.getN(percentage);
+				//System.out.println("N = " + N.toString());
+				//System.out.println("find binorm");
+				Vector H = axis.getB(percentage);
+				//System.out.println("H = " + H.toString());
+				//System.out.println("find tangent");
+				Vector T = axis.getT(percentage);
+				//T = T.normalize();
+				//System.out.println("T = " + (T.toString()));
+
+				Point p = loop.points.get(i);
+				Point A = axis.getPointFromPercentage(percentage);
+
+				Vector AP = new Vector(p.x-A.x, p.y-A.y, p.z-A.z);
+				//System.out.println("AP = " + AP.toString());
+				//AP.normalize();
+
+				Point op = loop.origPt.get(i);
+				if(op.x == -1 && op.y == -1 && op.z == -1) {
+					op.x = AP.dotProduct(T);
+					op.y = AP.dotProduct(H);
+					op.z = AP.dotProduct(N);
+				}
+
+				//P= B+xT+yH+zN
+				Vector Tx = new Vector(T.x*op.x, T.y*op.x, T.z*op.x);
+				Vector Hy = new Vector(H.x*op.y, H.y*op.y, H.z*op.y);
+				Vector Nz = new Vector(N.x*op.z, N.y*op.z, N.z*op.z);
+
+//				axis.DrawTHN(A, Tx, Hy, Nz);
+
+				//System.out.println(":::::::::::::::A before = " + A.toString());
+				//System.out.println("p:" + p.toString());
+				Point finalP = ((A.add(Tx)).add(Hy)).add(Nz);
+				//System.out.println("final p: " +finalP.toString());
+
+				toRet.addPoint(finalP);
+
+				/*if (percentage > 0) {
+					System.out.println("----------------");
+					System.out.println((percentage*100) + "%");
+					System.out.println("N: " + N.toString());
+					System.out.println("T: " + T.toString());
+					System.out.println("H: " + H.toString());
+				}*/
+
+				//A.Draw(applet);
+			}
+
 		}
+
 		return toRet;
 	}
 
@@ -154,5 +216,16 @@ public final class Utils {
 			l2.add(addIndex, p);
 			addIndex +=2;
 		}
+	}
+
+	public static PolyLoop ballMorphLerp(Axis axis, SplineLine sl1, SplineLine sl2, double t) {
+		SplineLine unmirrored = new SplineLine();
+		for (SplineLine.ControlPoint cp : sl2.pts) {
+			Point pv = rotate(cp, axis, Math.PI/2);
+			unmirrored.addPoint(pv, cp.r);
+		}
+		CustomLine ballMorph = ballMorphInterpolation(sl1, unmirrored,t);
+		ballMorph.draw(new PApplet());
+		return ballMorph.offsetLoop;
 	}
 }
