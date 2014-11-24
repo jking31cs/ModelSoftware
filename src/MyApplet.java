@@ -201,18 +201,18 @@ public class MyApplet extends PApplet {
 		        );
 	        if (pt1 != null) {
 	            if (e.isControlDown()) {
-	                pt1.r = mousePoint.distanceTo(pt1.pt);
+	                pt1.r = mousePoint.distanceTo(pt1);
 	            } else {
-	                pt1.pt.x = mousePoint.x;
-	                pt1.pt.y = mousePoint.y;
+	                pt1.x = mousePoint.x;
+	                pt1.y = mousePoint.y;
 	            }
 	        }
 	        if (pt2 != null) {
 	            if (e.isControlDown()) {
-	                pt2.r = mousePoint.distanceTo(pt2.pt);
+	                pt2.r = mousePoint.distanceTo(pt2);
 	            } else {
-	                pt2.pt.x = mousePoint.x;
-	                pt2.pt.y = mousePoint.y;
+	                pt2.x = mousePoint.x;
+	                pt2.y = mousePoint.y;
 	            }
 	        }
 	        l1=sl1.getBoundingLoop();

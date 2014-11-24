@@ -31,10 +31,10 @@ public class TestApplet extends PApplet {
         );
         if (pt != null) {
             if (e.isControlDown()) {
-                pt.r = mousePoint.distanceTo(pt.pt);
+                pt.r = mousePoint.distanceTo(pt);
             } else {
-                pt.pt.x = mousePoint.x;
-                pt.pt.y = mousePoint.y;
+                pt.x = mousePoint.x;
+                pt.y = mousePoint.y;
             }
         }
     }
