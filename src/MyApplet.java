@@ -176,11 +176,8 @@ public class MyApplet extends PApplet {
         	Point toAdd=new Point(e.getX(), e.getY(), 0);
             sl1.addPoint(toAdd, 10);
             sl2.addPoint(Utils.mirrored(toAdd, axis), 10);
-			l1 = sl1.getBoundingLoop();
-			l2 = sl2.getBoundingLoop();
-			if (l1 != null) {
-				System.out.println("I'm making a loop man: " + l1.points);
-			}
+            l1=sl1.getBoundingLoop();
+        	l2=sl2.getBoundingLoop();
         }
     }
 	
@@ -218,6 +215,8 @@ public class MyApplet extends PApplet {
 	                pt2.pt.y = mousePoint.y;
 	            }
 	        }
+	        l1=sl1.getBoundingLoop();
+        	l2=sl2.getBoundingLoop();
 			editMode = true;
 
 			if(axis instanceof SplineAxis) {
@@ -301,6 +300,7 @@ public class MyApplet extends PApplet {
 			sl1.draw(this);
 			if (l1 != null) l1.draw(this);
 			
+			//if(l1 !=null) l1.draw(this);
 			stroke(255,0,0);
 			sl2.draw(this);
 			if (l2 != null) l2.draw(this);
