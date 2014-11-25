@@ -135,12 +135,6 @@ public class MyApplet extends PApplet {
 			l2 = origl2;
 			axis = new StraightAxis(new Point(width/2, height, 0), new Vector(0,-1,0));
 		}
-		if (e.getKey() == 't' && drawMode) {
-			l1.tuck(2d/3);
-			l1.tuck(-2d/3);
-			l2.tuck(2d/3);
-			l2.tuck(-2d/3);
-		}
 		if(e.getKey()=='n')	{sl1.offsetMode="NORMAL"; sl2.offsetMode="NORMAL";}
     	if(e.getKey()=='r')	{sl1.offsetMode="RADIAL"; sl2.offsetMode="RADIAL";}
     	if(e.getKey()=='b')	{sl1.offsetMode="BALL"; sl2.offsetMode="BALL";}
