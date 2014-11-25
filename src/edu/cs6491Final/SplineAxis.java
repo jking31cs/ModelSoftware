@@ -369,10 +369,10 @@ public class SplineAxis extends Axis {
 			);
 		}
 
-		/*for(int m = 0; m < advectNorms.size(); m++){
+		for(int m = 0; m < advectNorms.size(); m++){
 			Vector norm = advectNorms.get(m).mul(50);
 			norm.draw(pApp, splinePoints.get(m));
-		}*/
+		}
 
 		p2.draw(p);
 
