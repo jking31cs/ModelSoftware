@@ -243,7 +243,7 @@ public class MyApplet extends PApplet {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void mouseWheel(MouseEvent event) {
-		eyeZ -= event.getAmount() * 25;
+		eyeZ += event.getAmount() * 25;
 	}
 
 	@Override
