@@ -234,7 +234,9 @@ public class SplineAxis extends Axis {
 
 		//add each normal advection until desired one is reached
 		for(int i = 1; i < splinePoints.size()-1; i++) {
-			System.out.println("should add a thing");
+			//System.out.println("");
+			//System.out.println("should add a thing");
+			//System.out.println("moved from " + normPoint.toString());
 			//outgoing edge
 			b = getPointAtIndex(i);
 			Point c = getPointAtIndex(i+1);
@@ -244,13 +246,23 @@ public class SplineAxis extends Axis {
 			Vector N = getFrameNorm(i);
 			Vector H = getFrameB(i);
 			Vector T = getT(i);
-			Vector Tx = new Vector(T.x*normPoint.x, T.y*normPoint.x, T.z*normPoint.x);
-			Vector Hy = new Vector(H.x*normPoint.y, H.y*normPoint.y, H.z*normPoint.y);
-			Vector Nz = new Vector(N.x*normPoint.z, N.y*normPoint.z, N.z*normPoint.z);
+			Vector BP = new Vector(b, normPoint);
+			Point inFrame = origin;
+			inFrame.x = BP.dotProduct(T);
+			inFrame.y = BP.dotProduct(H);
+			inFrame.z = BP.dotProduct(N);
+			Vector Tx = new Vector(T.x*inFrame.x, T.y*inFrame.x, T.z*inFrame.x);
+			Vector Hy = new Vector(H.x*inFrame.y, H.y*inFrame.y, H.z*inFrame.y);
+			Vector Nz = new Vector(N.x*inFrame.z, N.y*inFrame.z, N.z*inFrame.z);
 			Point normInBC = ((b.add(Tx)).add(Hy)).add(Nz);
 			//move start by the norm of bc
+			//System.out.println("point at: " + b.toString());
+			//System.out.println("towards point: " + c.toString());
 			normPoint = normInBC.add(BC);
-			retrievedNorm = b.to(normPoint);
+			//normPoint = normPoint.add(BC);
+			//System.out.println("by vector: "+ BC.toString());
+			//System.out.println("moved to " + normPoint.toString());
+			retrievedNorm = new Vector(b, normPoint);
 			advectNorms.add(retrievedNorm.normalize());
 		}
 	}
@@ -280,7 +292,6 @@ public class SplineAxis extends Axis {
 		Vector norm = getFrameNorm(index);
 		Vector BA = getT(index);
 		BA = (BA.crossProd(norm));
-		pApp.stroke(0,255,0);
 		BA = BA.normalize();
 		return BA;
 	}
@@ -295,7 +306,7 @@ public class SplineAxis extends Axis {
 		//Vector BA = new Vector(a.x-b.x, a.y-b.y, a.z-b.z);
 		Vector BA = getT(index);
 		BA = (BA.crossProd(norm));
-		pApp.stroke(0,255,0);
+		//pApp.stroke(0,255,0);
 		//BA.draw(pApp, a);
 		BA = BA.normalize();
 		//a.draw(pApp);
