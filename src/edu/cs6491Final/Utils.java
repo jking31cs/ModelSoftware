@@ -145,6 +145,14 @@ public final class Utils {
 			Vector normal_p = p.to(l1_points.get(i+1)).normalize().rotate(Math.PI / 2, new Vector(0, 0, 1));
 			for (int j = 0; j < l2_points.size()-1; j++) {
 				GeneratedPoint q = l2_points.get(j);
+				if (p.equals(q)) {
+					line.add(p);
+					break;
+				}
+				if (p.pointEquals(q)) {
+					line.add(new GeneratedPoint(p.r*(1-t)+q.r*t, p));
+					break;
+				}
 				Vector normal_q = q.to(l2_points.get(j+1)).normalize().rotate(3*Math.PI/2, new Vector(0,0,1));
 				Point m = intersectionBetweenLines(p, p.add(normal_p), q, q.add(normal_q));
 				if (Math.abs(p.distanceTo(m)-q.distanceTo(m)) < 1) {
@@ -167,38 +175,6 @@ public final class Utils {
 		return new Point(xTop/xBot, yTop/yBot, 0);
 	}
 
-	public static CustomLine centerLine(CustomLine l1, CustomLine l2) {
-		CustomLine line = new CustomLine();
-		refinePoints(l2);
-		refinePoints(l2);
-		refinePoints(l2);
-		refinePoints(l2);
-		refinePoints(l2);
-		refinePoints(l2);
-		refinePoints(l2);
-		refinePoints(l2);
-		refinePoints(l2);
-		refinePoints(l2);
-		for (int i = 0; i < l1.size()-1; i++) {
-			double minDiff = Double.MAX_VALUE;
-			Point p = l1.get(i);
-			Vector normal_p = p.to(l1.get(i+1)).normalize().rotate(Math.PI/2, new Vector(0,0,1));
-			for (int j = 0; j < l2.size()-1; j++) {
-				Point q = l2.get(j);
-				Vector normal_q = q.to(l2.get(j+1)).normalize().rotate(3*Math.PI/2, new Vector(0,0,1));
-				Point m = intersectionBetweenLines(p, p.add(normal_p), q, q.add(normal_q));
-				if (Math.abs(p.distanceTo(m)-q.distanceTo(m)) < 1) {
-					line.add(new GeneratedPoint(10,m));
-					break;
-				}
-				if (Math.abs(p.distanceTo(m)-q.distanceTo(m)) < minDiff) {
-					minDiff = Math.abs(p.distanceTo(m)-q.distanceTo(m));
-				}
-			}
-		}
-
-		return line;
-	}
 
 	public static void refinePoints(CustomLine l2) {
 		List<GeneratedPoint> newPoints = new ArrayList<>();
@@ -220,7 +196,18 @@ public final class Utils {
 			Point pv = mirrored(cp, axis);
 			unmirrored.addPoint(pv, cp.r);
 		}
-		CustomLine ballMorph = ballMorphInterpolation(sl1, unmirrored,t);
+		//Let's check equality here.
+		boolean equal = true;
+		for (int i = 0; i < sl1.pts.size(); i++) {
+			equal &= sl1.pts.get(i).equals(unmirrored.pts.get(i));
+		}
+		CustomLine ballMorph;
+		if (equal) {
+			ballMorph = new CustomLine();
+			ballMorph.addAll(sl1.calculateQuinticSpline());
+		} else {
+			ballMorph = ballMorphInterpolation(sl1, unmirrored,t);
+		}
 		CustomLine rot = new CustomLine();
 		for (GeneratedPoint p : ballMorph) {
 			Point newPoint = rotate(p, axis, Math.PI * t);

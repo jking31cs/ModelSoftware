@@ -35,4 +35,7 @@ public class GeneratedPoint extends Point{
 	}
 
 
+	public boolean pointEquals(GeneratedPoint q) {
+		return super.equals(q);
+	}
 }

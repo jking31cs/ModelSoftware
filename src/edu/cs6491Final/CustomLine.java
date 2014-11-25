@@ -60,7 +60,12 @@ public class CustomLine extends ArrayList<GeneratedPoint> implements Drawable {
 	}
 
 	public Vector getNormalToCurvePlane() {
-		return new Vector(0,0,1);
+
+		Point p1 = this.get(0),
+			  p2 = this.get(1),
+			  p3 = this.get(2);
+
+		return p1.to(p2).crossProd(p2.to(p3)).normalize();
 	}
 
 	public Vector getNormalAtPoint(GeneratedPoint curr, GeneratedPoint next){
