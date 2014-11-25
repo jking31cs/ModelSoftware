@@ -378,10 +378,10 @@ public class SplineAxis extends Axis {
 		pApp.stroke(0,255,0);
 		//Tx.mul(50).draw(pApp, A);
 		pApp.stroke(50, 255, 50);
-		//Hy.mul(50).draw(pApp, A.add(Tx));
+		Hy.mul(50).draw(pApp, A.add(Tx));
 		//System.out.println("normal is " + Nz.toString());
 		pApp.stroke(100, 255, 100);
-		Nz.mul(50).draw(pApp, A);
+		//Nz.mul(50).draw(pApp, A);
 	}
 
 	public void DrawProjection(PApplet p){
