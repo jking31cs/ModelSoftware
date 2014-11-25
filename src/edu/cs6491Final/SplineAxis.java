@@ -340,9 +340,11 @@ public class SplineAxis extends Axis {
 		p.pushMatrix();
 		//this.origin.draw(p);
 		p.noFill();
+		p.strokeWeight(5);
 		Point p2 = origin;
 		//don't draw first or last 1/14th points
 		for (int i = 0; i < splinePoints.size()-1; i++) {
+
 			Point p1 = splinePoints.get(i);
 			//DrawTHN(p1, getT(i/splinePoints.size()), getB(i/splinePoints.size()), getN(i/splinePoints.size()));
 			//System.out.println("draw spline points " + p1.toString());
@@ -354,6 +356,7 @@ public class SplineAxis extends Axis {
 			);
 		}
 		//p2.draw(p);
+		p.strokeWeight(1);
 
 		p.stroke(100, 100, 100);
 		for (int i = 0; i < controlPoints.size()-1; i++) {
