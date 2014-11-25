@@ -315,12 +315,12 @@ public class MyApplet extends PApplet {
 			strokeWeight(1);
 			stroke(0);
 			sl1.draw(this);
-			if (l1 != null) l1.draw(this);
+//			if (l1 != null) l1.draw(this);
 			
 			//if(l1 !=null) l1.draw(this);
 			stroke(255,0,0);
 			sl2.draw(this);
-			if (l2 != null) l2.draw(this);
+//			if (l2 != null) l2.draw(this);
 
 		} else {
 			calculateLoops();
