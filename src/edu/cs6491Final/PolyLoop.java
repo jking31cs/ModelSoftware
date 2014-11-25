@@ -68,9 +68,9 @@ public class PolyLoop implements Drawable {
 	 */
 	@Override
 	public void draw(PApplet p) {
-		for (Point pt : points) {
+		/*for (Point pt : points) {
 			pt.draw(p);
-		}
+		}*/
 		for (int i = 0; i < points.size(); i++) {
 			Point p1 = points.get(i);
 			Point p2 = points.get((i + 1) % points.size());			

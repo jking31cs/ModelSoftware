@@ -15,9 +15,10 @@ import processing.core.PApplet;
 public class SplineAxis extends Axis {
 	public List<Point> controlPoints = new ArrayList<>();
 	private List<Point> splinePoints = new ArrayList<>();
+	private List<Vector> advectNorms = new ArrayList<>();
 	PApplet pApp;
 	PolyLoop l1, l2;
-	int pickedControlPt = 0;
+	public int pickedControlPt = 0;
 
 	public SplineAxis(Point origin, List<Point> controlPoints, PApplet p, PolyLoop _l1, PolyLoop _l2) {
 		super(origin);
@@ -34,6 +35,7 @@ public class SplineAxis extends Axis {
         System.out.print("\n");
 
         quintic();
+        recalculateNorms();
 	}
 //	v*(splinePoints.size()-1)
 
@@ -59,7 +61,7 @@ public class SplineAxis extends Axis {
 		}
 
 		/*int offset = (int)newSpline.size()/2;
-		for (int m = 0; m < offset; m++){
+		for (int m = 0; m < offset/2; m++){
 			newSpline.remove(newSpline.size()-1);
 		}*/
 		splinePoints = newSpline;
@@ -88,12 +90,12 @@ public class SplineAxis extends Axis {
 		}
 		output.add(p2);
 
-		p1 = points.get(0);
+		/*p1 = points.get(0);
 		double _mx = (p1.x + p2.x)/2;
 		double _my = (p1.y + p2.y)/2;
 		double _mz = (p1.z + p2.z)/2;
 		Point _m = new Point(_mx, _my, _mz);
-		output.add(_m);		
+		output.add(_m);		*/
 
 		return output;
 	}
@@ -115,12 +117,12 @@ public class SplineAxis extends Axis {
 			output.add(m);
 		}
 
-		p1 = points.get(0);
+		/*p1 = points.get(0);
 		double _mx = (p1.x + p2.x)/2;
 		double _my = (p1.y + p2.y)/2;
 		double _mz = (p1.z + p2.z)/2;
 		Point _m = new Point(_mx, _my, _mz);
-		output.add(_m);
+		output.add(_m);*/
 
 		return output;
 	}
@@ -168,9 +170,28 @@ public class SplineAxis extends Axis {
 		return getPointAtIndex(index);
 	}
 
-	public Vector getN(double percentage){
-		//System.out.println("N percent = " + percentage);
-		int index = getIndexFromPercentage(percentage);
+	public Vector getStartNorm(){
+		Point a = getPointAtIndex(0);//index-1);
+		Point b = getPointAtIndex(1);//index);
+		Point c = getPointAtIndex(2);//index+1);
+
+		Vector BA = new Vector(a.x-b.x, a.y-b.y, a.z-b.z);
+		Vector BC = new Vector(c.x-b.x, c.y-b.y, c.z-b.z);
+
+		//System.out.println("BA : " + BA.toString());
+		//System.out.println("BC : " + BC.toString());
+		Vector cross = (BA.crossProd(BC));
+		//cross.draw(pApp, a);
+		if (Double.isNaN(cross.x) || Double.isNaN(cross.y) || Double.isNaN(cross.z)) {
+			return (new Vector(0,0,1));
+		} else if (cross.x == 0 && cross.y == 0 && cross.z == 0) {
+			return (new Vector(0,0,1));
+		} else {
+			return cross.normalize();
+		}
+	}
+
+	public Vector getFrameNorm(int index){
 		Point a = getPointAtIndex(index-1);
 		Point b = getPointAtIndex(index);
 		Point c = getPointAtIndex(index+1);
@@ -181,6 +202,7 @@ public class SplineAxis extends Axis {
 		//System.out.println("BA : " + BA.toString());
 		//System.out.println("BC : " + BC.toString());
 		Vector cross = (BA.crossProd(BC));
+		//cross.draw(pApp, a);
 		if (Double.isNaN(cross.x) || Double.isNaN(cross.y) || Double.isNaN(cross.z)) {
 			return (new Vector(0,0,1));
 		} else if (cross.x == 0 && cross.y == 0 && cross.z == 0) {
@@ -188,13 +210,71 @@ public class SplineAxis extends Axis {
 		} else {
 			return cross.normalize();
 		}
-			
+	}
+
+	public Vector getN(double percentage){
+		int index = getIndexFromPercentage(percentage);
+		return getN(index);
+	}
+
+	public Vector getN(int index){
+		return advectNorms.get(index);
+	}
+
+	public void recalculateNorms(){
+		advectNorms = new ArrayList();
+		Vector start = getStartNorm();
+		Vector retrievedNorm = start;
+
+		Point b = getPointAtIndex(0);
+		Point normPoint = b.add(retrievedNorm);
+
+		retrievedNorm = b.to(normPoint);
+		advectNorms.add(retrievedNorm.normalize());
+
+		//add each normal advection until desired one is reached
+		for(int i = 1; i < splinePoints.size()-1; i++) {
+			//System.out.println("");
+			//System.out.println("should add a thing");
+			//System.out.println("moved from " + normPoint.toString());
+			//outgoing edge
+			b = getPointAtIndex(i);
+			Point c = getPointAtIndex(i+1);
+			Vector BC = new Vector(b, c);
+
+			//get start in the frame of bc
+			Vector N = getFrameNorm(i);
+			Vector H = getFrameB(i);
+			Vector T = getT(i);
+			Vector BP = new Vector(b, normPoint);
+			Point inFrame = origin;
+			inFrame.x = BP.dotProduct(T);
+			inFrame.y = BP.dotProduct(H);
+			inFrame.z = BP.dotProduct(N);
+			Vector Tx = new Vector(T.x*inFrame.x, T.y*inFrame.x, T.z*inFrame.x);
+			Vector Hy = new Vector(H.x*inFrame.y, H.y*inFrame.y, H.z*inFrame.y);
+			Vector Nz = new Vector(N.x*inFrame.z, N.y*inFrame.z, N.z*inFrame.z);
+			Point normInBC = ((b.add(Tx)).add(Hy)).add(Nz);
+			//move start by the norm of bc
+			//System.out.println("point at: " + b.toString());
+			//System.out.println("towards point: " + c.toString());
+			normPoint = normInBC.add(BC);
+			//normPoint = normPoint.add(BC);
+			//System.out.println("by vector: "+ BC.toString());
+			//System.out.println("moved to " + normPoint.toString());
+			retrievedNorm = new Vector(b, normPoint);
+			advectNorms.add(retrievedNorm.normalize());
+		}
 	}
 
 	public Vector getT(double percentage) {
-		//System.out.println("T percent = " + percentage);
 		int index = getIndexFromPercentage(percentage);
-		Point a = getPointAtIndex(index-1);
+		return getT(index);
+	}
+
+	public Vector getT(int index) {
+		//System.out.println("T percent = " + percentage);
+		Point a = getPointAtIndex(index);
 		Point b = getPointAtIndex(index+1);
 
 		Vector AB = new Vector(b.x-a.x, b.y-a.y, b.z-a.z);
@@ -203,18 +283,30 @@ public class SplineAxis extends Axis {
 		return AB;
 	}
 
-	public Vector getB(double percentage) {
-		//System.out.println("B percent = " + percentage);
+	public Vector getB(double percentage){
 		int index = getIndexFromPercentage(percentage);
-		Vector norm = getN(percentage);
-		Point a = getPointAtIndex(index);
+		return getB(index);
+	}
+
+	private Vector getFrameB(int index){
+		Vector norm = getFrameNorm(index);
+		Vector BA = getT(index);
+		BA = (BA.crossProd(norm));
+		BA = BA.normalize();
+		return BA;
+	}
+
+	public Vector getB(int index) {
+		//System.out.println("B percent = " + percentage);
+		Vector norm = getN(index);
+		//Point a = getPointAtIndex(index);
 		//Point b = getPointAtIndex(index+1);
 		//System.out.println("+++++++++++a and b:" + index + ", " + (index+1) + ", " + percentage);
 
 		//Vector BA = new Vector(a.x-b.x, a.y-b.y, a.z-b.z);
-		Vector BA = getT(percentage);
+		Vector BA = getT(index);
 		BA = (BA.crossProd(norm));
-		pApp.stroke(0,255,0);
+//		pApp.stroke(0,255,0);
 //		BA.draw(pApp, a);
 		BA = BA.normalize();
 		//a.draw(pApp);
@@ -223,19 +315,6 @@ public class SplineAxis extends Axis {
 
 	public Point getPointAtIndex(int index) {
 		Point b = origin;
-		/*while (index > (splinePoints.size()-1)) {
-			index -= (splinePoints.size()-1);
-		}
-		while (index < 0) {
-			index += (splinePoints.size()-1);
-		}*/
-
-		/*if (index > (splinePoints.size()-1)) {
-			index =  (splinePoints.size()-1);
-		} else if (index < 0) {
-			index = 0;
-		}*/
-
 		b = splinePoints.get(index);
 		return b;
 	}
@@ -261,10 +340,13 @@ public class SplineAxis extends Axis {
 		p.pushMatrix();
 		//this.origin.draw(p);
 		p.noFill();
+		p.strokeWeight(5);
 		Point p2 = origin;
 		//don't draw first or last 1/14th points
 		for (int i = 0; i < splinePoints.size()-1; i++) {
+
 			Point p1 = splinePoints.get(i);
+			//DrawTHN(p1, getT(i/splinePoints.size()), getB(i/splinePoints.size()), getN(i/splinePoints.size()));
 			//System.out.println("draw spline points " + p1.toString());
 			p2 = splinePoints.get(i + 1);	
 			//p1.draw(p);
@@ -274,8 +356,9 @@ public class SplineAxis extends Axis {
 			);
 		}
 		//p2.draw(p);
+		p.strokeWeight(1);
 
-		p.stroke(100, 100, 50);
+		p.stroke(100, 100, 100);
 		for (int i = 0; i < controlPoints.size()-1; i++) {
 			Point p1 = controlPoints.get(i);
 			p2 = controlPoints.get(i + 1);	
@@ -286,6 +369,11 @@ public class SplineAxis extends Axis {
 			);
 		}
 
+		/*for(int m = 0; m < advectNorms.size(); m++){
+			Vector norm = advectNorms.get(m).mul(50);
+			norm.draw(pApp, splinePoints.get(m));
+		}*/
+
 		p2.draw(p);
 
 		p.stroke(50, 50, 0);
@@ -295,10 +383,13 @@ public class SplineAxis extends Axis {
 	}
 
 	public void DrawTHN(Point A, Vector Tx, Vector Hy, Vector Nz) {
-		pApp.stroke(0,0,255);
-		Tx.draw(pApp, A);
-		Hy.draw(pApp, A.add(Tx));
-		//Nz.draw(pApp, A);
+		pApp.stroke(0,255,0);
+		Tx.mul(50).draw(pApp, A);
+		pApp.stroke(255, 255, 0);
+		Hy.mul(50).draw(pApp, A.add(Tx));
+		//System.out.println("normal is " + Nz.toString());
+		pApp.stroke(0, 255, 255);
+		Nz.mul(50).draw(pApp, A);
 	}
 
 	public void DrawProjection(PApplet p){
