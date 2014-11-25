@@ -96,7 +96,7 @@ public final class Utils {
 
 				Point p = loop.points.get(i);
 				Point A = axis.getPointFromPercentage(percentage);
-				axis.DrawTHN(A, T, H, N);
+				//axis.DrawTHN(A, T, H, N);
 
 				Vector AP = new Vector(p.x-A.x, p.y-A.y, p.z-A.z);
 				//System.out.println("AP = " + AP.toString());
