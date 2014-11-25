@@ -42,7 +42,7 @@ public class MyApplet extends PApplet {
 	SplineLine sl1,sl2;
 	
 	private double increment = 0;
-	private double revolveMax = 360d;
+	private double revolveMax = 180d;
 	Axis axis;
 	private Point F = new Point(0,0,0);
 	PImage hatch;
@@ -90,13 +90,13 @@ public class MyApplet extends PApplet {
 			revolve2DMode = !revolve2DMode;
 		}
 		if(e.getKey() == '['){
+			if(increment < 0) increment = revolveMax + increment;
 			increment -= 10;
-			if(increment < 0) increment = 0d;
 			animating = false;
 		}
 		if(e.getKey() == ']'){
+			if(increment > revolveMax) increment = increment % revolveMax;
 			increment += 10;
-			if(increment >= revolveMax) increment = revolveMax;
 			animating = false;
 		}
 		if(e.getKey() == 'p'){
@@ -333,8 +333,8 @@ public class MyApplet extends PApplet {
 		} else {
 			calculateLoops();
 			if(viewMode && animating) {
-				if(revolveMax >= increment)
-					increment += 2d;
+				increment = increment % revolveMax;
+				increment += 2d;
 			}
 
 			if (outputVolume) {
