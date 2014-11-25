@@ -25,13 +25,15 @@ public class MyApplet extends PApplet {
 
 	private static final long serialVersionUID = 1L;
 	
-	boolean drawMode, viewMode, editMode;
+	boolean drawMode, viewMode, editMode, smoothShaded;
 	boolean revolve2DMode = false;
 	boolean animating = true;
 	boolean controlPointMoved = false;
 	boolean fDragging = false;
 	boolean outputVolume = false;
 	boolean wireframe = false;
+	boolean ptSelected = false;
+	int ptSelectedPos = 0;
 	private List<Vector> norms;
 	int debug = 0;
 	
@@ -58,6 +60,9 @@ public class MyApplet extends PApplet {
 		if (e.getKey() =='f') { // move focus point on plane
 		    F.sub(F.ToIJ(new Vector((float)(mouseX-pmouseX),(float)(mouseY-pmouseY),0))); 
 	    }
+	    if (e.getKey() == 't') {
+	    	smoothShaded = !smoothShaded;
+	    }
 	    if(e.getKey() == 'l'){
 	    	debug++;
 	    }
@@ -72,6 +77,11 @@ public class MyApplet extends PApplet {
 			calculateLoops();
 			viewMode = true;
 			drawMode = false;
+		}
+		if(e.getKey() == 'b'){
+			if(axis instanceof SplineAxis) {
+				((SplineAxis)axis).recalculateNorms();
+			}
 		}
 		if (e.getKey() == 'v' && viewMode) {
 			outputVolume = true;
@@ -162,6 +172,7 @@ public class MyApplet extends PApplet {
 	
 	@Override
 	public void mouseReleased(MouseEvent e) {
+		ptSelected = false;
 		fDragging = false;
 		if (editMode) {
 			editMode = false;
@@ -226,14 +237,26 @@ public class MyApplet extends PApplet {
 			editMode = true;
 
 			if(axis instanceof SplineAxis) {
-				for( Point pt : ((SplineAxis)axis).controlPoints ){
-					if(pt.distanceTo(mousePoint) < 30) {
-						pt.x = mousePoint.x;
-						pt.y = mousePoint.y;
-						((SplineAxis)axis).quintic();
-						controlPointMoved = true;
-						fDragging = true;
+				Point flatMousePt = mousePoint;
+				flatMousePt.z = 0;
+				for(int i = 0; i < ((SplineAxis)axis).controlPoints.size(); i++ ){
+					Point pt = ((SplineAxis)axis).controlPoints.get(i);
+					if(pt.distanceTo(flatMousePt) < 30) {
+						ptSelected = true;
+						ptSelectedPos = i;
 						break;
+					}
+				}
+				if(ptSelected) {
+					Point pt = ((SplineAxis)axis).controlPoints.get(ptSelectedPos);
+					pt.x = flatMousePt.x;
+					pt.y = flatMousePt.y;
+					((SplineAxis)axis).quintic();
+					controlPointMoved = true;
+					fDragging = true;
+					if (keyPressed && key=='z') {
+						((SplineAxis)axis).pickedControlPt = ptSelectedPos;
+						((SplineAxis)axis).movePicked(new Vector(0, 0, mouseY - pmouseY));
 					}
 				} 
 			}
@@ -261,6 +284,7 @@ public class MyApplet extends PApplet {
 		eyeX = width/2;
 		eyeY = height/2;
 		eyeZ = 500;
+		smoothShaded = false;
 
 	}
 	
@@ -630,7 +654,7 @@ public class MyApplet extends PApplet {
 		ns.add(n1);
 
 
-		if(mousePressed) {
+		if(smoothShaded) {
 			//get faces on l/r of this one
 			if(((i1+1) * l.points.size() + j1) < l.points.size()) {
 				Vector n2 = norms.get((i1+1) * l.points.size() + j1); 
