@@ -117,7 +117,7 @@ public class Vector{
 	}
 	
 	public Vector crossProd(Vector v) {
-		return new Vector(this.y*v.z - this.z*v.y, this.z*v.x - this.x*v.z, this.x*v.y - this.y*v.x);
+		return new Vector(this.y*v.z - this.z*v.y, (this.x*v.z - this.z*v.x)*-1, this.x*v.y - this.y*v.x);
 	}
 	
 	public double angleBetween(Vector v) {
@@ -175,13 +175,9 @@ public class Vector{
 		if (getClass() != obj.getClass())
 			return false;
 		Vector other = (Vector) obj;
-		if (Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x))
-			return false;
-		if (Double.doubleToLongBits(y) != Double.doubleToLongBits(other.y))
-			return false;
-		if (Double.doubleToLongBits(z) != Double.doubleToLongBits(other.z))
-			return false;
-		return true;
+		return (Math.abs(this.x - other.x) < .05 &&
+			Math.abs(this.y - other.y) < .05 &&
+			Math.abs(this.z - other.z) < .05);
 	}
 
 	@Override

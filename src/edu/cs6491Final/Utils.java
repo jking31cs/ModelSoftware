@@ -1,5 +1,7 @@
 package edu.cs6491Final;
-import java.nio.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class Utils {
 	public static double appHeight;
@@ -9,8 +11,6 @@ public final class Utils {
 	/**
 	 * Mirrors a point around an axis by rotating the vector formed from the origin to the point PI radians
 	 * @param p Point to mirror
-	 * @param origin local origin
-	 * @param axis axis to rotate around
 	 * @return new Point that is rotated around PI radians
 	 */
 	public static Point mirrored(Point p, Axis a) {
@@ -30,13 +30,6 @@ public final class Utils {
 	/**
 	 * Does a linear interpolation to form a new PolyLoop going from l1 to l2 while rotating around 
 	 * axis starting at origin.
-	 * 
-	 * TODO make this work with non-straight axis.
-	 * @param origin
-	 * @param axis
-	 * @param l1
-	 * @param l2
-	 * @param s
 	 * @return
 	 */
 	public static PolyLoop lerp(Axis a, PolyLoop l1, PolyLoop l2, double s) {
@@ -56,9 +49,6 @@ public final class Utils {
 	
 	/**
 	 * Morph's a polyloop based on the axis type, assumes initial axis is a straight line axis.
-	 * @param axis
-	 * @param polyloop
-	 * @return morphedPolyloop
 	 */
 	public static PolyLoop morphAboutAxis(Axis a, PolyLoop loop){
 		PolyLoop toRet = new PolyLoop();
@@ -139,34 +129,91 @@ public final class Utils {
 		return toRet;
 	}
 
-/*	public static Point pick(int mX, int mY)
-	{
-	  PGL pgl = beginPGL();
-	  FloatBuffer depthBuffer = ByteBuffer.allocateDirect(1 << 2).order(ByteOrder.nativeOrder()).asFloatBuffer();
-	  pgl.readPixels(mX, height - mY - 1, 1, 1, PGL.DEPTH_COMPONENT, PGL.FLOAT, depthBuffer);
-	  float depthValue = depthBuffer.get(0);
-	  depthBuffer.clear();
-	  endPGL();
-
-	  //get 3d matrices
-	  PGraphics3D p3d = (PGraphics3D)g;
-	  PMatrix3D proj = p3d.projection.get();
-	  PMatrix3D modelView = p3d.modelview.get();
-	  PMatrix3D modelViewProjInv = proj; modelViewProjInv.apply( modelView ); 
-	  modelViewProjInv.invert();
-	  
-	  float[] viewport = {0, 0, p3d.width, p3d.height};
-	  
-	  float[] normalized = new float[4];
-	  normalized[0] = ((mX - viewport[0]) / viewport[2]) * 2.0f - 1.0f;
-	  normalized[1] = ((height - mY - viewport[1]) / viewport[3]) * 2.0f - 1.0f;
-	  normalized[2] = depthValue * 2.0f - 1.0f;
-	  normalized[3] = 1.0f;
-	  
-	  float[] unprojected = new float[4];
-	  
-	  modelViewProjInv.mult( normalized, unprojected );
-	  return new Point( unprojected[0]/unprojected[3], unprojected[1]/unprojected[3], unprojected[2]/unprojected[3] );
+	public static CustomLine ballMorphInterpolation(SplineLine l1, SplineLine l2, double t) {
+		CustomLine l1_points = new CustomLine(){{this.addAll(l1.calculateQuinticSpline());}};
+		CustomLine l2_points = new CustomLine(){{this.addAll(l2.calculateQuinticSpline());}};
+		refinePoints(l2_points);
+		refinePoints(l2_points);
+		refinePoints(l2_points);
+		refinePoints(l2_points);
+		refinePoints(l2_points);
+		refinePoints(l2_points);
+		refinePoints(l2_points);
+		refinePoints(l2_points);
+		CustomLine line = new CustomLine();
+		for (int i = 0; i < l1_points.size()-1; i++) {
+			GeneratedPoint p = l1_points.get(i);
+			Vector normal_p = p.to(l1_points.get(i+1)).normalize().rotate(Math.PI / 2, new Vector(0, 0, 1));
+			for (int j = 0; j < l2_points.size()-1; j++) {
+				GeneratedPoint q = l2_points.get(j);
+				if (p.equals(q)) {
+					line.add(p);
+					break;
+				}
+				if (p.pointEquals(q)) {
+					line.add(new GeneratedPoint(p.r*(1-t)+q.r*t, p));
+					break;
+				}
+				Vector normal_q = q.to(l2_points.get(j+1)).normalize().rotate(3*Math.PI/2, new Vector(0,0,1));
+				Point m = intersectionBetweenLines(p, p.add(normal_p), q, q.add(normal_q));
+				if (Math.abs(p.distanceTo(m)-q.distanceTo(m)) < 1) {
+					BallMorphData d = new BallMorphData(p,q,m);
+					double r = d.getRadius(t);
+					line.add(new GeneratedPoint(r, d.pointAlongBezier(t)));
+					break;
+				}
+			}
+		}
+		return line;
 	}
-*/
+
+	public static Point intersectionBetweenLines(Point p1,Point p2,Point p3,Point p4) {
+		double xTop = ((p1.x*p2.y - p1.y*p2.x)*(p3.x-p4.x)) - ((p1.x - p2.x)*(p3.x*p4.y - p3.y*p4.x));
+		double xBot = ((p1.x - p2.x)*(p3.y-p4.y))-((p1.y-p2.y)*(p3.x-p4.x));
+		double yTop = ((p1.x*p2.y - p1.y*p2.x)*(p3.y-p4.y)) - ((p1.y - p2.y)*(p3.x*p4.y - p3.y*p4.x));
+		double yBot = ((p1.x - p2.x)*(p3.y-p4.y))-((p1.y-p2.y)*(p3.x-p4.x));
+
+		return new Point(xTop/xBot, yTop/yBot, 0);
+	}
+
+
+	public static void refinePoints(CustomLine l2) {
+		List<GeneratedPoint> newPoints = new ArrayList<>();
+		for (int i = 0; i < l2.size() - 1; i++) {
+			GeneratedPoint p1 = l2.get(i);
+			GeneratedPoint p2 = l2.get(i+1);
+			newPoints.add(new GeneratedPoint((p1.r+p2.r)/2, p1.add(p1.to(p2).mul(.5))));
+		}
+		int addIndex = 1;
+		for (GeneratedPoint p : newPoints) {
+			l2.add(addIndex, p);
+			addIndex +=2;
+		}
+	}
+
+	public static PolyLoop ballMorphLerp(Axis axis, SplineLine sl1, SplineLine sl2, double t) {
+		SplineLine unmirrored = new SplineLine();
+		for (SplineLine.ControlPoint cp : sl2.pts) {
+			Point pv = mirrored(cp, axis);
+			unmirrored.addPoint(pv, cp.r);
+		}
+		//Let's check equality here.
+		boolean equal = true;
+		for (int i = 0; i < sl1.pts.size(); i++) {
+			equal &= sl1.pts.get(i).equals(unmirrored.pts.get(i));
+		}
+		CustomLine ballMorph;
+		if (equal) {
+			ballMorph = new CustomLine();
+			ballMorph.addAll(sl1.calculateQuinticSpline());
+		} else {
+			ballMorph = ballMorphInterpolation(sl1, unmirrored,t);
+		}
+		CustomLine rot = new CustomLine();
+		for (GeneratedPoint p : ballMorph) {
+			Point newPoint = rotate(p, axis, Math.PI * t);
+			rot.add(new GeneratedPoint(p.r, newPoint));
+		}
+		return rot.getBoundingLoop();
+	}
 }

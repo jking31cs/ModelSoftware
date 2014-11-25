@@ -158,8 +158,8 @@ public class MyApplet extends PApplet {
 		double t = 0;
 		while (t <= increment/180d) {
 			//System.out.println(t);
-			PolyLoop lerped = Utils.lerp(axis, l1, l2, t);
-			morphLoops.add(lerped);
+			PolyLoop morphed = Utils.ballMorphLerp(axis, sl1, sl2, t);
+			morphLoops.add(morphed);
 			t += (1d/10);
 		}
 	}
@@ -177,6 +177,8 @@ public class MyApplet extends PApplet {
 			//l1.addPoint(point);
 			//l2.addPoint(Utils.mirrored(point, axis));
 		}
+		l1 = sl1.getBoundingLoop();
+		l2 = sl2.getBoundingLoop();
 	}
 	
 	public void mouseClicked(MouseEvent e) {
@@ -323,12 +325,12 @@ public class MyApplet extends PApplet {
 			strokeWeight(1);
 			stroke(0);
 			sl1.draw(this);
-			if (l1 != null) l1.draw(this);
+//			if (l1 != null) l1.draw(this);
 			
 			//if(l1 !=null) l1.draw(this);
 			stroke(255,0,0);
 			sl2.draw(this);
-			if (l2 != null) l2.draw(this);
+//			if (l2 != null) l2.draw(this);
 
 		} else {
 			calculateLoops();

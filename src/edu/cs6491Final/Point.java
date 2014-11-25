@@ -93,13 +93,9 @@ public class Point implements Drawable {
 		if (getClass() != obj.getClass())
 			return false;
 		Point other = (Point) obj;
-		if (Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x))
-			return false;
-		if (Double.doubleToLongBits(y) != Double.doubleToLongBits(other.y))
-			return false;
-		if (Double.doubleToLongBits(z) != Double.doubleToLongBits(other.z))
-			return false;
-		return true;
+		return Math.abs(x - other.x) < .001 &&
+			Math.abs(y - other.y) < .001 &&
+			Math.abs(z - other.z) < .001;
 	}
 
 	@Override
