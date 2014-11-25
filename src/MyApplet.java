@@ -321,6 +321,7 @@ public class MyApplet extends PApplet {
 
 			if (outputVolume) {
 				System.out.println("//////// TOTAL VOLUME = " + FindTotalVolume());
+				outputVolume = false;
 			}
 
 			pushMatrix();
