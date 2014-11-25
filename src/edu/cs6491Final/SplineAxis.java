@@ -61,7 +61,7 @@ public class SplineAxis extends Axis {
 		}
 
 		/*int offset = (int)newSpline.size()/2;
-		for (int m = 0; m < offset; m++){
+		for (int m = 0; m < offset/2; m++){
 			newSpline.remove(newSpline.size()-1);
 		}*/
 		splinePoints = newSpline;
@@ -90,12 +90,12 @@ public class SplineAxis extends Axis {
 		}
 		output.add(p2);
 
-		p1 = points.get(0);
+		/*p1 = points.get(0);
 		double _mx = (p1.x + p2.x)/2;
 		double _my = (p1.y + p2.y)/2;
 		double _mz = (p1.z + p2.z)/2;
 		Point _m = new Point(_mx, _my, _mz);
-		output.add(_m);		
+		output.add(_m);		*/
 
 		return output;
 	}
@@ -117,12 +117,12 @@ public class SplineAxis extends Axis {
 			output.add(m);
 		}
 
-		p1 = points.get(0);
+		/*p1 = points.get(0);
 		double _mx = (p1.x + p2.x)/2;
 		double _my = (p1.y + p2.y)/2;
 		double _mz = (p1.z + p2.z)/2;
 		Point _m = new Point(_mx, _my, _mz);
-		output.add(_m);
+		output.add(_m);*/
 
 		return output;
 	}
