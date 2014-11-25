@@ -62,6 +62,7 @@ public class MyApplet extends PApplet {
 	    }
 	    if (e.getKey() == 't') {
 	    	smoothShaded = !smoothShaded;
+	    	System.out.println("Smooth Shading = " + smoothShaded);
 	    }
 	    if(e.getKey() == 'l'){
 	    	debug++;
@@ -281,7 +282,6 @@ public class MyApplet extends PApplet {
 		eyeY = height/2;
 		eyeZ = 500;
 		smoothShaded = false;
-
 	}
 	
 	@Override
@@ -412,10 +412,6 @@ public class MyApplet extends PApplet {
 
 						if (wireframe) {
 							noFill();
-
-							Vector norm = FindNormal(i, j);
-							normal((float) norm.x, (float) norm.y, (float) norm.z);
-
 							// set stroke color to light blue when the next edge is a silhoette edge
 							beginShape(LINES);
 							if (IsSilhouette(i1, j1, i2, j2)) {
@@ -468,14 +464,30 @@ public class MyApplet extends PApplet {
 							noStroke();
 							fill(0,0,255);
 
-							Vector norm = FindNormal(i, j);
-							normal((float) norm.x, (float) norm.y, (float) norm.z);
-
 							beginShape();
-							vertex((float) p1.x, (float) p1.y, (float) p1.z);
-							vertex((float) p2.x, (float) p2.y, (float) p2.z);
-							vertex((float) p3.x, (float) p3.y, (float) p3.z);
-							vertex((float) p4.x, (float) p4.y, (float) p4.z);
+							if (smoothShaded) {
+								Vector norm = new Vector(0,0,0);
+								norm = FindNormal(i1, j1);
+								normal((float) norm.x, (float) norm.y, (float) norm.z);
+								vertex((float) p1.x, (float) p1.y, (float) p1.z);
+								
+								norm = FindNormal(i2, j2);
+								normal((float) norm.x, (float) norm.y, (float) norm.z);
+								vertex((float) p2.x, (float) p2.y, (float) p2.z);
+								
+								norm = FindNormal(i3, j3);
+								normal((float) norm.x, (float) norm.y, (float) norm.z);
+								vertex((float) p3.x, (float) p3.y, (float) p3.z);
+								
+								norm = FindNormal(i4, j4);
+								normal((float) norm.x, (float) norm.y, (float) norm.z);
+								vertex((float) p4.x, (float) p4.y, (float) p4.z);
+							} else { 
+								vertex((float) p1.x, (float) p1.y, (float) p1.z);
+								vertex((float) p2.x, (float) p2.y, (float) p2.z);
+								vertex((float) p3.x, (float) p3.y, (float) p3.z);
+								vertex((float) p4.x, (float) p4.y, (float) p4.z);
+							}
 							endShape(CLOSE);
 						}
 
@@ -645,14 +657,13 @@ public class MyApplet extends PApplet {
 		PolyLoop l = morphLoops.get(i1);
 
 		List<Vector> ns = new ArrayList<Vector>();
-		Vector n1 = norms.get(i1 * l.points.size() + j1);
+		//Vector n1 = norms.get(i1 * l.points.size() + j1);
 		//n1.draw(this, l.points.get(j1));
-		ns.add(n1);
 
 
-		if(smoothShaded) {
+		/*if(smoothShaded) {
 			//get faces on l/r of this one
-			if(((i1+1) * l.points.size() + j1) < l.points.size()) {
+			if(((i1+1) * l.points.size() + j1) < norms.size()) {
 				Vector n2 = norms.get((i1+1) * l.points.size() + j1); 
 				ns.add(n2);
 			}
@@ -677,11 +688,62 @@ public class MyApplet extends PApplet {
 				Vector n2 = norms.get(i1 * l.points.size() + j1-1); 
 				ns.add(n2);
 			}
+		}*/
+
+		if (i1 + j1 >= morphLoops.size()-1) {
+			int iPrev = i1-1;
+			if (i1 - 1 < 0) {
+				iPrev = i1;
+			}
+
+			int jPrev = j1-1;
+			if (j1 - 1 < 0) {
+				jPrev = l.points.size()-1;
+			}
+
+			// get bottom left face normal
+			int iBL = iPrev;
+			int jBL = j1;
+			Vector nBL = norms.get(iBL * l.points.size() + jBL);
+			// get top left face normal
+			int iTL = iPrev;
+			int jTL = jPrev;
+			Vector nTL = norms.get(iTL * l.points.size() + jTL);
+
+			ns.add(nBL.normalize());	ns.add(nTL.normalize());
+		} else {
+			int iPrev = i1-1;
+			if (i1 - 1 < 0) {
+				iPrev = i1;
+			}
+
+			int jPrev = j1-1;
+			if (j1 - 1 < 0) {
+				jPrev = l.points.size()-1;
+			}
+
+			// get bottom left face normal
+			int iBL = iPrev;
+			int jBL = j1;
+			Vector nBL = norms.get(iBL * l.points.size() + jBL);
+			// get bottom right face normal
+			int iBR = i1;
+			int jBR = j1;
+			Vector nBR = norms.get(iBR * l.points.size() + jBR);
+			// get top right face normal
+			int iTR = i1;
+			int jTR = jPrev;
+			Vector nTR = norms.get(iTR * l.points.size() + jTR);
+			// get top left face normal
+			int iTL = iPrev;
+			int jTL = jPrev;
+			Vector nTL = norms.get(iTL * l.points.size() + jTL);
+
+			ns.add(nBL.normalize());	ns.add(nBR.normalize());	ns.add(nTR.normalize());	ns.add(nTL.normalize());
 		}
-
-
-		Vector avgNorms = n1;
-		for(int k = 1; k < ns.size()-1; k++){
+		
+		Vector avgNorms = new Vector(0,0,0);
+		for(int k = 0; k < ns.size(); k++){
 			Vector addV = ns.get(k);
 			avgNorms = avgNorms.add(addV);
 		}
