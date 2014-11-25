@@ -350,8 +350,8 @@ public class MyApplet extends PApplet {
 
 			pushMatrix();
 			camera(eyeX, eyeY, eyeZ, width / 2, height / 2, 0, 0, 1, 0);
-			lights();  // turns on view-dependent lighting
-			//pointLight(255, 255, 255, width/2, height/2, 0);
+//			lights();  // turns on view-dependent lighting
+			pointLight(255, 255, 255, width/2, height/2, 0);
 			smooth();
 			axis.draw(this);
 			stroke(0);
